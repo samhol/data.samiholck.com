@@ -36,7 +36,7 @@ namespace Sphp\Http\Headers;
  */
 class ContentType extends GenericHeader {
 
-  public function __construct($value) {
+  public function __construct(string $value) {
     parent::__construct('Content-Type', $value);
   }
 

@@ -36,7 +36,7 @@ namespace Sphp\Http\Headers;
  */
 class AllowMethods extends GenericHeader {
   
-  public function __construct(string $value) {
-    parent::__construct('Access-Control-Allow-Methods', $value);
+  public function __construct(string... $alloved) {
+    parent::__construct('Access-Control-Allow-Methods', implode(', ', $alloved));
   }
 }

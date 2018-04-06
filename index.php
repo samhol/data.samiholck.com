@@ -12,7 +12,7 @@ use Sphp\Http\Headers\Headers;
 // required header
 $headers = new Headers();
 $headers->allowOrigin('*');
-$headers->allowMethods('POST, GET');
+$headers->allowMethods('POST', 'GET');
 $headers->contentType('application/json; charset=UTF-8');
 $headers->maxAge(1000);
 $headers->execute();
