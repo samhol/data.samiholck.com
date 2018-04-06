@@ -1,0 +1,151 @@
+/**
+ * _manual.scss (UTF-8)
+ *
+ * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ */
+
+@charset "UTF-8";
+
+$sphp6-topbar-bg: #121212; 
+$sphp6-topbar-menu-bg: smart-scale($sphp6-topbar-bg, 5%);
+$sphp6-topbar-link-hover-bg: smart-scale($sphp6-topbar-menu-bg, 5%);
+$sphp6-topbar-font-color: #efefef;
+$sphp6-topbar-link-font-color: smart-scale($sphp6-topbar-font-color, 5%);
+$sphp6-topbar-title-font-color: smart-scale($sphp6-topbar-font-color, 25%);//#8a8a8a;
+$sphp6-root-border-color: #333;
+
+$default-left-margin: rem-calc(35);
+$default-margins: ( top: rem-calc(5), right: rem-calc(25), bottom: rem-calc(15), left: rem-calc(35) );
+$error-bg: rgba(255,127,80, 0.40);
+
+@mixin default-margin($margin: all) { 
+  @if $margin == all or map-has-key($default-margins, $margin) {
+    @if $margin == all {
+      margin: map-get($default-margins, top) 
+        map-get($default-margins, right) 
+        map-get($default-margins, bottom) 
+        map-get($default-margins, left);
+    } else {
+      margin-#{$margin}: map-get($default-margins, $margin);
+    }
+  }
+
+  @else {
+    @warn "Unfortunately, no value could be retrieved from `#{$margin}`. "
+    + "Please make sure it is defined in `$default-margins` map.";
+  }
+}
+
+@import "api-stuff";
+@import "form-submission-viewer";
+@import "footer";
+//@import 'topbar';
+@import 'gettext-form';
+@import "forms"; 
+@import 'icon-examples';
+
+@import "logo-area"; 
+
+.sphp-sidenav {
+  margin-top: rem-calc(20);
+}
+.manual .mainContent {
+  border: solid 1px #888;
+  @include border-radius(4px);
+  //@include box-shadow(#888 3px 0px 8px 4px);
+  padding: rem-calc(0 10 0 10);// top right bottom left
+  margin: rem-calc(5 0 20 0); // top right bottom left
+  @include box-shadow(#888 0px 3px 8px 4px);
+  background: #eaeaea;
+  @include breakpoint(medium down) {  
+    margin: rem-calc(5 0 20 0);
+  }
+}
+.mainContent .container  { 
+
+  >.button-group, >.grid-x {
+    @include default-margin();
+  }
+  @import "example-accordion";
+  border-left: solid 1px #ccc;
+  border-right: solid 1px #ccc;
+  //@include border-radius(4px);
+  //@include box-shadow(#888 3px 0px 8px 4px);
+  //@include box-shadow(#888 0px 3px 8px 4px);
+  padding: rem-calc(0 3 40 3);// top right bottom left
+  //margin: rem-calc(5 0 20 0); // top right bottom left
+  background: #fafafa;
+  >.intro {
+    @include default-margin(left);
+    .callout{
+      @include box-shadow(#ddd 0px 2px 3px 2px);
+      border: solid 1px #ccc;
+      @include border-radius(4px);
+      h5, dt {
+        font-weight: bold;
+        border-bottom: dotted 1px #ccc;
+      }
+      p {
+        text-align: justify;
+      }
+    } 
+  }
+  @import "sphp-factory-tables"; 
+  //@import "breadcrumbs";
+  > p, > ul, > ol, > .sphp-single-accordion {
+    margin-left: rem-calc(5);
+    margin-right: rem-calc(5); 
+  }
+  > .button {
+    @include default-margin();
+  }
+
+  @import "callouts"; 
+  > p:not([class]), > blockquote:not([class]) {
+    @include default-margin();
+    //margin: rem-calc(5 25 15 35); // top right bottom left
+    text-align: justify;
+    padding: 0;
+  }
+  > ul:not([class]), > ul:not([class]) ul, > ol:not([class]) ul {
+    list-style-type: none;
+    li:before {
+      position: relative;
+      content: "\00BB \0020";
+      font-weight: bold;
+      margin-right: rem-calc(10); 
+      list-style-type: none;
+    }
+  }
+  > ul:not([class]), > ol:not([class]) { 
+    //margin: rem-calc(6 25 10 55);
+    @include default-margin();
+    list-style-position: inside;
+    ul, ol {
+      margin-left: rem-calc(15);
+      list-style-position: inside;
+    }
+  }
+  @import "headings"; 
+  @import "hyperlinks"; 
+
+  @import "technologies"; 
+  @import "grid-examples"; 
+
+  .plain.sphp-syntax-highlighter {
+    border: solid 1px #666;
+    @include border-radius(4px);
+    @include default-margin();
+    .syntax {
+      padding: rem-calc(10);  
+    }
+  }
+  > div.wrapper {
+    @include default-margin();
+  }
+  @import "carousels";
+}
+
+@import "body";
+@import "pagination";
+

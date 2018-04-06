@@ -1,0 +1,29 @@
+/**
+ * _sphp-back-to-top-button.scss (UTF-8)
+ *
+ * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ */
+
+@charset "UTF-8";
+
+div.sphp-back-to-top-button {
+  cursor: pointer;
+  position: fixed;
+  bottom: rem-calc(15);
+  right: rem-calc(45);
+  text-decoration: none;
+  padding: 0;
+  display: none;
+  font-size: rem-calc(80);
+  color: #555;
+  @include single-text-shadow(0, 0, 4px, 2px, #ff8000);
+  //@include text-shadow(#333 0px 0px 3px, rgba(#FF8000, 0.6) 2px 2px 1px, rgba(#FF8000, 0.2) -2px -2px 1px);
+  @include transition-property(all);
+  @include transition-duration(0.3s);
+  @include transition-timing-function(ease-in-out);
+  @include opacity(0.6);
+  &:hover {
+    @include opacity(0.75);
+    @include transform(rotate(360deg) scale(1.1, 1.1));
+  }
+}

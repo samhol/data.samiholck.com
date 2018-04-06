@@ -1,0 +1,58 @@
+$alert-callout-border-left-width: rem-calc(5);
+$alert-callout-border-padding: 1.3rem;
+$alert-callout-border-radius: 0.6rem;
+//@import '../../../vendor/zurb/foundation/sass/util/mixins';
+@mixin callout-colors($color: #333) { 
+  border-color: $color;
+  $scaled: smart-scale($color, 50%, 50%);
+  @include box-shadow(rgba(#bbb, 0.6) 0 0 25px, rgba(#ccc, 0.3) 0 0 3px 1px inset);
+  h1, h2, h3, h4, h5, h6, strong {
+    color: $color;
+  }
+  p {
+    //background-color: smart-scale($color, 50%, 50%);
+    //@include shadow(5);
+  }
+}
+
+>.callout {
+  padding: $alert-callout-border-padding;
+  border-left-width: $alert-callout-border-left-width;
+  border-left-color: $medium-gray;
+  strong {
+    color: $body-font-color;
+  }
+  //@include default-margin();
+  @include border-radius(4px);
+
+  h1, h2, h3, h4, h5, h6 {
+    border-bottom: 1px solid #888;
+    margin-bottom: rem-calc(8);
+  }
+  > p {
+    margin: rem-calc(3 10 3 10);
+  }
+  .close-button {
+    @include vertical-center;
+  }
+
+  &.primary {
+    @include callout-colors($primary-color);
+  }
+
+  &.secondary {
+    @include callout-colors($secondary-color);
+  }
+
+  &.alert {
+    @include callout-colors($alert-color);
+  }
+
+  &.success {
+    @include callout-colors($success-color);
+  }
+
+  &.warning {
+    @include callout-colors($warning-color);
+  }
+}

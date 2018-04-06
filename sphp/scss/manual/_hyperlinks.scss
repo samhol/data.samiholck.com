@@ -1,0 +1,8 @@
+p:not([class]), ol:not([class]), ul:not([class]), dl:not([class]) {
+  a:not([class]) {
+    text-decoration: underline;
+    &:hover {
+      text-decoration: none;
+    }
+  }
+} 

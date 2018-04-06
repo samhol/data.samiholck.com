@@ -1,0 +1,21 @@
+/**
+ * _grid-examples.scss (UTF-8)
+ *
+ * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ */
+
+.grid-example {
+  .grid-x {
+    border: solid 1px #aaa;
+    margin-bottom: 3px;
+  }
+  .cell {
+    text-align: center;
+    //border: solid 1px #aaa;
+    background: #eee;
+    line-height: 2;
+    &:nth-child(even) {
+      background-color: #ddd;
+    }
+  }
+}
