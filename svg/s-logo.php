@@ -2,7 +2,7 @@
 
 namespace Sphp\Stdlib;
 
-require_once(__DIR__.'/../settings.php');
+require_once('../sphp/settings.php');
 
 header('Content-type: image/svg+xml');
 
