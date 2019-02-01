@@ -6,6 +6,8 @@ require_once('../sphp/settings.php');
 
 header('Content-type: image/svg+xml');
 
+use Sphp\Validators\RangeValidator;
+
 //error_reporting(E_ALL);
 //ini_set("display_errors", 1);
 $colorOptions = [
@@ -22,7 +24,7 @@ $opacityOptions = [
         'regexp' => '/^([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?\b$/'
     ]
 ];
-$rangeValidator = new \Sphp\Validators\RangeValidator(0, 1, true);
+$rangeValidator = new RangeValidator(0, 1, true);
 $color = filter_input(INPUT_GET, 'color', FILTER_VALIDATE_REGEXP, $colorOptions);
 $opacity = filter_input(INPUT_GET, 'opacity', FILTER_VALIDATE_FLOAT);
 $rangeValidator->isValid($opacity);
