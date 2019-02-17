@@ -2,12 +2,12 @@
 
 namespace Sphp\Stdlib;
 
-require_once('../sphp/settings.php');
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+require_once('/home/int48291/public_html/playground/manual/settings.php');
+use Sphp\Validators\RangeValidator;
+//header('Content-type: image/svg+xml');
 
-header('Content-type: image/svg+xml');
-
-//error_reporting(E_ALL);
-//ini_set("display_errors", 1);
 $colorOptions = [
     'options' =>
     [
@@ -22,12 +22,14 @@ $opacityOptions = [
         'regexp' => '/^([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?\b$/'
     ]
 ];
-$rangeValidator = new \Sphp\Validators\RangeValidator(0, 1, true);
+$rangeValidator = new RangeValidator(0, 1, true);
 $color = filter_input(INPUT_GET, 'color', FILTER_VALIDATE_REGEXP, $colorOptions);
 $opacity = filter_input(INPUT_GET, 'opacity', FILTER_VALIDATE_FLOAT);
 $name = filter_input(INPUT_GET, 'name', FILTER_SANITIZE_STRING);
+var_dump($name);
 if ($name === null) {
-  
+  $name = 'skull';
+  echo 'AEHBRTEHRB';
 }
 $rangeValidator->isValid($opacity);
 if ($rangeValidator->isValid($opacity)) {
