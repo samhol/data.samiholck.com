@@ -1,33 +1,37 @@
 <?php
 
 /**
- * InputGroup.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Forms\Inputs;
 
 use Sphp\Html\AbstractComponent;
-use Sphp\Html\Forms\Inputs\TextualInputInterface;
-use Sphp\Html\Forms\Inputs\NumberInput;
+use Sphp\Html\Forms\Inputs\Input;
+use Sphp\Html\Forms\Inputs\TextualInput;
+use Sphp\Html\Component;
+use Sphp\Html\CssClassifiableContent;
 use Sphp\Html\Span;
-use Sphp\Html\Container;
+use Sphp\Html\PlainContainer;
 use IteratorAggregate;
 use Sphp\Html\TraversableContent;
 use Traversable;
 use Sphp\Html\Forms\Buttons\ButtonInterface;
-use Sphp\Html\Forms\Inputs\Factory;
+use Sphp\Html\Forms\Inputs\FormControls;
 use Sphp\Exceptions\InvalidArgumentException;
-use Sphp\Html\ComponentInterface;
-use Sphp\Html\Forms\Inputs\Buttons\Submitter;
-use Sphp\Html\Forms\Inputs\Buttons\Resetter;
+use Sphp\Html\Forms\Buttons\Submitter;
+use Sphp\Html\Forms\Buttons\Resetter;
 
 /**
  * Class InputGroup
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class InputGroup extends AbstractComponent implements IteratorAggregate, TraversableContent {
@@ -35,27 +39,32 @@ class InputGroup extends AbstractComponent implements IteratorAggregate, Travers
   use \Sphp\Html\TraversableTrait;
 
   /**
-   * @var Container 
+   * @var PlainContainer 
    */
   private $group;
 
   /**
-   * Constructs a new instance
+   * Constructor
    */
   public function __construct() {
     parent::__construct('div');
-    $this->cssClasses()->protect("input-group");
-    $this->group = new Container;
+    $this->cssClasses()->protectValue('input-group');
+    $this->group = new PlainContainer;
+  }
+
+  public function __destruct() {
+    unset($this->group);
+    parent::__destruct();
   }
 
   /**
    * Appends a span label to the group
    *
    * @param  mixed $content the content of the prefix
-   * @return ComponentInterface appended instance
+   * @return Component appended instance
    */
-  public function prepend($content): ComponentInterface {
-    if ($content instanceof TextualInputInterface || $content instanceof NumberInput) {
+  public function prepend($content): Component {
+    if ($content instanceof Input && $content instanceof CssClassifiableContent) {
       $content->addCssClass('input-group-field');
       $this->group->prepend($content);
     } else if (is_string($content) || $content instanceof Span) {
@@ -76,18 +85,16 @@ class InputGroup extends AbstractComponent implements IteratorAggregate, Travers
    * Appends a span label to the group
    *
    * @param  mixed $content the content of the prefix
-   * @return ComponentInterface appended instance
+   * @return Component appended instance
    */
-  public function append($content): ComponentInterface {
-    if ($content instanceof TextualInputInterface || $content instanceof NumberInput) {
+  public function append(Component $content) {
+    if ($content instanceof Input && $content instanceof CssClassifiableContent) {
       $content->addCssClass('input-group-field');
       $this->group->append($content);
-    } else if (is_string($content) || $content instanceof Span) {
+    } else if (is_string($content)) {
       $this->appendLabel($content);
-    } else if ($content instanceof ButtonInterface) {
-      $this->group->append($content);
     } else {
-      throw new InvalidArgumentException("Content appended to inputgroup is invalid type");
+      $this->group->append($content);
     }
     return $content;
   }
@@ -113,56 +120,61 @@ class InputGroup extends AbstractComponent implements IteratorAggregate, Travers
    * @param  string $type
    * @param  string $name
    * @param  scalar $value
-   * @return TextualInputInterface appended instance
+   * @return TextualInput appended instance
    */
-  public function appendInput(string $type, string $name = null, $value = null): TextualInputInterface {
-    $input = Factory::$type($name, $value);
+  public function appendInput(string $type, string $name = null, $value = null): TextualInput {
+    $input = FormControls::$type($name, $value);
     $input->addCssClass('input-group-field');
     $this->group->append($input);
     return $input;
   }
 
+  public function appendButton(Component $button): Component {
+    $button->addCssClass('button');
+    $this->group->append($button);
+    return $button;
+  }
+
   /**
    * Appends a submitter to the group
    *
-   * @param  string|null $value the value of value attribute
+   * @param  mixed $content the visual content of the button
    * @param  string|null $name the value of name attribute
    * @return Submitter appended instance
    */
-  public function appendSubmitter(string $value = null, string $name = null): Submitter {
-    $submitter = new Submitter($value, $name);
-    $this->group->append($submitter);
+  public function appendSubmitter($content = 'submit', string $name = null): Submitter {
+    $submitter = new Submitter($content, $name);
+    $this->appendButton($submitter);
     return $submitter;
   }
 
   /**
    * Appends a submitter to the group
    *
-   * @param  string|null $value the value of value attribute
-   * @param  string|null $name the value of name attribute
+   * @param  mixed $content the visual content of the button
    * @return Resetter appended instance
    */
-  public function appendResetter(string $value = null): Resetter {
-    $submitter = new Resetter($value);
-    $this->group->append($submitter);
+  public function appendResetter($content = 'reset'): Resetter {
+    $submitter = new Resetter($content);
+    $this->group->appendButton($submitter);
     return $submitter;
   }
 
   public function contentToString(): string {
     $output = '';
-    foreach ($this as $component) {
-      if ($component instanceof ButtonInterface) {
-        $component->addCssClass('button');
-        $output .= '<div class="input-group-button">' . $component . '</div>';
+    foreach ($this->group as $component) {
+      if ($component instanceof Component && $component->hasCssClass('button')) {
+        //echo "button:" . get_class($component);
+        if ($component instanceof \Sphp\Html\Foundation\Sites\Containers\Dropdown) {
+          $output .= '<div class="input-group-button">' . $component->getTrigger() . '</div>' . $component->getDropdown();
+        } else {
+          $output .= '<div class="input-group-button">' . $component . '</div>';
+        }
       } else {
         $output .= $component;
       }
     }
     return $output;
-  }
-
-  public function count(): int {
-    return $this->group->count();
   }
 
   public function getIterator(): Traversable {

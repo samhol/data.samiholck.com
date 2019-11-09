@@ -1,27 +1,29 @@
 <?php
 
 /**
- * Slider.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs\Ion;
 
-use Sphp\Html\Exceptions\InvalidStateException;
+use Sphp\Exceptions\InvalidStateException;
 
 /**
  * Implements a jQuery based range slider with skin support
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://ionden.com/a/plugins/ion.rangeSlider/en.html ion slider
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Slider extends AbstractSlider {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $name name attribute
    * @param  int $start the start value of the slider
@@ -45,8 +47,8 @@ class Slider extends AbstractSlider {
     if ($this->getMin() > $value || $value > $this->getMax()) {
       throw new InvalidStateException("The value ($value) of the slider is not between ({$this->getMin()}-{$this->getMax()})");
     }
-    $this->attributes()->set('data-from', $value);
-    parent::setSubmitValue($value);
+    $this->attributes()->setAttribute('data-from', $value);
+    parent::setInitialValue($value);
     return $this;
   }
 

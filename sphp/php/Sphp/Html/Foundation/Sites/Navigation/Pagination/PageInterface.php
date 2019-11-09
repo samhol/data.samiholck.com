@@ -1,15 +1,18 @@
 <?php
 
 /**
- * PageInterface.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Navigation\Pagination;
 
-use Sphp\Html\ComponentInterface;
-use Sphp\Html\Navigation\HyperlinkInterface;
-use Sphp\Html\Lists\LiInterface;
+use Sphp\Html\Component;
+use Sphp\Html\Navigation\Hyperlink;
+use Sphp\Html\Lists\StandardListItem;
 
 /**
  * Defines a page button for a Pagination component
@@ -17,18 +20,10 @@ use Sphp\Html\Lists\LiInterface;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/pagination.html Foundation Pagination
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-interface PageInterface extends ComponentInterface, HyperlinkInterface, LiInterface {
-  
-  /**
-   * Sets the content of the component
-   * 
-   * @param  mixed $content the content of the component
-   * @return $this for a fluent interface
-   */
-  public function setContent($content);
+interface PageInterface extends Component, Hyperlink, StandardListItem {
 
   /**
    * Sets or unsets the hyperlink component as active
@@ -43,8 +38,8 @@ interface PageInterface extends ComponentInterface, HyperlinkInterface, LiInterf
    * 
    * @return boolean true if the hyperlink component is set as active, otherwise false
    */
-  public function isCurrent(): bool ;
-  
+  public function isCurrent(): bool;
+
   /**
    * Disables the pagination component
    * 
@@ -58,7 +53,7 @@ interface PageInterface extends ComponentInterface, HyperlinkInterface, LiInterf
   /**
    * Checks whether the pagination component is enabled or not
    * 
-   * @param  boolean true if the component is enabled, otherwise false
+   * @return boolean true if the component is enabled, otherwise false
    */
   public function isEnabled(): bool;
 }

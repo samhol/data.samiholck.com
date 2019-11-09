@@ -1,8 +1,11 @@
 <?php
 
 /**
- * SequentialParameterHandler.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database\Parameters;
@@ -10,19 +13,19 @@ namespace Sphp\Database\Parameters;
 use ArrayAccess;
 use PDO;
 use Traversable;
-use Sphp\Database\Exceptions\InvalidArgumentException;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Sequential parameter handler
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class SequentialParameterHandler extends AbstractParameterHandler implements ArrayAccess {
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param mixed $params
    */

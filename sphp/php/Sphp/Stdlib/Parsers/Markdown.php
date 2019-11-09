@@ -1,59 +1,42 @@
 <?php
 
 /**
- * Markdown.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Parsers;
 
-use Exception;
-use Sphp\Exceptions\RuntimeException;
+use Sphp\Exceptions\FileSystemException;
 use ParsedownExtraPlugin;
+use Sphp\Stdlib\Filesystem;
 
 /**
- * Implements a Markdown reader
+ * Implements a Markdown converter
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Markdown extends AbstractReader {
+class Markdown implements StringConverter {
 
-  public function fromString(string $string) {
-    return $this->parseBlock($string);
-  }
-
-  /**
-   * Parses both block-level and inline elements
-   * 
-   * @param  string $string
-   * @return string parsed HTML string
-   * @throws RuntimeException if parsing fails
-   */
-  public function parseBlock(string $string): string {
-    try {
-      $data = ParsedownExtraPlugin::instance()->text($string);
-    } catch (Exception $ex) {
-      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
-    }
-    return $data;
-  }
-
-  /**
-   * Parses inline elements only 
-   * 
-   * @param  string $string input string
-   * @return string parsed HTML string
-   * @throws RuntimeException if parsing fails
-   */
-  public function parseInline(string $string): string {
-    try {
+  public function parseString(string $string, bool $inlineOnly = false): string {
+    if ($inlineOnly) {
       $data = ParsedownExtraPlugin::instance()->line($string);
-    } catch (Exception $ex) {
-      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
+    } else {
+      $data = ParsedownExtraPlugin::instance()->text($string);
     }
     return $data;
+  }
+
+  public function parseFile(string $filename, bool $inlineOnly = false): string {
+    if (!Filesystem::isFile($filename)) {
+      throw new FileSystemException(sprintf("File '%s' doesn't exist or is not readable", $filename));
+    }
+    return $this->parseString(Filesystem::toString($filename), $inlineOnly);
   }
 
 }

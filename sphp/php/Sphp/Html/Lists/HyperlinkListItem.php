@@ -1,26 +1,30 @@
 <?php
 
 /**
- * HyperlinkListItem.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Lists;
 
 use Sphp\Html\Navigation\HyperlinkContainer;
-use Sphp\Html\Navigation\Hyperlink;
+use Sphp\Html\Navigation\A;
 
 /**
  * Implements a hyperlink type menu item
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class HyperlinkListItem extends HyperlinkContainer implements LiInterface {
+class HyperlinkListItem extends HyperlinkContainer implements StandardListItem {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Notes:**
    *
@@ -35,7 +39,7 @@ class HyperlinkListItem extends HyperlinkContainer implements LiInterface {
    * @link   http://www.w3schools.com/tags/att_a_target.asp target attribute
    */
   public function __construct(string $href = null, $content = null, string $target = null) {
-    parent::__construct('li', new Hyperlink($href, $content, $target));
+    parent::__construct('li', new A($href, $content, $target));
   }
 
 }

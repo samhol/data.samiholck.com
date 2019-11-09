@@ -1,38 +1,42 @@
 <?php
 
 /**
- * MenuFactory.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs\Menus;
 
-use Sphp\I18n\Calendar;
-use Sphp\Stdlib\Arrays;
+use Sphp\I18n\Datetime\CalendarUtils;
 
 /**
- * Factory for generating {@link Select} components for specified tasks
+ * Factory for generating &lt;select&gt; menus
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class MenuFactory {
 
   /**
-   * Returns a new {@link Select} containing {@link Option} 
-   * components having their content as value
+   * Returns a new menu
    *
    * @param  string[] $content the contents of the menu
    * @param  string $name the value of the name attribute
    * @return Select component containing months
    */
   public static function getContentAsValueMenu(array $content, string $name = null): Select {
-    return new Select($name, Arrays::valuesToKeys($content));
+    if (count($content) > 0) {
+      $content = array_combine($content, $content);
+    }
+    return Select::from($name, $content);
   }
 
   /**
-   * Returns a new {@link Select} component containing a range
+   * Returns a new menu containing a range
    *
    * @param  mixed $from the lower limit
    * @param  mixed $to the upper limit
@@ -42,7 +46,22 @@ class MenuFactory {
    */
   public static function rangeMenu($from, $to, $step = 1, $name = null): Select {
     $range = range($from, $to, $step);
-    return new Select($name, array_combine($range, $range));
+    return Select::from($name, array_combine($range, $range));
+  }
+
+  /**
+   * Creates a new instance of a menu containing months
+   * 
+   * @param  string $name
+   * @param  CalendarUtils $calendar 
+   * @return Select new instance containing months
+   */
+  public static function months(string $name = null, CalendarUtils $calendar = null): Select {
+    if ($calendar === null) {
+      $calendar = new CalendarUtils();
+    }
+    $menu = Select::from($name, $calendar->getMonths());
+    return $menu;
   }
 
 }

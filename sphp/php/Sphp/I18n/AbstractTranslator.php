@@ -1,21 +1,24 @@
 <?php
 
 /**
- * AbstractTranslator.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\I18n;
 
 use Sphp\Config\Locale;
-use Sphp\Validators\StringFormatValidator;
+use Sphp\Config\ErrorHandling\ErrorToExceptionThrower;
 use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Abstract implementation for natural language translator
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 abstract class AbstractTranslator implements TranslatorInterface {
@@ -27,10 +30,7 @@ abstract class AbstractTranslator implements TranslatorInterface {
    */
   private $lang;
 
-  public function getLang(): string {
-    if ($this->lang === null) {
-      return Locale::getMessageLocale();
-    }
+  public function getLang(): ?string {
     return $this->lang;
   }
 
@@ -66,17 +66,17 @@ abstract class AbstractTranslator implements TranslatorInterface {
    * @param  array $args
    * @param  bool $translateArgs
    * @return string
-   * @throws \InvalidArgumentException if invalid number of arguments is presented
+   * @throws InvalidArgumentException if invalid number of arguments is presented
    */
   protected function format(string $message, array $args = null, bool $translateArgs = false): string {
     if (!empty($args)) {
-      if (!StringFormatValidator::validate($message, $args)) {
-        throw new InvalidArgumentException('Invalid number of arguments presented');
-      }
+      $thrower = ErrorToExceptionThrower::getInstance(InvalidArgumentException::class);
+      $thrower->start();
       if ($translateArgs) {
         $args = $this->get($args);
       }
       $message = vsprintf($message, $args);
+      $thrower->stop();
     }
     return $message;
   }

@@ -1,24 +1,27 @@
 <?php
 
 /**
- * IdAttribute.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
-
 
 /**
  * Implements a unique id for an HTML element
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class IdAttribute extends PatternAttribute {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $name the name of the attribute
    * @param scalar $value
@@ -26,7 +29,15 @@ class IdAttribute extends PatternAttribute {
   public function __construct(string $name = 'id', $value = null) {
     parent::__construct($name, '/^[^\s]+$/');
     if ($value !== null) {
-      $this->set($value);
+      $this->setValue($value);
+    }
+  }
+
+  public function __toString(): string {
+    if ($this->getValue() == '') {
+      return '';
+    } else {
+      return parent::__toString();
     }
   }
 
@@ -42,20 +53,12 @@ class IdAttribute extends PatternAttribute {
    * @link   http://www.w3schools.com/tags/att_global_id.asp default id attribute
    */
   public function identify(int $length = 16): string {
-    if (!$this->isProtected()) {
+    if ($this->isEmpty()) {
       $storage = IdStorage::get($this->getName());
       $value = $storage->generateRandom($length);
-      $this->protect($value);
+      $this->setValue($value);
     }
     return $this->getValue();
-  }
-
-  public function getHtml(): string {
-    if ($this->getValue() == '') {
-      return '';
-    } else {
-      return parent::getHtml();
-    }
   }
 
 }

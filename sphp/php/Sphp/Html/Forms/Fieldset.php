@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Fieldset.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms;
@@ -17,7 +20,7 @@ use Sphp\Html\ContainerTag;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_fieldset.asp w3schools HTML API
  * @link    http://www.w3.org/html/wg/drafts/html/master/forms.html#the-fieldset-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Fieldset extends ContainerTag implements FormController {
@@ -30,7 +33,7 @@ class Fieldset extends ContainerTag implements FormController {
   private $legend;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|Legend $legend the legend of the fieldset component
    * @param  mixed $content the content of the component
@@ -67,12 +70,12 @@ class Fieldset extends ContainerTag implements FormController {
   }
 
   public function disable(bool $disabled = true) {
-    $this->attributes()->setBoolean('disabled', $disabled);
+    $this->attributes()->disabled = $disabled;
     return $this;
   }
 
   public function isEnabled(): bool {
-    return !$this->attributes()->exists('disabled');
+    return !$this->attributes()->isVisible('disabled');
   }
 
   public function contentToString(): string {

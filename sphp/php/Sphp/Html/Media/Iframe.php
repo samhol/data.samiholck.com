@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Iframe.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media;
@@ -10,27 +13,28 @@ namespace Sphp\Html\Media;
 use Sphp\Html\EmptyTag;
 
 /**
- * Implements an HTML &lt;iframe&gt; tag (an inline frame).
+ * Implements an HTML &lt;iframe&gt; tag (an inline frame)
  *
  * This component represents a nested browsing context.
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_iframe.asp w3schools HTML API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-iframe-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Iframe extends EmptyTag implements Embeddable, LazyMedia, SizeableMedia {
 
   use LazyMediaSourceTrait,
-      SizeableTrait;
+      SizeableMediaTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $src the address of the document to embed in the object
-   * @param  string $name the value of the name attribute
-   * @link   http://www.w3schools.com/TAGS/att_iframe_src.asp src attribute
+   * @param  string $name the name for the component
+   * @link   http://www.w3schools.com/tags/att_iframe_src.asp src attribute
+   * @link   http://www.w3schools.com/tags/att_iframe_name.asp name attribute
    */
   public function __construct(string $src = null, string $name = null) {
     parent::__construct('iframe', true);
@@ -50,7 +54,7 @@ class Iframe extends EmptyTag implements Embeddable, LazyMedia, SizeableMedia {
    * @link   http://www.w3schools.com/tags/att_iframe_name.asp name attribute
    */
   public function setName(string $name) {
-    $this->attributes()->set('name', $name);
+    $this->attributes()->setAttribute('name', $name);
     return $this;
   }
 
@@ -60,8 +64,8 @@ class Iframe extends EmptyTag implements Embeddable, LazyMedia, SizeableMedia {
    * @return string name attribute
    * @link   http://www.w3schools.com/tags/att_iframe_name.asp name attribute
    */
-  public function getName() {
-    return $this->attributes()->getValue('name');
+  public function getName(): string {
+    return (string) $this->attributes()->getValue('name');
   }
 
   /**
@@ -129,20 +133,8 @@ class Iframe extends EmptyTag implements Embeddable, LazyMedia, SizeableMedia {
    * @return string the value of the sandbox attribute
    * @link   http://www.w3schools.com/TAGS/att_iframe_sandbox.asp sandbox attribute
    */
-  public function getSandbox() {
-    return $this->getAttribute('sandbox');
-  }
-
-  /**
-   * Sets the title of the iframe
-   *
-   * @param  string $title the title of the iframe
-   * @return $this for a fluent interface
-   * @link   https://www.w3schools.com/tags/att_global_title.asp title attribute
-   */
-  public function setTitle(string $title = null) {
-    $this->attributes()->set('title', $title);
-    return $this;
+  public function getSandbox(): string {
+    return (string) $this->getAttribute('sandbox');
   }
 
 }

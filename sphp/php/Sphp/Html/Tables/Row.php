@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Row.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Tables;
@@ -15,7 +18,7 @@ use Sphp\Html\TraversableContent;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_tr.asp w3schools API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-tr-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface Row extends TableContent, TraversableContent {
@@ -82,4 +85,14 @@ interface Row extends TableContent, TraversableContent {
    * @return Cell prepended table cell component
    */
   public function prepend(Cell $cell);
+
+  /**
+   * Returns the cell at given position
+   * 
+   * **Important:** Cells are numbered sequentially starting from 0
+   * 
+   * @param  int $position
+   * @return Row the row at given position
+   */
+  public function getCell(int $position): ?Cell;
 }

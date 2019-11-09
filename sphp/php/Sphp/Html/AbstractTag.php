@@ -1,27 +1,30 @@
 <?php
 
 /**
- * AbstractTag.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
 
 use Sphp\Html\Attributes\HtmlAttributeManager;
 use Sphp\Stdlib\Strings;
+use Sphp\Html\Attributes\ClassAttribute;
+use Sphp\Html\Attributes\PropertyCollectionAttribute;
 use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Abstract Class is the base class for all HTML tag implementations
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-abstract class AbstractTag implements TagInterface {
-
-  use ContentTrait,
-      ComponentTrait;
+abstract class AbstractTag extends AbstractContent implements Tag {
 
   /**
    * the tag name of the component
@@ -36,10 +39,11 @@ abstract class AbstractTag implements TagInterface {
    * @var HtmlAttributeManager
    */
   private $attrs;
+
   //private static $c = 0;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $tagName the tag name of the component
    * @param  HtmlAttributeManager|null $attrManager the attribute manager of the component
@@ -53,15 +57,12 @@ abstract class AbstractTag implements TagInterface {
     if ($attrManager !== null) {
       $this->attrs = $attrManager;
     }
-   // self::$c++;
-   // echo "tag:" .self::$c."\n";
+    // self::$c++;
+    // echo "tag:" .self::$c."\n";
   }
 
   /**
-   * Destroys the instance
-   *
-   * The destructor method will be called as soon as there are no other references
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->attrs);
@@ -90,13 +91,57 @@ abstract class AbstractTag implements TagInterface {
     }
     return $this->attrs;
   }
-  
-  public function attributesToString(): string  {
+
+  public function identify(int $length = 16): string {
+    return $this->attributes()->identify($length);
+  }
+
+  public function cssClasses(): ClassAttribute {
+    return $this->attributes()->classes();
+  }
+
+  public function inlineStyles(): PropertyCollectionAttribute {
+    return $this->attributes()->styles();
+  }
+
+  public function setAttribute(string $name, $value = true) {
+    $this->attributes()->setAttribute($name, $value);
+    return $this;
+  }
+
+  public function removeAttribute(string $name) {
+    $this->attributes()->remove($name);
+    return $this;
+  }
+
+  public function getAttribute(string $name) {
+    return $this->attributes()->getValue($name);
+  }
+
+  public function attributeExists(string $name): bool {
+    return $this->attributes()->isVisible($name);
+  }
+
+  protected function attributesToString(): string {
     $output = '';
-     if ($this->attrs !== null && $this->attrs->containsAttributes()) {
+    if ($this->attrs !== null && $this->attrs->containsAttributes()) {
       $output = " $this->attrs";
     }
     return $output;
+  }
+
+  public function addCssClass(...$cssClasses) {
+    $this->cssClasses()->add($cssClasses);
+    return $this;
+  }
+
+  public function removeCssClass(...$cssClasses) {
+    $this->cssClasses()->remove($cssClasses);
+    return $this;
+  }
+
+  public function hasCssClass(...$cssClasses): bool {
+    return $this->cssClasses()->contains($cssClasses);
   }
 
 }

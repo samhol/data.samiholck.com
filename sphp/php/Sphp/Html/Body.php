@@ -1,13 +1,16 @@
 <?php
 
 /**
- * Body.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
 
-use Sphp\Html\Programming\ScriptsContainer;
+use Sphp\Html\Scripts\ScriptsContainer;
 
 /**
  * Implements an HTML &lt;body&gt; tag
@@ -16,12 +19,13 @@ use Sphp\Html\Programming\ScriptsContainer;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_body.asp w3schools API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class Body extends ContainerTag implements ContentParser {
 
-  use ContentParsingTrait;
+  use ContentParserTrait;
 
   /**
    * @var ScriptsContainer 
@@ -29,7 +33,7 @@ class Body extends ContainerTag implements ContentParser {
   private $scripts;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Important!**
    *
@@ -63,7 +67,7 @@ class Body extends ContainerTag implements ContentParser {
    * 
    * @return string the script tags and the closing tag
    */
-  public function close() {
+  public function close(): string {
     return $this->scripts . $this->getClosingTag();
   }
 

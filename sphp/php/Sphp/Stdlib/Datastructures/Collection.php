@@ -1,21 +1,23 @@
 <?php
 
 /**
- * Collection.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Datastructures;
 
 use Iterator;
 use Sphp\Stdlib\Arrays;
-use UnderflowException;
 
 /**
  * Implements a general purpose collection data structure
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Collection implements Iterator, CollectionInterface {
@@ -25,22 +27,22 @@ class Collection implements Iterator, CollectionInterface {
    *
    * @var array
    */
-  private $items = [];
+  private $items;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param array $items optional inital values stored
+   * @param iterable $items optional initial values stored
    */
-  public function __construct(array $items = []) {
-    $this->items = $items;
+  public function __construct(iterable $items = null) {
+    $this->items = [];
+    if ($items !== null) {
+      $this->merge($items);
+    }
   }
 
   /**
-   * Destroys the instance
-   *
-   * The destructor method will be called as soon as there are no other references
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->items);
@@ -87,30 +89,34 @@ class Collection implements Iterator, CollectionInterface {
    *
    * @param  mixed $offset the offset key
    * @param  mixed $value the value to set
-   * @return $this for a fluent interface
+   * @return void
    */
-  public function offsetSet($offset, $value) {
+  public function offsetSet($offset, $value): void {
     if (is_null($offset)) {
       $this->items[] = $value;
     } else {
       $this->items[$offset] = $value;
     }
-    return $this;
   }
 
   /**
    * Unset the item at a given offset
    *
    * @param  mixed $offset the offset key
-   * @return $this for a fluent interface
+   * @return void
    */
-  public function offsetUnset($offset) {
+  public function offsetUnset($offset): void {
     unset($this->items[$offset]);
-    return $this;
   }
 
+  /**
+   * Appends a value to the collection
+   * 
+   * @param  mixed $value
+   * @return $this for a fluent interface
+   */
   public function append($value) {
-    $this->items[] = $value;
+    array_push($this->items, $value);
     return $this;
   }
 
@@ -126,54 +132,33 @@ class Collection implements Iterator, CollectionInterface {
   /**
    * Gets the items in the collection that are not present in the given items
    *
-   * @param  mixed $items items to compare against
-   * @return self new instance containing the items that are not present in the given items
+   * @param  iterable $items items to compare against
+   * @return Collection new instance containing the items that are not present in the given items
    */
-  public function diff($items) {
-    return new static(array_diff($this->items, $this->getArrayableItems($items)));
+  public function diff(iterable $items): Collection {
+    if (!is_array($items)) {
+      $result = array_diff($this->items, iterator_to_array($items));
+    } else {
+      $result = array_diff($this->items, $items);
+    }
+    return new static($result);
   }
 
   /**
    * Merge the collection with the given items
    *
-   * @param  mixed $items
+   * @param  iterable $items
    * @return $this for a fluent interface
    */
-  public function merge($items) {
-    $this->items = array_merge($this->items, $this->getArrayableItems($items));
+  public function merge(iterable $items) {
+    foreach ($items as $key => $value) {
+      $this->items[$key] = $value;
+    }
     return $this;
   }
 
   /**
-   * Set the internal pointer of the collection to its last item, and returns its value
-   *
-   * @return mixed the value of the last item or null for empty collection
-   */
-  public function end() {
-    $value = end($this->items);
-    if ($value === false && $this->isEmpty()) {
-      $value = null;
-    }
-    return $value;
-  }
-
-  /**
-   * Results array of items from Collection or Arrayable
-   *
-   * @param  mixed $items
-   * @return array
-   */
-  protected function getArrayableItems($items): array {
-    if ($items instanceof Arrayable) {
-      $items = $items->toArray();
-    } else if ($items instanceof Jsonable) {
-      $items = json_decode($items->toJson(), true);
-    }
-    return (array) $items;
-  }
-
-  /**
-   * Clears all stored properties
+   * Clears the collection
    *
    * @return $this for a fluent interface
    */
@@ -191,7 +176,7 @@ class Collection implements Iterator, CollectionInterface {
    * @param  int $flag flag determining what arguments are sent to callback
    * @return self new filtered collection
    */
-  public function filter(callable $callback = null, $flag = 0) {
+  public function filter(callable $callback = null, int $flag = 0): Collection {
     return new static(array_filter($this->items, $callback, $flag));
   }
 
@@ -199,24 +184,35 @@ class Collection implements Iterator, CollectionInterface {
    * Execute a callback over each item
    *
    * @param  callable $callback
-   * @return self new collection containing all the original elements after
+   * @return Collection new collection containing all the original elements after
    *         applying the callback to each one
    */
-  public function map(callable $callback) {
+  public function map(callable $callback): Collection {
     $keys = array_keys($this->items);
     $items = array_map($callback, $this->items, $keys);
     return new static(array_combine($keys, $items));
   }
 
+  /**
+   * Checks if the given value exists in the collection
+   * 
+   * @param  mixed $value the value to search
+   * @return boolean `true` if the given value exists, `false` otherwise
+   */
   public function contains($value): bool {
     return in_array($value, $this->items, true);
   }
 
+  /**
+   * Removes all instances of the given value from the collection
+   * 
+   * @param  mixed $value the value to remove
+   * @return $this for a fluent interface
+   */
   public function remove($value) {
-    $f = function($var) use ($value) {
+    $this->items = array_filter($this->items, function($var) use ($value) {
       return $var !== $value;
-    };
-    $this->items = array_filter($this->items, $f);
+    });
     return $this;
   }
 
@@ -243,7 +239,7 @@ class Collection implements Iterator, CollectionInterface {
    *
    * @return mixed[] the keys of the collection items
    */
-  public function keys() {
+  public function keys(): array {
     return array_keys($this->items);
   }
 
@@ -257,11 +253,12 @@ class Collection implements Iterator, CollectionInterface {
   }
 
   /**
+   * Creates and returns new queue
    *
-   * @return Queue
+   * @return Queue new instance from the collection
    */
-  public function toQueue() {
-    $queue = new Queue();
+  public function toQueue(): Queue {
+    $queue = new ArrayQueue();
     foreach ($this->items as $item) {
       $queue->enqueue($item);
     }
@@ -269,45 +266,16 @@ class Collection implements Iterator, CollectionInterface {
   }
 
   /**
+   * Creates and returns new stack
    *
-   * @return Stack
+   * @return Stack new instance from the collection
    */
-  public function toStack() {
-    $stack = new Stack();
+  public function toStack(): Stack {
+    $stack = new ArrayStack();
     foreach ($this->items as $item) {
       $stack->push($item);
     }
     return $stack;
-  }
-
-  /**
-   * Removes the item at the top of the stack and returns that item as the value
-   *
-   * @complexity O(1)
-   * @return mixed the top-most element or null If the stack is empty
-   */
-  public function pop() {
-    if ($this->isEmpty()) {
-      throw new UnderflowException();
-    }
-    return array_pop($this->items);
-  }
-
-  /**
-   * Shift an item off the beginning of the collection
-   * 
-   * Shifts the first item off and returns it, shortening the collection by one
-   * and moving everything down. All numerical keys will be modified to start
-   * counting from zero while literal keys won't be touched.
-   *
-   * @return mixed the first item of the collection or null If the collection is empty
-   * @complexity O(n)
-   */
-  public function shift() {
-    if ($this->isEmpty()) {
-      throw new UnderflowException();
-    }
-    return array_shift($this->items);
   }
 
   /**
@@ -321,8 +289,10 @@ class Collection implements Iterator, CollectionInterface {
 
   /**
    * Advance the internal pointer of the collection
+   *
+   * @return void
    */
-  public function next() {
+  public function next(): void {
     next($this->items);
   }
 
@@ -337,18 +307,20 @@ class Collection implements Iterator, CollectionInterface {
 
   /**
    * Rewinds the Iterator to the first element
+   *
+   * @return void
    */
-  public function rewind() {
+  public function rewind(): void {
     reset($this->items);
   }
 
   /**
    * Checks if current iterator position is valid
    * 
-   * @return boolean current iterator position is valid
+   * @return boolean current if iterator position is valid
    */
   public function valid(): bool {
-    return false !== current($this->items);
+    return null !== key($this->items);
   }
 
 }

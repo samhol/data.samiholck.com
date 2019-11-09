@@ -1,23 +1,26 @@
 <?php
 
 /**
- * IntegerAttribute.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
 
-use Sphp\Html\Attributes\Exceptions\InvalidAttributeException;
-use Sphp\Html\Attributes\Exceptions\ImmutableAttributeException;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Implements an integer attribute with optional valid range
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class IntegerAttribute extends AbstractMutableAttribute {
+class IntegerAttribute extends AbstractScalarAttribute {
 
   /**
    * @var array 
@@ -25,12 +28,7 @@ class IntegerAttribute extends AbstractMutableAttribute {
   private $options = [];
 
   /**
-   * @var int|bool 
-   */
-  private $value = false;
-
-  /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $name the name of the attribute
    * @param int|null $min optional minimum value
@@ -46,50 +44,16 @@ class IntegerAttribute extends AbstractMutableAttribute {
     }
   }
 
-  public function getValue() {
-    return $this->value;
-  }
-
-  public function set($value) {
-    if ($this->isProtected()) {
-      throw new ImmutableAttributeException("Attribute '{$this->getName()}' is immutable");
-    }
+  public function filterValue($value) {
     if ($value === null || $value === false) {
-      $this->value = false;
+      $filtered = null;
     } else {
       $filtered = filter_var($value, \FILTER_VALIDATE_INT, $this->options);
       if ($filtered === false) {
-        throw new InvalidAttributeException("Invalid value '$value' for '{$this->getName()}' integer attribute");
-      }
-      $this->value = $filtered;
-    }
-    return $this;
-  }
-
-  public function getHtml(): string {
-    $output = '';
-    if ($this->isVisible()) {
-      $output .= $this->getName();
-      if (!$this->isEmpty()) {
-        $output .= '="' . $this->getValue() . '"';
+        throw new InvalidArgumentException("Invalid value for '{$this->getName()}' integer attribute");
       }
     }
-    return $output;
-  }
-
-  public function isVisible(): bool {
-    return $this->isDemanded() || $this->getValue() !== false || $this->getValue() !== null;
-  }
-
-  public function isEmpty(): bool {
-    return $this->getValue() === false;
-  }
-
-  public function clear() {
-    if (!$this->isProtected()) {
-      $this->set(false);
-    }
-    return $this;
+    return $filtered;
   }
 
 }

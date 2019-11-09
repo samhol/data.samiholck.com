@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ScreenSizes.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Core;
@@ -10,16 +13,19 @@ namespace Sphp\Html\Foundation\Sites\Core;
 use Sphp\Exceptions\OutOfRangeException;
 use Sphp\Exceptions\InvalidArgumentException;
 use Sphp\Stdlib\Datastructures\Arrayable;
+use Traversable;
+use Sphp\Stdlib\Datastructures\Collection;
 
 /**
  * Defines Screen Sizes and types and implements screen size parsing functions
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class ScreenSizes implements \Iterator, \Countable, Arrayable {
+class ScreenSizes implements \IteratorAggregate, \Countable, Arrayable {
 
   /**
    * Foundation screen size names
@@ -28,6 +34,11 @@ class ScreenSizes implements \Iterator, \Countable, Arrayable {
    */
   private $sizes = ['small', 'medium', 'large', 'xlarge', 'xxlarge'];
 
+  /**
+   * Constructor
+   * 
+   * @param array $sizes
+   */
   public function __construct(array $sizes = null) {
     if ($sizes !== null) {
       $this->sizes = $sizes;
@@ -50,7 +61,7 @@ class ScreenSizes implements \Iterator, \Countable, Arrayable {
    * @return boolean true if the given size exists
    */
   public function sizeExists(string $size): bool {
-    return in_array($size, static::sizes());
+    return in_array($size, $this->sizes);
   }
 
   /**
@@ -94,58 +105,16 @@ class ScreenSizes implements \Iterator, \Countable, Arrayable {
   }
 
   /**
-   * Count the number of inserted elements in the container
+   * Count the number of inserted screen size names
    *
-   * @return int number of elements in the html component
+   * @return int the number of inserted screen size names
    * @link   http://php.net/manual/en/class.countable.php Countable
    */
   public function count(): int {
     return count($this->sizes);
   }
-
-  /**
-   * Returns the current element
-   * 
-   * @return mixed the current element
-   */
-  public function current() {
-    return current($this->sizes);
+  
+  public function getIterator(): Traversable {
+    return new Collection($this->sizes);
   }
-
-  /**
-   * Advance the internal pointer of the collection
-   * 
-   * @return void
-   */
-  public function next() {
-    next($this->sizes);
-  }
-
-  /**
-   * Return the key of the current element
-   * 
-   * @return mixed the key of the current element
-   */
-  public function key() {
-    return key($this->sizes);
-  }
-
-  /**
-   * Rewinds the Iterator to the first element
-   * 
-   * @return void
-   */
-  public function rewind() {
-    reset($this->sizes);
-  }
-
-  /**
-   * Checks if current iterator position is valid
-   * 
-   * @return boolean current iterator position is valid
-   */
-  public function valid(): bool {
-    return false !== current($this->sizes);
-  }
-
 }

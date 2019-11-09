@@ -5,8 +5,7 @@
    * The jQuery plugin namespace.
    * @external "jQuery.fn"
    * @see {@link http://learn.jquery.com/plugins/|jQuery Plugins}
-   */
-  /**
+   *
    * Loads the data from the server pointed on the data attribute 'data-sph-load' using 
    * jQuery's Ajax capabilities and places the returned HTML into the object.
    * 
@@ -18,17 +17,17 @@
       var $this = $(this),
               $url = $this.attr("data-sphp-ajax-prepend"),
               $content = $("<div>");
-      console.log("initializing Sphp ajax prepending...");
+      //console.log("initializing Sphp ajax prepending...");
       $this.appendSpinner();
       $this.on("sphp-ajax-prepend-finished", function () {
-        console.log("SPHP Ajax prepending finished...");
+        //console.log("SPHP Ajax prepending finished...");
         $(this).foundation();
         $this.removeSpinners({duration: 1000});
         $this.removeAttr("data-sphp-ajax-prepend");
       });
       $content = $("<div>").load($url, function (response, status, xhr) {
         if (status === "error") {
-          $(".callout.error").html("<strong>ERROR</strong> while loading resource: " + xhr.status + " " + xhr.statusText);
+          $(".callout.error").html('<strong class="error">ERROR</strong> while loading resource: ' + xhr.status + " " + xhr.statusText);
           $content.html(
                   "<strong>ERROR</strong> while loading resource: '<u><var>"
                   + $url + "</var></u>'<br> <strong>"
@@ -53,13 +52,15 @@
       var $this = $(this),
               $url = $this.attr("data-sphp-ajax-append"),
               $content = $("<div>");
-      console.log("initializing Sphp ajax appending...");
+      //console.log("initializing Sphp ajax appending...");
       $this.appendSpinner();
       $this.on("sphp-ajax-append-finished", function () {
         console.log("SPHP Ajax appending finished...");
         $(this).foundation();
         $this.removeSpinners({duration: 1000});
         $this.removeAttr("data-sphp-ajax-append");
+        
+        sphp.initIconLoaders();
       });
       $content = $("<div>").load($url, function (response, status, xhr) {
         if (status === "error") {
@@ -69,8 +70,46 @@
                   + $url + "</var></u>'<br> <strong>"
                   + xhr.status + " " + xhr.statusText + "</strong>");
         }
+
         $this.append($content.html());
         $this.trigger("sphp-ajax-append-finished");
+      });
+    });
+  };
+  /**
+   * The jQuery plugin namespace.
+   * @external "jQuery.fn"
+   * @see {@link http://learn.jquery.com/plugins/|jQuery Plugins}
+   *
+   * Loads the data from the server pointed on the data attribute 'data-sph-load' using 
+   * jQuery's Ajax capabilities and places the returned HTML into the object.
+   * 
+   * @function external:"jQuery.fn".sphpAjaxPrepend
+   * @returns  {jQuery.fn} object for method chaining
+   */
+  $.fn.sphpAjaxReplace = function () {
+    return this.each(function () {
+      var $this = $(this),
+              $url = $this.attr("data-sphp-ajax-replace"),
+              $content = $("<div>");
+      //console.log("initializing Sphp ajax prepending...");
+      $this.appendSpinner();
+      $this.on("sphp-ajax-replace-finished", function () {
+        //console.log("SPHP Ajax prepending finished...");
+        $(this).foundation();
+        //$this.removeSpinners({duration: 1000});
+        //$this.removeAttr("data-sphp-ajax-replace");
+      });
+      $content = $("<div>").load($url, function (response, status, xhr) {
+        if (status === "error") {
+          $(".callout.error").html('<strong class="error">ERROR</strong> while loading resource: ' + xhr.status + " " + xhr.statusText);
+          $content.html(
+                  "<strong>ERROR</strong> while loading resource: '<u><var>"
+                  + $url + "</var></u>'<br> <strong>"
+                  + xhr.status + " " + xhr.statusText + "</strong>");
+        }
+        $this.replaceWith($content.html());
+        $this.trigger("sphp-ajax-replace-finished");
       });
     });
   };

@@ -1,16 +1,25 @@
 <?php
 
 /**
- * Tabs.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers\Tabs;
 
+use Sphp\Html\AbstractContent;
+use Sphp\Html\Foundation\Sites\Core\JavaScript\JavaScriptComponent;
+use Sphp\Html\Foundation\Sites\Core\DataOptions\DataOptionTools;
 use IteratorAggregate;
-use Sphp\Html\Content;
 use Sphp\Html\TraversableContent;
+use Sphp\Html\Lists\Ul;
+use Sphp\Html\Div;
 use OutOfBoundsException;
+use Traversable;
+use Sphp\Html\Attributes\PropertyCollectionAttribute;
 
 /**
  * Implements Foundation Tabs
@@ -18,61 +27,52 @@ use OutOfBoundsException;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/tabs.html Foundation Tabs
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Tabs implements Content, IteratorAggregate, TraversableContent {
+class Tabs extends AbstractContent implements JavaScriptComponent, IteratorAggregate, TraversableContent {
 
-  use \Sphp\Html\ContentTrait,
-      \Sphp\Html\TraversableTrait;
+  use \Sphp\Html\TraversableTrait;
 
   /**
-   *
-   * @var TabContentContainer 
+   * @var Div 
    */
-  private $tabsContent;
+  private $content;
 
   /**
-   * Constructs a new instance
+   * @var Ul 
+   */
+  private $controllers;
+
+  /**
+   * @var PropertyCollectionAttribute 
+   */
+  private $options;
+
+  /**
+   * Constructor
    */
   public function __construct() {
-    $this->tabsContent = new TabContentContainer();
+    $this->controllers = new Ul();
+    $this->controllers->identify();
+    $this->controllers->cssClasses()->protectValue('tabs');
+    $this->controllers->attributes()->demand('data-tabs');
+    $this->content = new Div();
+    $this->content->attributes()->setAttribute('data-tabs-content', $this->controllers->identify());
+    $this->controllers->attributes()->setInstance($this->options = new PropertyCollectionAttribute('data-options'));
   }
 
   /**
-   * Appends a new tab into the container
-   *
-   * @param  mixed $title the label of the tab button
-   * @param  mixed $content the content of the tab
-   * @return Tab the new appended tab 
+   * Destructor
    */
-  public function appendTab($title, $content = null) {
-    return $this->tabsContent->appendTab($title, $content);
+  public function __destruct() {
+    unset($this->controllers, $this->content, $this->options);
   }
-
-  /**
-   * Checks if a tab exists in the given index
-   * 
-   * @param  int $index the index to check for
-   * @return boolean true if a tab exits at the given index
-   */
-  public function hasTab(int $index) {
-    return $this->tabsContent->hasTab($index);
-  }
-
-  /**
-   * Returns the tab at specified index
-   * 
-   * @param  int $index the index to retrieve
-   * @return TabInterface the tab at the given index
-   * @throws OutOfBoundsException if the index is not set
-   */
-  public function getTab(int $index) {
-    return $this->tabsContent->getTab($index);
-  }
-
-  public function getHtml(): string {
-    return $this->tabsContent->getTabButtons()->getHtml() . $this->tabsContent->getHtml();
+ public function setOption(string $name, $value) {
+    $optionName = DataOptionTools::toOptionName($name);
+    $optionValue = DataOptionTools::parseValue($value);
+    $this->options->setProperty($optionName, $optionValue);
+    return $this;
   }
 
   /**
@@ -82,37 +82,92 @@ class Tabs implements Content, IteratorAggregate, TraversableContent {
    * @return $this for a fluent interface
    */
   public function matchHeight(bool $match = true) {
-    $this->tabsContent->matchHeight($match);
+    $this->setOption('matchHeight', $match);
     return $this;
+  }
+
+  /**
+   * Appends the given tab instance to the container
+   * 
+   * @param  Tab $tab the tab instance
+   * @return $this for a fluent interface
+   */
+  public function append(Tab $tab) {
+    $this->controllers->append($tab->getController());
+    $this->content->append($tab);
+    return $this;
+  }
+
+  /**
+   * Appends a new tab into the container
+   *
+   * @param  mixed $title the label of the tab button
+   * @param  mixed $content the content of the tab
+   * @return DivTab the new appended tab 
+   */
+  public function appendTab($title, $content = null): DivTab {
+    $tab = new DivTab($title, $content);
+    $this->append($tab);
+    return $tab;
+  }
+
+  /**
+   * Checks if a tab exists in the given index
+   * 
+   * @param  int $index the index to check for
+   * @return boolean true if a tab exits at the given index
+   */
+  public function hasTab(int $index): bool {
+    return $this->content->offsetExists($index);
+    //return $this->tabsContent->hasTab($index);
+  }
+
+  /**
+   * Returns the tab at specified index
+   * 
+   * @param  int $index the index to retrieve
+   * @return Tab the tab at the given index
+   * @throws OutOfBoundsException if the index is not set
+   */
+  public function getTab(int $index) {
+    if ($this->hasTab($index)) {
+      return $this->content[$index];
+    }
+    return null;
   }
 
   /**
    * 
+   * 
    * @param  int $index of the Tab
    * @return $this for a fluent interface
+   * @throws OutOfBoundsException if a Tab at $index does not exist
    */
   public function setActive(int $index) {
-    $this->tabsContent->setActive($index);
+    if (!$this->hasTab($index)) {
+      throw new OutOfBoundsException("Tab at $index does not exist");
+    }
+    foreach ($this->content as $pos => $tab) {
+      if ($pos === $index) {
+        $tab->setActive(true);
+      } else {
+        $tab->setActive(false);
+      }
+    }
     return $this;
   }
 
-  /**
-   * Count the number of inserted components in the container
-   *
-   * @return int number of components in the html component
-   * @link   http://php.net/manual/en/class.countable.php Countable
-   */
-  public function count(): int {
-    return $this->tabsContent->count();
+  public function getHtml(): string {
+    return $this->controllers->getHtml() . $this->content->getHtml();
   }
 
   /**
    * Returns a new iterator to iterate through inserted components 
    *
-   * @return ArrayIterator iterator
+   * @return Traversable iterator
    */
-  public function getIterator() {
-    return $this->tabsContent->getIterator();
+  public function getIterator(): Traversable {
+    return $this->content->getIterator();
   }
 
 }

@@ -1,21 +1,22 @@
 <?php
 
 /**
- * BoxContainer.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Forms\Inputs;
 
+use Sphp\Html\Foundation\Sites\Grids\AbstractCell;
 use Sphp\Html\Forms\Legend;
-use Sphp\Html\AbstractComponent;
 use Sphp\Html\Forms\Inputs\Input;
-use Sphp\Html\Foundation\Sites\Grids\ColumnInterface;
+use Sphp\Html\Foundation\Sites\Grids\Cell;
 use Sphp\Html\Forms\Inputs\Choicebox;
 use Sphp\Html\Forms\Label;
-use Sphp\Html\Foundation\Sites\Grids\ColumnLayoutManager;
-use Sphp\Html\Foundation\Sites\Grids\ColumnLayoutManagerInterface;
-use Sphp\Html\Forms\Inputs\Factory;
+use Sphp\Html\Forms\Inputs\FormControls;
 
 /**
  * A component containing multiple radio or checkbox inputs
@@ -23,10 +24,10 @@ use Sphp\Html\Forms\Inputs\Factory;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/forms.html#checkboxes-and-radio-buttons Foundation Checkboxes and Radio Buttons
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-abstract class Choiceboxes extends AbstractComponent implements Input, ColumnInterface {
+class Choiceboxes extends AbstractCell implements Input, Cell {
 
   /**
    * @var string
@@ -53,23 +54,18 @@ abstract class Choiceboxes extends AbstractComponent implements Input, ColumnInt
    * @var Input[]
    */
   private $options = [];
-  
+
   /**
-   *
    * @var Label[]
    */
   private $labels = [];
 
   /**
-   * @var ColumnLayoutManager
-   */
-  private $layout;
-
-  /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param string $name the value of the name attribute
-   * @param scalar[] $values
+   * @param string $type
+   * @param string $name
+   * @param array $values
    * @param mixed $legend
    */
   public function __construct(string $type, string $name = null, array $values = [], $legend = null) {
@@ -81,15 +77,11 @@ abstract class Choiceboxes extends AbstractComponent implements Input, ColumnInt
     foreach ($values as $value => $label) {
       $this->setOption($value, $label);
     }
-    $this->layout = new ColumnLayoutManager($this);
   }
 
-  /**
-   * 
-   * @return ColumnLayoutManagerInterface
-   */
-  public function layout(): ColumnLayoutManagerInterface {
-    return $this->layout;
+  public function __destruct() {
+    unset($this->legend, $this->options);
+    parent::__destruct();
   }
 
   /**
@@ -122,7 +114,7 @@ abstract class Choiceboxes extends AbstractComponent implements Input, ColumnInt
    *
    * @return Choicebox[] the option fields
    */
-  protected function getOptionFields() {
+  protected function getOptionFields(): array {
     return $this->options;
   }
 
@@ -135,30 +127,17 @@ abstract class Choiceboxes extends AbstractComponent implements Input, ColumnInt
    * @return $this for a fluent interface
    */
   public function setOption(string $value, string $label, bool $checked = false) {
-    $input = Factory::{$this->type}($this->name, $value, $checked);
+    $input = FormControls::{$this->type}($this->name, $value, $checked);
     $this->options[$value] = $input;
     $this->labels[$value] = new Label($label, $input);
     return $this;
   }
 
-  /**
-   * Returns the value of name attribute
-   *
-   * @return string the value of the name attribute
-   * @link   http://www.w3schools.com/tags/att_input_name.asp name attribute
-   */
-  public function getName() {
+  public function getName(): ?string {
     return $this->name;
   }
 
-  /**
-   * Sets the value of name attribute
-   *
-   * @param  string $name the value of the name attribute
-   * @return $this for a fluent interface
-   * @link   http://www.w3schools.com/tags/att_input_name.asp name attribute
-   */
-  public function setName(string $name) {
+  public function setName(string $name = null) {
     $this->name = $name;
     foreach ($this->options as $box) {
       $box->setName($name);
@@ -166,47 +145,19 @@ abstract class Choiceboxes extends AbstractComponent implements Input, ColumnInt
     return $this;
   }
 
-  /**
-   * Checks whether the slider has a name
-   *
-   * **Note:** Only form elements with a name attribute will have their values 
-   *  passed when submitting a form.
-   *
-   * @return boolean true if the input has a name , otherwise false
-   */
   public function isNamed(): bool {
     return $this->name !== null;
   }
 
-  /**
-   * Disables the input component
-   * 
-   * A disabled input component is unusable and un-clickable. 
-   * Disabled input components in a form will not be submitted.
-   *
-   * @param  boolean $disabled true if the component is disabled, otherwise false
-   * @return $this for a fluent interface
-   */
   public function disable(bool $disabled = true) {
     return $this->setAttribute("disabled", $disabled);
   }
 
-  /**
-   * Checks whether the option is enabled or not
-   * 
-   * @param  boolean true if the option is enabled, otherwise false
-   */
   public function isEnabled(): bool {
     return !$this->attributeExists("disabled");
   }
 
-  /**
-   * Sets the current submission set of the input component
-   *
-   * @param  string|string[] $value the current submission set of the input component
-   * @return $this for a fluent interface
-   */
-  public function setSubmitValue($value) {
+  public function setInitialValue($value) {
     if (!is_array($value)) {
       $value = [$value];
     }

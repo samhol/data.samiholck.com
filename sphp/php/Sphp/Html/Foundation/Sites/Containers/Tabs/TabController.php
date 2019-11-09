@@ -1,48 +1,33 @@
 <?php
 
 /**
- * TabButton.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers\Tabs;
 
-use Sphp\Html\AbstractContainerTag;
-use Sphp\Html\ContainerTag;
+use Sphp\Html\Lists\StandardListItem;
 
 /**
- * Implements a Tab controller for Tabs
+ * Defines a Tab controller for Tabs
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/tabs.html Foundation Tabs
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class TabController extends AbstractContainerTag implements TabControllerInterface {
+interface TabController extends StandardListItem {
 
   /**
-   * Constructs a new instance
+   * Sets the Tab controller active/inactive
    * 
-   * @param Tab $tabPanel
-   * @param mixed $title
+   * @param  boolean $active true for active and false for inactive
+   * @return $this for a fluent interface
    */
-  public function __construct(Tab $tabPanel, $title = null) {
-    $innerContainer = new ContainerTag('a', $title);
-    $innerContainer->attributes()->protect('href', '#' . $tabPanel->identify());
-    parent::__construct('li', null, $innerContainer);
-    $this->cssClasses()->protect('tabs-title');
-  }
-
-  public function setActive(bool $active = true) {
-    if ($active) {
-      $this->attributes()->setAria('aria-selected', 'true');
-      $this->addCssClass('is-active');
-    } else {
-      $this->attributes()->remove('aria-selected');
-      $this->removeCssClass('is-active');
-    }
-    return $this;
-  }
-
+  public function setActive(bool $active = true);
 }

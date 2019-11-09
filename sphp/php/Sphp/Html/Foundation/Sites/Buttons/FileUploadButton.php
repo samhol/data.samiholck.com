@@ -1,13 +1,17 @@
 <?php
 
 /**
- * FileUploadButton.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Buttons;
 
-use Sphp\Html\Forms\Inputs\IdentifiableInput;
+use Sphp\Html\AbstractContent;
+use Sphp\Html\Forms\Inputs\Input;
 use Sphp\Html\Foundation\Sites\Buttons\ButtonInterface;
 use Sphp\Html\Forms\Label;
 use Sphp\Html\Forms\Inputs\FileInput;
@@ -23,13 +27,13 @@ use Sphp\Html\Attributes\ClassAttribute;
  * @link    http://foundation.zurb.com/ Foundation 6
  * @link    http://www.w3schools.com/tags/tag_input.asp w3schools API
  * @link    http://www.w3.org/html/wg/drafts/html/master/forms.html#the-input-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class FileUploadButton implements IdentifiableInput, ButtonInterface {
+class FileUploadButton extends AbstractContent implements Input, ButtonInterface, \Sphp\Html\IdentifiableContent {
 
-  use \Sphp\Html\ContentTrait,
-      \Sphp\Html\Foundation\Sites\Buttons\ButtonTrait, \Sphp\Html\CssClassifiableTrait;
+  use \Sphp\Html\Foundation\Sites\Buttons\ButtonTrait,
+      \Sphp\Html\CssClassifiableTrait;
 
   /**
    * @var FileInput 
@@ -42,7 +46,7 @@ class FileUploadButton implements IdentifiableInput, ButtonInterface {
   private $label;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $name the value of name attribute
    * @param  string $buttonText the value of value attribute
@@ -50,9 +54,9 @@ class FileUploadButton implements IdentifiableInput, ButtonInterface {
    */
   public function __construct(string $name = null, string $buttonText = 'Upload File') {
     $this->fileInput = new FileInput($name);
-    $this->fileInput->cssClasses()->protect('show-for-sr', 'fileInput');
+    $this->fileInput->cssClasses()->protectValue('show-for-sr', 'fileInput');
     $this->label = new Label($buttonText, $this->fileInput);
-    $this->label->cssClasses()->protect('button');
+    $this->label->cssClasses()->protectValue('button');
   }
 
   public function getHtml(): string {
@@ -67,8 +71,8 @@ class FileUploadButton implements IdentifiableInput, ButtonInterface {
     return $this->fileInput->getSubmitValue();
   }
 
-  public function setSubmitValue($value) {
-    $this->fileInput->setSubmitValue($value);
+  public function setInitialValue($value) {
+    $this->fileInput->setInitialValue($value);
     return $this;
   }
 
@@ -93,13 +97,9 @@ class FileUploadButton implements IdentifiableInput, ButtonInterface {
     return $this->fileInput->isNamed();
   }
 
-  public function setName(string $name) {
+  public function setName(string $name = null) {
     $this->fileInput->setName($name);
     return $this;
-  }
-
-  public function hasId(): bool {
-    return $this->fileInput->hasId();
   }
 
   public function identify(int $length = 16): string {

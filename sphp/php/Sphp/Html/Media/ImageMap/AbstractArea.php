@@ -1,21 +1,24 @@
 <?php
 
 /**
- * AbstractArea.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\ImageMap;
 
 use Sphp\Html\EmptyTag;
 use Sphp\Html\Navigation\HyperlinkTrait;
-use Sphp\Html\Attributes\SequenceAttribute;
+use Sphp\Html\Attributes\PatternAttribute;
 
 /**
  * Implements an HTML &lt;area&gt; tag
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 abstract class AbstractArea extends EmptyTag implements Area {
@@ -23,104 +26,41 @@ abstract class AbstractArea extends EmptyTag implements Area {
   use HyperlinkTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param string $shape
-   * @param string|null $href the URL of the link
-   * @param string|null $alt
+   * @param string $pattern
    */
-  public function __construct(string $shape, string $href = null, string $alt = null) {
+  public function __construct(string $shape, string $pattern = '/^(\d+(,\d+)*)?$/') {
     parent::__construct('area');
-    $this->attributes()->setInstance(new SequenceAttribute('coords'));
+    $this->attributes()->setInstance(new PatternAttribute('coords', $pattern));
     $this->attributes()->protect('shape', $shape);
-    if ($href !== null) {
-      $this->setHref($href);
-    }
-    if ($alt !== null) {
-      $this->setHref($href);
-    }
   }
 
-  /**
-   * Returns the shape of the area
-   * 
-   * @return string the shape of the area
-   * @link   http://www.w3schools.com/TAGS/att_area_shape.asp shape attribute
-   */
   public function getShape(): string {
-    return $this->getAttribute('shape');
+    return $this->attributes()->getValue('shape');
   }
 
   /**
    * Returns the coordinates of the area
    * 
-   * @return SequenceAttribute the coordinates of the area
+   * @return int[] the coordinates of the area
    * @link   http://www.w3schools.com/TAGS/att_area_coords.asp coords attribute
    */
-  public function getCoordinates(): SequenceAttribute {
-    return $this->attributes()->getObject('coords');
+  public function getCoordinates(): array {
+    $coordsString = $this->attributes()->getObject('coords');
+    if($coordsString !== null) {
+      return explode(',', $coordsString);
+    }
+    return [];
   }
 
-  /**
-   * Sets the relationship between the current document and the linked document
-   * 
-   * @param  string $rel the value of the rel attribute
-   * @return Area for PHP Method Chaining
-   * @link   http://www.w3schools.com/TAGS/att_area_rel.asp rel attribute
-   */
-  public function setRelationship($rel) {
-    $this->attributes()->set('rel', $rel);
+  public function setAlt(string $alt = null) {
+    $this->attributes()->setAttribute('alt', $alt);
     return $this;
   }
 
-  /**
-   * Returns the shape of the area
-   * 
-   * @return string the shape of the area
-   */
-  public function getRelationship() {
-    return $this->getAttribute('rel');
-  }
-
-  /**
-   * Specifies the alternate text for the area, if the image cannot be displayed
-   *
-   * **Definition and Usage:**
-   *
-   *  The alt attribute specifies an alternate text for an area, if the image 
-   * cannot be displayed. The `alt` attribute provides alternative information for 
-   * an image if a user for some reason cannot view it (because of slow 
-   * connection, an error in the src attribute, or if the user uses a screen 
-   * reader). 
-   * 
-   * The `alt` attribute is required if the `href` attribute is present.
-   *
-   * @param  string $alt the alternate text for an image
-   * @return $this for a fluent interface
-   * @link   http://www.w3schools.com/tags/att_area_alt.asp alt attribute
-   */
-  public function setAlt($alt) {
-    $this->attributes()->set('alt', $alt);
-    return $this;
-  }
-
-  /**
-   * Returns the alternate text for the area, if the image cannot be displayed
-   * 
-   * **Definition and Usage:**
-   *
-   *  The alt attribute specifies an alternate text for an area, if the image 
-   * cannot be displayed. The `alt` attribute provides alternative information for 
-   * an image if a user for some reason cannot view it (because of slow 
-   * connection, an error in the src attribute, or if the user uses a screen 
-   * reader). 
-   * 
-   * The `alt` attribute is required if the `href` attribute is present.
-   *
-   * @return string the value of the alt attribute
-   * @link  http://www.w3schools.com/tags/att_area_alt.asp alt attribute
-   */
-  public function getAlt() {
+  public function getAlt(): ?string {
     return $this->attributes()->getValue('alt');
   }
 

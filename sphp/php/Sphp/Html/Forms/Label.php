@@ -1,13 +1,16 @@
 <?php
 
 /**
- * Label.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms;
 
-use Sphp\Html\Forms\Inputs\IdentifiableInput;
+use Sphp\Html\IdentifiableContent;
 use Sphp\Html\ContainerTag;
 
 /**
@@ -21,16 +24,16 @@ use Sphp\Html\ContainerTag;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_label.asp w3schools HTML API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-label-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Label extends ContainerTag implements LabelInterface {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param mixed $content the content of the component
-   * @param string|IdentifiableInput|null $for the id of the element the label is bound to
+   * @param string|IdentifiableContent|null $for the id of the element the label is bound to
    * @link  http://www.w3schools.com/tags/att_label_for.asp for attribute
    */
   public function __construct($content = null, $for = null) {
@@ -40,11 +43,11 @@ class Label extends ContainerTag implements LabelInterface {
     }
   }
 
-  public function setFor($for) {
-    if ($for instanceof IdentifiableInput) {
+  public function setFor($for = null) {
+    if ($for instanceof IdentifiableContent) {
       $for = $for->identify();
     }
-    $this->attributes()->set('for', $for);
+    $this->attributes()->setAttribute('for', $for);
     return $this;
   }
 
@@ -56,13 +59,13 @@ class Label extends ContainerTag implements LabelInterface {
     if (is_array($formIds)) {
       $formIds = implode(' ', $formIds);
     }
-    $this->attributes()->set('form', $formIds);
+    $this->attributes()->setAttribute('form', $formIds);
     return $this;
   }
 
   public function getForms(): array {
     $result = [];
-    if ($this->attributes()->exists('form')) {
+    if ($this->attributes()->isVisible('form')) {
       $result = explode(' ', $this->attributes()->getValue('form'));
     }
     return $result;

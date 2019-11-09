@@ -1,16 +1,19 @@
 <?php
 
 /**
- * Router.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\MVC;
 
-use Sphp\Exceptions\RuntimeException;
-use Sphp\Stdlib\Networks\URL;
-use Zend\Stdlib\PriorityQueue;
-use Sphp\Stdlib\Datastructures\StablePriorityQueue;
+use Sphp\Network\URL;
+use Sphp\Stdlib\Datastructures\PriorityQueue;
+use Sphp\Exceptions\IllegalStateException;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Implements an URL router
@@ -53,7 +56,7 @@ use Sphp\Stdlib\Datastructures\StablePriorityQueue;
  * </pre>
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Router {
@@ -75,29 +78,10 @@ class Router {
   private $routes;
 
   /**
-   * A sanitized version of the URL, excluding the domain and base component
-   *
-   * @var string
+   * Constructor
    */
-  private $path = '';
-
-  /**
-   * Constructs a new instance
-   * 
-   * Initializes the router by getting the URL and cleaning it.
-   *
-   * @param  URL|string|null $url optional URL to route
-   */
-  public function __construct($url = null) {
-    if ($url === null) {
-      $url = URL::getCurrent();
-    }
-    if (is_string($url)) {
-      $url = new URL($url);
-    }
-    $this->path = rtrim($url->getPath(), '/') . '/';
+  public function __construct() {
     $this->routes = new PriorityQueue();
-    $this->routes->setInternalQueueClass(StablePriorityQueue::class);
   }
 
   /**
@@ -110,7 +94,7 @@ class Router {
    * @param  callable $callback the callback function for the default route
    * @return $this for a fluent interface
    */
-  public function setDefaultRoute(callable $callback) {
+  public function setDefaultRoute($callback) {
     $this->defaultRoute = $callback;
     return $this;
   }
@@ -118,12 +102,18 @@ class Router {
   /**
    * Runs the router matching engine and then calls the dispatcher
    * 
-   * Tries to match one of the URL routes to the current URL, otherwise
+   * Tries to match one of the URL routes to the given URL, otherwise
    * execute the default function.
    *
-   * @return $this for a fluent interface
+   * @param  string|URL $url the URL to route
+   * @return void
+   * @throws IllegalStateException
    */
-  public function execute() {
+  public function execute($url): void {
+    if ($this->isEmpty()) {
+      throw new IllegalStateException('The router is empty and cannot be executed');
+    }
+    $path = $this::getPath($url);
     // Whether or not we have matched the URL to a route
     $routeFound = false;
     // Loop through routes
@@ -131,14 +121,11 @@ class Router {
       $route = $routingData['route'];
       $callback = $routingData['callback'];
       // Does the routing rule match the current URL?
-      if (preg_match($route, $this->path, $matches)) {
+      if (preg_match($route, $path, $matches)) {
         // A routing rule was matched
         $routeFound = true;
         // Parameters to pass to the callback function
-        $params = [$this->path];
-        // echo "<pre>";
-        // var_dump($matches);
-        // echo "</pre>";
+        $params = [$path];
         // Get any named parameters from the route
         foreach ($matches as $key => $match) {
           if (is_string($key)) {
@@ -152,13 +139,12 @@ class Router {
     }
     // Was a match found or should we execute the default callback?
     if (!$routeFound && $this->defaultRoute !== null) {
-      call_user_func_array($this->defaultRoute, [$this->path]);
+      call_user_func_array($this->defaultRoute, [$path]);
       $routeFound = true;
     }
     if (!$routeFound) {
-      throw new RuntimeException('No callback found for the route');
+      throw new IllegalStateException("No callback found for the route '$path'");
     }
-    return $this;
   }
 
   /**
@@ -170,7 +156,7 @@ class Router {
    * @return $this for a fluent interface
    * @throws \Sphp\Exceptions\RuntimeException
    */
-  public function route(string $route, callable $callback, int $priority = 10) {
+  public function route(string $route, $callback, int $priority = 10) {
     // Make sure the route ends in a / since all of the URLs will
     $route = rtrim($route, '/') . '/';
     // Custom capture, format: <:var_name|regex>
@@ -185,8 +171,36 @@ class Router {
     $route = preg_replace('/\<\!(.*?)\>/', '(?P<\1>[^\/]+)', $route);
     // Add the regular expression syntax to make sure we do a full match or no match
     $route = '#^' . $route . '$#';
-    $this->routes->insert(['route' => $route, 'callback' => $callback], $priority);
+    $this->routes->enqueue(['route' => $route, 'callback' => $callback], $priority);
     return $this;
+  }
+
+  /**
+   * Checks whether the router has no routes defined
+   * 
+   * @return bool true if the router has no routes defined, false otherwise
+   */
+  public function isEmpty(): bool {
+    return $this->defaultRoute === null && $this->routes->isEmpty();
+  }
+
+  /**
+   * PArses the path from given URL
+   * 
+   * @param  URL|string|null $url
+   * @return string path to use in the router
+   * @throws InvalidArgumentException
+   */
+  public static function getPath($url = null): string {
+    if ($url === null) {
+      $url = URL::getCurrent();
+    } else if (is_string($url)) {
+      $url = new URL($url);
+    }
+    if (!$url instanceof URL) {
+      throw new InvalidArgumentException('Path can only be resolved from string or URL object');
+    }
+    return rtrim($url->getPath(), '/') . '/';
   }
 
 }

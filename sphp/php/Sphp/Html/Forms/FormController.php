@@ -1,8 +1,11 @@
 <?php
 
 /**
- * FormController.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms;
@@ -13,8 +16,7 @@ use Sphp\Html\Content;
  * Defines a form controller
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @since   2017-12-27
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface FormController extends Content {
@@ -25,7 +27,7 @@ interface FormController extends Content {
    * A disabled form controller is unusable and un-clickable. 
    * Disabled input in a form will not be submitted.
    *
-   * @param  boolean $disabled true for disabled, otherwise false
+   * @param  bool $disabled true for disabled, otherwise false
    * @return $this for a fluent interface
    */
   public function disable(bool $disabled = true);
@@ -33,7 +35,7 @@ interface FormController extends Content {
   /**
    * Checks whether the controller is enabled or not
    * 
-   * @return boolean true if enabled, otherwise false
+   * @return bool true if enabled, otherwise false
    */
   public function isEnabled(): bool;
 }

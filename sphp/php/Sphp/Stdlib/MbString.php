@@ -1,8 +1,11 @@
 <?php
 
 /**
- * MbString.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib;
@@ -10,15 +13,29 @@ namespace Sphp\Stdlib;
 use Countable;
 use ArrayAccess;
 use Iterator;
+use Sphp\Exceptions\InvalidArgumentException;
 use Sphp\Exceptions\OutOfBoundsException;
 use Sphp\Exceptions\BadMethodCallException;
 use Sphp\Stdlib\Datastructures\Arrayable;
 
 /**
- * Implements a string class
+ * Implements a multi byte string class
+ * 
+ * @method bool isBinary() Checks whether or not the input string contains only binary chars
+ * @method bool isHexadecimal() Checks whether or not the input string contains only hexadecimal chars
+ * @method bool isAlpha() Checks whether or not the input string contains only alphabetic chars
+ * @method bool isAlphanumeric() Checks whether or not the input string contains only alphanumeric chars
+ * @method bool caseIs(int $case) Checks the case folding
+ * 
+ * @method \Sphp\Stdlib\MbString convertCase(int $case) Perform a case folding returning a new instance
+ * @method \Sphp\Stdlib\MbString trim(string $charMask = null) Returns a new instance with whitespace removed from the start end the end
+ * @method \Sphp\Stdlib\MbString trimLeft(string $charMask = null) Returns a new instance with whitespace removed from the start
+ * @method \Sphp\Stdlib\MbString trimRight(string $charMask = null) Returns a new instance with whitespace removed from the end
+ * 
+ * @method int countSubstr(string $substring) Returns the number of occurrences of $substring in the given string
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
@@ -44,7 +61,7 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
   private $encoding;
 
   /**
-   * Constructs a new instance 
+   * Constructor 
    * 
    * $str is cast to a string prior to assignment, and if
    * $encoding is not specified, it defaults to mb_internal_encoding(). Throws
@@ -57,6 +74,31 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
   public function __construct(string $str = '', string $encoding = null) {
     $this->str = $str;
     $this->encoding = $encoding ?: \mb_internal_encoding();
+  }
+
+  public function __call(string $name, array $arguments) {
+    $stringReflector = new \ReflectionClass(Strings::class);
+
+    if (!$stringReflector->hasMethod($name)) {
+      throw new BadMethodCallException("Method '$name' does not exist");
+    }
+    array_unshift($arguments, $this->str);
+    $method = $stringReflector->getMethod($name);
+    if ($method->getNumberOfParameters() > count($arguments)) {
+      foreach ($method->getParameters() as $num => $param) {
+        if (!isset($arguments[$num]) && $param->isDefaultValueAvailable()) {
+          $arguments[$num] = $param->getDefaultValue();
+          // echo '$arguments[' . $num . '] = ' . var_export($param->getDefaultValue(), true);
+        }
+      }
+    }
+    //$arguments[] = $this->encoding;
+    $result = $stringReflector->getMethod($name)->invokeArgs(null, $arguments);
+    if (is_string($result)) {
+      return new static($result);
+    } else {
+      return $result;
+    }
   }
 
   /**
@@ -86,118 +128,12 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
   }
 
   /**
-   * Creates a string object from given str and encoding properties
-   * 
-   * If $encoding is not specified, it defaults to mb_internal_encoding(). It
-   * then returns the initialized object.
-   *
-   * @param  mixed   $str      Value to modify, after being cast to string
-   * @param  string  $encoding The character encoding
-   * @return self an instance
-   * @throws \Sphp\Exceptions\InvalidArgumentException if an array or object without a
-   *         __toString method is passed as the first argument
-   */
-  public static function create($str = '', string $encoding = null): MbString {
-    return new static("$str", $encoding);
-  }
-
-  /**
-   * Checks whether the string is empty
-   * 
-   * @return boolean true if the string is empty, false otherwise
-   */
-  public function isEmpty(): bool {
-    return $this->str === '';
-  }
-
-  /**
-   * Returns the length of the given string
-   * 
-   * @return int the length of the given string
-   */
-  public function length(): int {
-    return \mb_strlen($this->str, $this->encoding);
-  }
-
-  /**
    * Returns the length of the string
    *
    * @return int the length of the string
    */
   public function count(): int {
     return $this->length();
-  }
-
-  /**
-   * Checks whether the string starts with a given needle
-   *
-   * @param  string $needle the start to compare with
-   * @return boolean true if the string starts with any of the given needles
-   */
-  public function startsWith(string $needle): bool {
-    return $needle === '' || mb_strrpos($this->str, $needle, 0, $this->encoding) === 0;
-  }
-
-  /**
-   * Checks whether the string ends with a given needle
-   *
-   * @param  string $needle the ending to compare with
-   * @return boolean true if the haystack ends with any of the given needles
-   */
-  public function endsWith(string $needle): bool {
-    if ($needle === '') {
-      return true;
-    } else {
-      $length = \mb_strlen($needle, $this->encoding);
-      return \mb_substr($this->str, -$length, $length, $this->encoding) === $needle;
-    }
-  }
-
-  /**
-   * Checks whether the string contains any of the needles
-   *
-   * @return bool whether the string contains any of the needles
-   */
-  public static function containsAny(array $needles): bool {
-    if (empty($needles)) {
-      return false;
-    } else {
-      foreach ($needles as $needle) {
-        if ($this->contains((string) $needle)) {
-          return true;
-        }
-      }
-      return false;
-    }
-  }
-
-  /**
-   * Checks whether the string contains all needles
-   *
-   * @param  array $needles
-   * @return bool whether the string contains all needles
-   */
-  public static function containsAll(array $needles): bool {
-    if (empty($needles)) {
-      return false;
-    } else {
-      foreach ($needles as $needle) {
-        if (!$this->contains((string) $needle)) {
-          return false;
-        }
-      }
-      return true;
-    }
-  }
-
-  /**
-   * Tests whether the string object contains the substring or not
-   *
-   * @param  string $needle the substring to search for
-   * @return boolean true if needle was found from the haystack string, false otherwise
-   */
-  public function contains(string $needle): bool {
-    return (mb_stripos($this->str, $needle, 0, $this->encoding) !== false);
   }
 
   /**
@@ -222,7 +158,8 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
 
   /**
    * Replaces all occurrences of $search in $str by $replacement
-   *
+   * * 
+   * @param string $search
    * @param  string $replacement The string to replace with
    * @return MbString the resulting string after the replacements
    */
@@ -231,145 +168,16 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
   }
 
   /**
-   * Returns a new object with whitespace removed from the start and end of the string 
-   * 
-   * Supports the removal of unicode whitespace. Accepts an optional
-   * string of characters to strip instead of the defaults.
+   * Returns the character at $index, with indexes starting at 0
    *
-   * @return MbString new trimmed string object 
-   */
-  public function trim(string $charMask = null): MbString {
-    $chars = ($charMask) ? preg_quote($charMask) : '[:space:]';
-    return $this->regexReplace("^[$chars]+|[$chars]+$", '', 'msr');
-  }
-
-  /**
-   * Returns a string with whitespace removed from the start of the string
-   * 
-   * Supports the removal of unicode whitespace. Accepts an optional
-   * string of characters to strip instead of the defaults.
-   *
-   * @param  string  $charMask optional string of characters to strip
-   * @return MbString new trimmed string object 
-   */
-  public function trimLeft(string $charMask = null): MbString {
-    $chars = ($charMask !== null) ? preg_quote($charMask) : '[:space:]';
-    return $this->regexReplace("^[$chars]+", '', 'msr');
-  }
-
-  /**
-   * Returns a string with whitespace removed from the end of the string
-   * 
-   * Supports the removal of unicode whitespace. Accepts an optional
-   * string of characters to strip instead of the defaults.
-   *
-   * @param  string  $charMask optional string of characters to strip
-   * @return MbString new trimmed string object 
-   */
-  public function trimRight(string $charMask = null): MbString {
-    $chars = ($charMask) ? preg_quote($charMask) : '[:space:]';
-    return $this->regexReplace("[$chars]+$", '', 'msr');
-  }
-
-  /**
-   * Checks whether or not the string contains only upper case characters
-   *
-   * @return bool returns true if the string contains only upper chars, false otherwise
-   */
-  public function isUpperCase(): bool {
-    return \mb_strtoupper($this->str, $this->encoding) === $this->str;
-  }
-
-  /**
-   * Converts all characters in the string to uppercase
-   *
-   * @return MbString new string object with all characters being uppercase
-   */
-  public function toUpperCase(): MbString {
-    $upper = \mb_strtoupper($this->str, $this->encoding);
-    return new static($upper, $this->encoding);
-  }
-
-  /**
-   * Checks whether or not the input string contains only lower case characters
-   *
-   * @return bool returns true if the string contains only lower chars, false otherwise
-   */
-  public function isLowerCase(): bool {
-    return \mb_strtolower($this->str, $this->encoding) == $this->str;
-  }
-
-  /**
-   * Converts all characters in the string to uppercase
-   *
-   * @return MbString new string object with all characters being uppercase
-   */
-  public function toLowerCase(): MbString {
-    $lower = \mb_strtolower($this->str, $this->encoding);
-    return new static($lower, $this->encoding);
-  }
-
-  /**
-   * Checks whether or not the input string contains only lower case characters
-   *
-   * @return bool returns true if the string contains only lower chars, false otherwise
-   */
-  public function isTitleCase(): bool {
-    return \mb_convert_case($this->str, \MB_CASE_TITLE, $this->encoding) == $this->str;
-  }
-
-  /**
-   * Converts the first character of each word in the string to uppercase
-   *
-   * @return MbString new string object with all characters being title-cased
-   */
-  public function toTitleCase(): MbString {
-    $titleCase = \mb_convert_case($this->str, \MB_CASE_TITLE, $this->encoding);
-    return new static($titleCase, $this->encoding);
-  }
-
-  /**
-   * Checks whether the string contains only whitespace chars
-   *
-   * @return bool returns true if the string contains only whitespace chars, false otherwise
-   */
-  public function isBlank(): bool {
-    return $this->match('/^[[:space:]]{1,}$/');
-  }
-
-  /**
-   * Checks whether the string contains only hexadecimal chars
-   *
-   * @return bool returns true if the string contains only hexadecimal chars, false otherwise
-   */
-  public function isHexadecimal(): bool {
-    return $this->match('/^(#|0x){0,1}[[:xdigit:]]{1,}$/');
-  }
-
-  /**
-   * Checks whether the string contains only binary chars
-   *
-   * @return bool returns true if the string contains only binary chars, false otherwise
-   */
-  public function isBinary(): bool {
-    return $this->match('/^[0-1]+$/');
-  }
-
-  /**
-   * Returns the character at the given index
-   * 
-   * Offsets may be negative to count from the last character in the string.
-   *
-   * @param  int $index The index from which to retrieve the char
-   * @return string the character at the specified index
+   * @param  int $index position of the character
+   * @param  string|null $encoding the character encoding parameter;
+   *                Defaults to `mb_internal_encoding()`
+   * @return string the character at $index or null if the index does not exist
    * @throws OutOfBoundsException if the index does not exist
    */
-  public function charAt(int $index): string {
-    $length = $this->length();
-    if (($index >= 0 && $length <= $index) || $length < $index) {
-      throw new OutOfBoundsException("No character exists at the index: ($index)");
-    }
-    return \mb_substr($this->str, $index, 1, $this->encoding);
+  public function charAt(int $index, string $encoding = null): string {
+    return Strings::charAt($this->str, $index, $encoding);
   }
 
   /**
@@ -378,15 +186,7 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
    * @return string[] An array of individual chars
    */
   public function toArray(): array {
-    $strlen = $this->count();
-    $str = $this->str;
-    $array = [];
-    while ($strlen) {
-      $array[] = \mb_substr($this->str, 0, 1, $this->encoding);
-      $str = \mb_substr($this->str, 1, $strlen, $this->encoding);
-      $strlen = \mb_strlen($str);
-    }
-    return $array;
+    return Strings::toArray($this->str, $this->encoding);
   }
 
   /**
@@ -400,15 +200,17 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
 
   /**
    * Rewinds the Iterator to the first element
+   * 
+   * @return void
    */
   public function rewind() {
     $this->index = 0;
   }
 
   /**
-   * Returns the current caracter
+   * Returns the current character
    * 
-   * @return mixed the current caracter
+   * @return mixed the current character
    */
   public function current(): string {
     return $this->charAt($this->index);
@@ -450,32 +252,68 @@ class MbString implements Countable, Iterator, Arrayable, ArrayAccess {
    * Returns the character at the given index
    * 
    * @param  mixed $offset
-   * @return string
+   * @return string character at the given index 
    * @throws OutOfBoundsException if the offset does not exist
+   * @throws InvalidArgumentException
    */
   public function offsetGet($offset) {
+    if (!$this->offsetExists($offset)) {
+      throw new OutOfBoundsException('Offset must be between 0 and ' . ($this->count() - 1));
+    }
     return $this->charAt($offset);
   }
 
   /**
+   * Sets the character at given $offset 
    * 
    * @param  mixed $offset
    * @param  mixed $value
    * @return void
-   * @throws BadMethodCallException object is immutable
+   * @throws InvalidArgumentException
+   * @throws OutOfBoundsException
    */
   public function offsetSet($offset, $value) {
-    throw new BadMethodCallException("Object is immutable, cannot modify chars directly");
+    if ($offset === null) {
+      $offset = $this->count();
+    }
+    if (!$this->offsetExists($offset) && $offset !== $this->count()) {
+      throw new OutOfBoundsException('Offset must be between 0 and ' . $this->count() . ' or null');
+    }
+    if (mb_strlen($value) > 1) {
+      throw new InvalidArgumentException('Value must be exactly one char');
+    }
+    $this->str = substr_replace($this->str, $value, $offset, 1);
   }
 
   /**
+   * Unsets the character at the given index
    * 
    * @param  mixed $offset
    * @return void
-   * @throws BadMethodCallException always because object is immutable
+   * @throws InvalidArgumentException
+   * @throws OutOfBoundsException
    */
   public function offsetUnset($offset) {
-    throw new BadMethodCallException("Object is immutable, cannot unset chars directly");
+    if (!$this->offsetExists($offset)) {
+      throw new OutOfBoundsException('Offset must be between 0 and ' . ($this->count() - 1) . '');
+    }
+    $this->str = substr_replace($this->str, '', $offset, 1);
+  }
+
+  /**
+   * Creates a string object from given str and encoding properties
+   * 
+   * If $encoding is not specified, it defaults to mb_internal_encoding(). It
+   * then returns the initialized object.
+   *
+   * @param  mixed   $str      Value to modify, after being cast to string
+   * @param  string  $encoding The character encoding
+   * @return self an instance
+   * @throws \Sphp\Exceptions\InvalidArgumentException if an array or object without a
+   *         __toString method is passed as the first argument
+   */
+  public static function create($str = '', string $encoding = null): MbString {
+    return new static("$str", $encoding);
   }
 
 }

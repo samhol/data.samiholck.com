@@ -1,8 +1,11 @@
 <?php
 
 /**
- * HtmlAttributeManager.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
@@ -11,21 +14,20 @@ namespace Sphp\Html\Attributes;
  * Implements default attribute manager for all HTML components
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class HtmlAttributeManager extends AttributeManager {
 
   /**
-   * Constructs a new instance
-   *
-   * @param string[] $objectMap
+   * Constructor
    */
   public function __construct() {
     parent::__construct();
-    $this->getGenerator()
+    $this->getObjectMap()
             ->mapType('class', ClassAttribute::class)
-            ->mapType('style', PropertyAttribute::class)
+            ->mapType('style', PropertyCollectionAttribute::class)
             ->mapType('id', IdAttribute::class);
   }
 
@@ -41,9 +43,9 @@ class HtmlAttributeManager extends AttributeManager {
   /**
    * Returns the style attribute object
    *
-   * @return PropertyAttribute the `style` attribute object
+   * @return PropertyCollectionAttribute the `style` attribute object
    */
-  public function styles(): PropertyAttribute {
+  public function styles(): PropertyCollectionAttribute {
     return $this->getObject('style');
   }
 
@@ -60,10 +62,15 @@ class HtmlAttributeManager extends AttributeManager {
    * @link   https://www.w3.org/WAI/intro/aria.php
    */
   public function setAria(string $name, $value) {
-    $this->set("aria-$name", $value);
+    $this->setAttribute("aria-$name", $value);
     return $this;
   }
 
+  /**
+   * Returns the `id` attribute
+   * 
+   * @return IdAttribute
+   */
   public function id(): IdAttribute {
     return $this->getObject('id');
   }

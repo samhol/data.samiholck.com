@@ -1,8 +1,11 @@
 <?php
 
 /**
- * AbstractFilter.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Filters;
@@ -11,10 +14,10 @@ namespace Sphp\Filters;
  * An abstract implementation of a filter
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-abstract class AbstractFilter implements FilterInterface {
+abstract class AbstractFilter implements Filter {
 
   /**
    * Executes the filter for the given value
@@ -25,4 +28,5 @@ abstract class AbstractFilter implements FilterInterface {
   public function __invoke($value) {
     return $this->filter($value);
   }
+
 }

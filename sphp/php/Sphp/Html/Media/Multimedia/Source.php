@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Source.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
@@ -10,7 +13,6 @@ namespace Sphp\Html\Media\Multimedia;
 use Sphp\Html\EmptyTag;
 use Sphp\Html\Media\LazyMedia;
 use Sphp\Html\Media\LazyMediaSourceTrait;
-use Sphp\Stdlib\Networks\URL;
 
 /**
  * Implements an HTML &lt;source&gt; tag
@@ -24,7 +26,7 @@ use Sphp\Stdlib\Networks\URL;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_source.asp w3schools API
  * @link    http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#the-source-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Source extends EmptyTag implements MultimediaSource, LazyMedia {
@@ -32,7 +34,7 @@ class Source extends EmptyTag implements MultimediaSource, LazyMedia {
   use LazyMediaSourceTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $src the URL of the media file or null for none
    * @param  string|null $type the media type of the media resource or null for none
@@ -59,7 +61,7 @@ class Source extends EmptyTag implements MultimediaSource, LazyMedia {
    * @link   http://www.w3schools.com/tags/att_source_type.asp type attribute
    */
   public function setType(string $type) {
-    $this->attributes()->set('type', $type);
+    $this->attributes()->setAttribute('type', $type);
     return $this;
   }
 

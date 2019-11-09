@@ -7,11 +7,11 @@
  */
 
 /**
- * See <a href="http://jquery.com">http://jquery.com</a>.
- * @name ZeroClipboard
+ * See <a href="https://github.com/lgarron/clipboard-polyfill">GitHub</a>).
+ * @name clipboard
  * @class
- * See the ZeroClipboard Library at (<a href="http://zeroclipboard.org/index-v1.x.html">ZeroClipboard v1.x</a>)
- * The ZeroClipboard library provides an easy way to copy text to the clipboard.
+ * See the clipboard-polyfill Library at (<a href="https://github.com/lgarron/clipboard-polyfill">GitHub</a>)
+ * This library library provides an easy way to copy text to the clipboard.
  */
 
 /**
@@ -35,12 +35,6 @@
  * The built in string object.
  * @external String
  * @see {@link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String String}
- */
-
-/**
- * Single accordion open event
- *
- * @event external:$.fn#sph-sa-opened
  */
 
 if (!window.console) {
@@ -113,17 +107,6 @@ if (!window.console.log) {
     }
   };
 
-  /**
-   * Returns the Foundation framework version number
-   *
-   * @public
-   * @static
-   * @returns {sphp} for fluent interface
-   */
-  sphp.preventFoundationFouc = function () {
-    console.log("sphp.preventFoundationFouc()");
-    $('.sphp-hide-fouc-on-load').removeClass('sphp-hide-fouc-on-load');
-  };
 
   /**
    * Initializes the clipboard functionality
@@ -133,22 +116,29 @@ if (!window.console.log) {
    * @returns {sphp} for fluent interface
    */
   sphp.initClipboard = function () {
-    if (Clipboard.isSupported()) {
-      var clipboard = new Clipboard('[data-clipboard-target]');
-      clipboard.on('success', function (e) {
-        var $this = $(e.trigger), $container = $($this.attr("data-clipboard-target"));
-        console.info('Action:', e.action);
-        console.info('Text:', e.text);
-        console.info('Trigger:', e.trigger);
-        $container.sphpPopper({content: "Code is copied to the clipboard"});
-        e.clearSelection();
-      });
-      clipboard.on('error', function (e) {
-        console.error('Action:', e.action);
-        console.error('Trigger:', e.trigger);
-      });
-    }
+    var button = $('[data-clipboard-target]');
+    button.click(
+            function () {
+              var $btn = $(this), $container;
+              console.log('content-id: ' + $btn.attr("data-clipboard-target"));
+              $container = $($btn.attr("data-clipboard-target"));
+              var dt = new clipboard.DT();
+              dt.setData("text/plain", $container.text());
+              dt.setData("text/html", $container.html());
+              clipboard.write(dt);
+              $container.sphpPopper({content: "Code is copied to the clipboard"});
+            });
     return this;
+  };
+
+  sphp.historyBackButtons = function () {
+    $('[data-sphp-history-back]').click(function () { //on click event
+      //number of days to keep the cookie
+      var $this = $(this), $steps = 1;
+      $steps = $this.attr('data-sphp-history-back');
+      console.log("History steps: " + $steps);
+      window.history.go($steps);
+    });
   };
   /**
    * Initializes back to top button functionality
@@ -160,6 +150,26 @@ if (!window.console.log) {
     $('[data-sphp-back-to-top-button]').backToTopController();
     return this;
   };
+  ;
+  /**
+   * Initializes back to top button functionality
+   *    
+   * @returns {sphp} 
+   */
+  sphp.initSphp = function () {
+    console.log("sphp initSphp()");
+
+    $('.card.card-reveal-wrapper').find('.card-open-button').click(function () {
+      console.log('.card-open-button clicked');
+      $(this).siblings('.card-reveal').toggleClass('open');
+    });
+
+    $('.card.card-reveal-wrapper').find('.card-close-button').click(function () {
+      $(this).parent().parent('.card-reveal').toggleClass('open');
+    });
+    return this;
+  };
+
 
   /**
    * Initializes all sphp functionality
@@ -169,45 +179,58 @@ if (!window.console.log) {
    */
   sphp.initialize = function () {
     sphp.enableConsole(true);
-    sphp.preventFoundationFouc();
-    console.log("sphp.initialize()");
+    console.log("sphp.initialize() started");
     sphp.initClipboard().initBackToTopButtons();
+    sphp.historyBackButtons();
     //var $ajaxLoaders = $("[data-sphp-ajax-url]");
-    console.log("loaded");
 
+    sphp.setFoundationAbideAddons();
     $(document).foundation();
     console.log("jQuery " + $.fn.jquery + " loaded...");
     console.log("Foundation " + Foundation.version + " loaded...");
-    console.log("AnyTime " + AnyTime.version + " loaded...");
+    // console.log("AnyTime " + AnyTime.version + " loaded...");
     //$ajaxLoaders.sphpAjaxLoader();
     $("[data-sphp-ajax-append]").sphpAjaxAppend();
     $("[data-sphp-ajax-prepend]").sphpAjaxPrepend();
-
+    $("[data-sphp-ajax-replace]").sphpAjaxReplace();
+    //$("[data-sphp-foundation-rangeslider]").sphpFoundationRangeSliderValueViewer();
+    $('.slider').sphpFoundationSlider();
     /*$ajaxLoaders.on("sphp-ajax-loader-finished", function () {
      console.log("SPHP Ajax loader finished loaded...");
      $(this).foundation();
      //$(this).find(".sphp-viewport-size-viewer").viewportSizeViewer();
      });*/
-    $(".sphp-viewport-size-viewer").viewportSizeViewer();
-
-    $("[data-sphp-qtip]").qtips();
+    //$(".sphp-viewport-size-viewer").viewportSizeViewer();
+    //$("[data-sphp-qtip]").qtips();
+    $('div[data-switch-board]').switchBoard();
+    $('.sphp.cookie-banner').cookieBanner();
     // $('.sphp-back-to-top-button').backToTopBtn();
     $("input[data-anytime]").SphpAnyTimeInput();
     $("[data-sphp-ion-slider]").ionRangeSlider({});
-    //$("[data-reveal]").sphpPopup();
+    //$("[data-reveal]").sphpPopup(); 
     $('[data-slick]').slick();
     $('[data-accordion]').on('down.zf.accordion', function () {
-      console.log('Foundation Accordion opened!');
-      $(this).lazyLoadXT();
+      var $accordion = $(this), $sliders;
+      //console.log('Foundation Accordion opened!');
+      $accordion.lazyLoadXT();
+      $sliders = $accordion.find('.slider');
+      if ($sliders.length > 0) {
+        $sliders.find('.slider').show();
+        $sliders.find('.slider').foundation('_reflow');
+      }
     });
     $("[data-src]").lazyLoadXT();
+    sphp.initReCAPTCHAv3sForm();
+    $("[data-sphp-tipso]").sphpTipso();
+    sphp.initSphp();
+    // $("[data-sphp-php-info-tipso]").phpInfoTipso();
 
   };
 
 }(window.sphp = window.sphp || {}, jQuery));
 
-$(window).bind("load", function () {
-  "use strict";
-  sphp.initialize();
-  
-});
+//$(window).bind("load", function () {
+//  "use strict";
+sphp.initialize();
+
+//});

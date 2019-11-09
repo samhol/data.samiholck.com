@@ -1,8 +1,11 @@
 <?php
 
 /**
- * PHP.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Config;
@@ -11,18 +14,18 @@ namespace Sphp\Config;
  * Utility class for PHP configuration
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 abstract class PHP {
 
   /**
-   * @var PHPConfig 
+   * @var PHPConfig
    */
   private static $configurator;
 
   /**
-   * @var Ini[] 
+   * @var PHPIni[] 
    */
   private static $inis;
 
@@ -42,11 +45,11 @@ abstract class PHP {
    * Returns a named PHP INI configuration instance
    * 
    * @param  string $name the name of the instance
-   * @return Ini the instance (created if not present)
+   * @return PHPIni the instance (created if not present)
    */
-  public static function ini(string $name): Ini {
+  public static function ini(string $name): PHPIni {
     if (!isset(self::$inis[$name])) {
-      return self::storeIni($name, new Ini());
+      return self::storeIni($name, new PHPIni());
     }
     return self::$inis[$name];
   }
@@ -55,9 +58,10 @@ abstract class PHP {
    * Sets a named PHP INI configuration instance
    * 
    * @param  string $name the name of the instance
-   * @return Ini the PHP INI configuration instance stored
+   * @param  PHPIni $ini
+   * @return PHPIni the PHP INI configuration instance stored
    */
-  public static function storeIni(string $name, Ini $ini): Ini {
+  public static function storeIni(string $name, PHPIni $ini): PHPIni {
     self::$inis[$name] = $ini;
     return self::$inis[$name];
   }

@@ -1,3 +1,10 @@
+/**
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
+ */
 .manual-info-text {
   article.wrapper {
     h2 {
@@ -39,10 +46,9 @@
       &:first-child {
         border: none;
         border-bottom: solid 1px #666;
-        @include border-bottom-radius(0);
         @include border-top-radius(4px);
       }
-    }
+    } 
     > p, > ul, > ol {
       margin: rem-calc(5 50);
       text-align: justify;
@@ -67,7 +73,6 @@
     &:first-child {
       border: none;
       border-bottom: solid 1px #666;
-      @include border-bottom-radius(0);
       @include border-top-radius(4px);
     }
   }
@@ -90,3 +95,7 @@
     }
   }
 }
+
+
+
+

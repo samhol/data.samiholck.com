@@ -1,13 +1,17 @@
 <?php
 
 /**
- * HtmlSlide.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Media\Orbit;
 
-use Sphp\Html\AbstractContainerTag;
+use Sphp\Html\Container;
+use Sphp\Html\PlainContainer;
 
 /**
  * Implements a slide for Orbit
@@ -15,25 +19,42 @@ use Sphp\Html\AbstractContainerTag;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/orbit.html Orbit
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class HtmlSlide extends AbstractContainerTag implements Slide {
-
-  use ActivationTrait;
+class HtmlSlide extends AbstractSlide {
 
   /**
-   * Constructs a new instance
+   * @var PlainContainer 
+   */
+  private $htmlContent;
+
+  /**
+   * Constructor
    *
    * @param  mixed $content the content of the slide
    * @link   http://www.php.net/manual/en/language.oop5.magic.php#object.tostring __toString() method
    */
   public function __construct($content = null) {
-    parent::__construct('li');
+    parent::__construct();
+    $this->htmlContent = new PlainContainer();
     if ($content !== null) {
-      $this->append($content);
+      $this->getHtmlContent()->append($content);
     }
-    $this->cssClasses()->protect('orbit-slide');
+  }
+
+  public function getHtmlContent(): Container {
+    return $this->htmlContent;
+  }
+
+  public function setHtmlContent(PlainContainer $htmlContent) {
+    $this->htmlContent = $htmlContent;
+    return $this;
+  }
+
+  public function contentToString(): string {
+    return $this->htmlContent->getHtml();
   }
 
 }

@@ -1,15 +1,18 @@
 <?php
 
 /**
- * Db.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database;
 
 use PDO;
-use Sphp\Database\Exceptions\InvalidArgumentException;
-use Sphp\Database\Exceptions\BadMethodCallException;
+use Sphp\Exceptions\InvalidArgumentException;
+use Sphp\Exceptions\BadMethodCallException;
 
 /**
  * Implements a Database statement factory
@@ -17,10 +20,10 @@ use Sphp\Database\Exceptions\BadMethodCallException;
  * @method \Sphp\Database\Query query(string $dbName) Returns a new `SELECT` statement object for the named database
  * @method \Sphp\Database\Delete delete(string $dbName) Returns a new `DELETE` statement object for the named database
  * @method \Sphp\Database\Update update(string $dbName) Returns a new `UPDATE` statement object for the named database
- * @method \Sphp\Database\Insert insert(string $dbName) Returns a new `INSERT` statement object for the named database
+ * @method \Sphp\Database\Insert insertVisitor(string $dbName) Returns a new `INSERT` statement object for the named database
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Db {
@@ -44,7 +47,7 @@ class Db {
   private $pdo;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  PDO $pdo connection object between PHP and a database server
    * @link   http://www.php.net/manual/en/book.pdo.php PHP Data Objects
@@ -83,6 +86,7 @@ class Db {
    * @param  string|null $name
    * @return Db
    * @throws InvalidArgumentException
+   * @deprecated
    */
   public static function instance(string $name = null): Db {
     if ($name === null) {
@@ -112,9 +116,7 @@ class Db {
 
   /**
    * 
-   *
-   * 
-   * @param  string $name the type name of the instance created
+   * @param  string $className the type name of the instance created
    * @param  array $arguments
    * @return Statement
    * @throws BadMethodCallException

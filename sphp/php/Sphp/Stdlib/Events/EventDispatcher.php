@@ -1,20 +1,23 @@
 <?php
 
 /**
- * EventDispatcher.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Events;
 
 use Sphp\Stdlib\Datastructures\UniquePriorityQueue;
-use InvalidArgumentException;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Implements an event dispatcher
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class EventDispatcher implements EventDispatcherInterface {
@@ -36,114 +39,81 @@ class EventDispatcher implements EventDispatcherInterface {
   /**
    * Returns the globally available instance of event manager
    *
-   * @param  EventDispatcher $manager optional event manager instance
    * @return EventDispatcher the global event manager
    */
-  public static function instance(EventDispatcher $manager = null) {
-    if ($manager instanceof EventDispatcher) {
-      self::$globalDispatcher = $manager;
-    }
-    if (empty(self::$globalDispatcher)) {
+  public static function instance(): EventDispatcher {
+    if (self::$globalDispatcher === null) {
       self::$globalDispatcher = new EventDispatcher();
     }
-    self::$globalDispatcher->isGlobal = true;
     return self::$globalDispatcher;
   }
 
   /**
-   * Destroys the instance
-   * 
-   * The destructor method will be called as soon as there are no other references 
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->listeners);
   }
 
-  /**
-   * Clones the object
-   *
-   * **Note:** Method cannot be called directly!
-   *
-   * @link http://www.php.net/manual/en/language.oop5.cloning.php#object.clone PHP Object Cloning
-   */
-  public function __clone() {
-    $this->listeners = [];
-  }
-
-  /**
-   * Return the type of the given event
-   *
-   * @param  EventInterface|string $event event object or the type of the event
-   * @return string the name of the event
-   */
-  protected function getEventName($event) {
-    if ($event instanceof EventInterface) {
-      return $event->getName();
-    } else {
-      return $event;
+  public function addListener(string $eventName, $listener, int $priority = 0) {
+    if (!($listener instanceof EventListener) && !is_callable($listener)) {
+      throw new InvalidArgumentException("Listener type is not recognize as legal");
     }
-  }
-
-  public function addListener($event, $listener, $priority = 0) {
-    if (is_array($event)) {
-      foreach ($event as $event) {
-        $this->addListener($event, $listener, $priority);
-      }
-    } else {
-      //
-      if (!($listener instanceof EventListenerInterface) && !is_callable($listener)) {
-        //var_dump($listener);
-        throw new InvalidArgumentException("Listener type is not recognize as legal");
-      }
-      $key = $this->getEventName($event);
-      if (!array_key_exists($key, $this->listeners)) {
-        $this->listeners[$key] = new UniquePriorityQueue();
-      }
-      $this->listeners[$key]->enqueue($listener, $priority);
+    if (!array_key_exists($eventName, $this->listeners)) {
+      $this->listeners[$eventName] = new UniquePriorityQueue();
     }
+    $this->listeners[$eventName]->enqueue($listener, $priority);
     return $this;
   }
 
-  public function remove($listener, $events = null) {
-    if ($events === null) {
+  public function removeListenersOf(string $eventName) {
+    if (array_key_exists($eventName, $this->listeners)) {
+      unset($this->listeners[$eventName]);
+    }
+    //print_r($this->listeners);
+    return $this;
+  }
+
+  public function removeListener($listener, string $eventName = null) {
+    if ($eventName === null) {
       foreach ($this->listeners as $event => $l) {
         $l->remove($listener);
         if ($l->count() == 0) {
           unset($this->listeners[$event]);
         }
       }
-    } else if (is_array($events)) {
-      foreach ($events as $event) {
-        $l->remove($listener, $event);
-      }
-    } else if (array_key_exists($events, $this->listeners)) {
-      $this->listeners[$events]->detach($listener);
-      if ($l->count() == 0) {
-        unset($this->listeners[$events]);
+    } else if (array_key_exists($eventName, $this->listeners)) {
+      $this->listeners[$eventName]->remove($listener);
+      if ($this->listeners[$eventName]->count() == 0) {
+        unset($this->listeners[$eventName]);
       }
     }
+    //print_r($this->listeners);
     return $this;
   }
 
   /**
+   * Creates and triggers a new event to all corresponding listeners
    * 
-   * @param  string $name the name of the event
-   * @param  mixed $subject subject the subject which dispached this event
+   * @param  string $eventName the name of the event
+   * @param  mixed $subject subject the subject which dispatched this event
    * @param  mixed $data the data dispatched with this event
    * @return $this for a fluent interface
    */
-  public function triggerEvent(string $name, $subject = null, $data = null) {
-    $event = new Event($name, $subject, $data);
+  public function triggerDataEvent(string $eventName, $subject = null, $data = null): DataEvent {
+    $event = new DataEvent($eventName, $subject, $data);
     $this->trigger($event);
-    return $this;
+    return $event;
   }
 
-  public function trigger(EventInterface $event) {
+  public function trigger(Event $event) {
     $key = $event->getName();
     if (array_key_exists($key, $this->listeners)) {
       foreach ($this->listeners[$key] as $listener) {
-        if ($listener instanceof EventListenerInterface) {
+        if ($event->isStopped()) {
+          break;
+        }
+        if ($listener instanceof EventListener) {
           $listener->on($event);
         } else {
           $listener($event);
@@ -153,15 +123,13 @@ class EventDispatcher implements EventDispatcherInterface {
     return $this;
   }
 
-  public function hasListeners($e): bool {
-    $key = $this->getEventName($e);
-    return array_key_exists($key, $this->listeners);
+  public function hasListeners(string $eventName): bool {
+    return array_key_exists($eventName, $this->listeners);
   }
 
-  public function getListeners($event): array {
-    $key = $this->getEventName($event);
-    if (array_key_exists($key, $this->listeners)) {
-      return $this->listeners[$key]->toArray();
+  public function getListeners(string $eventName): array {
+    if (array_key_exists($eventName, $this->listeners)) {
+      return $this->listeners[$eventName]->toArray();
     } else {
       return [];
     }

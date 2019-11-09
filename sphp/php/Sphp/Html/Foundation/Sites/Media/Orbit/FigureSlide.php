@@ -1,8 +1,11 @@
 <?php
 
 /**
- * FigureSlide.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Media\Orbit;
@@ -10,6 +13,7 @@ namespace Sphp\Html\Foundation\Sites\Media\Orbit;
 use Sphp\Html\AbstractComponent;
 use Sphp\Html\Media\Img;
 use Sphp\Html\Media\FigCaption;
+use Sphp\Html\Media\Figure;
 
 /**
  * Implements a figure slide for Orbit
@@ -17,82 +21,64 @@ use Sphp\Html\Media\FigCaption;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/orbit.html Orbit
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class FigureSlide extends AbstractComponent implements Slide {
-
-  use ActivationTrait;
-
-  /**
-   * the image component
-   *
-   * @var Img 
-   */
-  private $img;
+class FigureSlide extends AbstractSlide {
 
   /**
    * the caption component
    *
-   * @var FigCaption
+   * @var Figure
    */
-  private $caption;
+  private $figure;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param  string|URL|Img $img the image path or the image component
-   * @param  mixed|FigCaption $caption the caption content or the caption component
+   * @param  FigCaption $figure the caption content or the caption component
    */
-  public function __construct($img, $caption = null) {
-    parent::__construct('li');
-    $this->cssClasses()
-            ->protect('orbit-slide');
-    if (!($img instanceof Img)) {
-      $img = new Img($img);
-    }
-    $this->img = $img;
-    $this->img->cssClasses()
-            ->protect('orbit-image');
-    if (!($caption instanceof FigCaption)) {
-      $caption = new FigCaption($caption);
-    }
-    $this->caption = $caption;
-    $this->caption->cssClasses()
-            ->protect('orbit-caption');
+  public function __construct(Figure $figure) {
+    parent::__construct();
+    $this->figure = $figure->addCssClass('orbit-figure');
+    $this->figure->getImg()->addCssClass('orbit-image');
+    $this->figure->getCaption()->cssClasses()
+            ->protectValue('orbit-caption');
   }
 
   public function __destruct() {
-    unset($this->img, $this->caption);
+    unset($this->figure);
     parent::__destruct();
   }
 
   public function __clone() {
-    $this->img = clone $this->img;
-    $this->caption = clone $this->caption;
+    $this->figure = clone $this->figure;
     parent::__clone();
   }
 
   /**
    * Returns the image component
    *
-   * @return Img the image component
+   * @return Figure the image component
    */
-  public function getImg(): Img {
-    return $this->img;
-  }
-
-  /**
-   * Returns the caption component
-   *
-   * @return FigCaption the caption component
-   */
-  public function getCaption(): FigCaption {
-    return $this->caption;
+  public function getFigure(): Figure {
+    return $this->figure;
   }
 
   public function contentToString(): string {
-    return $this->img . $this->caption;
+    return $this->figure;
+  }
+
+  /**
+   * 
+   * @param  string $img
+   * @param  string $caption
+   * @return FigureSlide
+   */
+  public static function create(string $img, string $caption): FigureSlide {
+    $fig = new Figure($img, $caption);
+    return new static($fig);
   }
 
 }

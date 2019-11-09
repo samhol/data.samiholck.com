@@ -1,14 +1,18 @@
 <?php
 
 /**
- * Interchange.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Adapters;
 
 use Sphp\Html\Adapters\AbstractComponentAdapter;
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Foundation\Sites\Core\FoundationSettings;
+use Sphp\Html\Component;
 
 /**
  * Implements Foundation framework based Interchange adapter
@@ -18,7 +22,7 @@ use Sphp\Html\ComponentInterface;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Interchange extends AbstractComponentAdapter {
@@ -26,11 +30,12 @@ class Interchange extends AbstractComponentAdapter {
   private $queries = [];
 
   /**
-   * Constructs a new instance
-   * 
-   * @param ComponentInterface $component
+   * Constructor
+   *
+   * @param Component $component
+   * @param FoundationSettings $foundation
    */
-  public function __construct(ComponentInterface $component) {
+  public function __construct(Component $component, FoundationSettings $foundation = null) {
     parent::__construct($component);
     $this->queries = [
         'portrait' => null,
@@ -41,6 +46,11 @@ class Interchange extends AbstractComponentAdapter {
         'xlarge' => null,
         'xxlarge' => null,
     ];
+  }
+  
+  public function __destruct() {
+    unset($this->queries);
+    parent::__destruct();
   }
 
   /**
@@ -64,7 +74,7 @@ class Interchange extends AbstractComponentAdapter {
     }
     $value = implode(', ', $queryArr);
     if ($value !== '') {
-      $this->attributes()->set('data-interchange', $value);
+      $this->attributes()->setAttribute('data-interchange', $value);
     } else {
       $this->attributes()->remove('data-interchange');
     }

@@ -1,78 +1,108 @@
 <?php
 
 /**
- * AbstractGrid.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Grids;
 
 use Sphp\Html\AbstractComponent;
-use Sphp\Html\Container;
+use Sphp\Html\PlainContainer;
 use Sphp\Html\TraversableContent;
+use IteratorAggregate;
 use Traversable;
 
 /**
- * Implements an abstract Foundation framework based XY Grid container for rows
+ * Implements an abstract XY Grid Row container (a Grid)
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    https://foundation.zurb.com/sites/docs/xy-grid.html#grid-container XY Grid Container
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class AbstractGrid extends AbstractComponent implements \IteratorAggregate, GridInterface {
+class AbstractGrid extends AbstractComponent implements IteratorAggregate, Grid {
 
   use \Sphp\Html\TraversableTrait;
 
   /**
-   * @var Container 
+   * @var PlainContainer 
    */
   private $content;
 
   /**
-   * @var GridLayoutManager 
-   */
-  private $layoutManager;
-
-  /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $tagname the tag name of the component
    */
   public function __construct(string $tagname) {
     parent::__construct($tagname);
-    $this->content = new Container();
-    $this->layoutManager = new GridLayoutManager($this);
+    $this->content = new PlainContainer();
+    $this->cssClasses()->protectValue('grid-container');
   }
 
-  public function layout(): GridLayoutManagerInterface {
-    return $this->layoutManager;
+  public function __destruct() {
+    unset($this->content);
+    parent::__destruct();
   }
 
-  public function getColumns(): TraversableContent {
-    return $this->getComponentsByObjectType(ColumnInterface::class);
+  public function __clone() {
+    $this->content = clone $this->content;
+    parent::__clone();
   }
 
-  public function append($row) {
-    if (!($row instanceof RowInterface)) {
-      $row = new Row($row);
+  public function setFluid(bool $fluid = false) {
+    if ($fluid) {
+      $this->cssClasses()->remove('full')->add('fluid');
+    } else {
+      $this->cssClasses()->remove('fluid');
+    }
+    return $this;
+  }
+
+  public function setFull(bool $full = false) {
+    if ($full) {
+      $this->cssClasses()->remove('fluid')->add('full');
+    } else {
+      $this->cssClasses()->remove('full');
+    }
+    return $this;
+  }
+
+  public function setLayouts(...$layouts) {
+    $this->cssClasses()->add($layouts);
+    $this->cssClasses()->add('grid-container');
+    return $this;
+  }
+
+  public function unsetLayouts() {
+    $this->setFluid(false)->setFull(false);
+    return $this;
+  }
+
+  public function getCells(): TraversableContent {
+    return $this->getComponentsByObjectType(Cell::class);
+  }
+
+  public function append($row): Row {
+    if (!($row instanceof Row)) {
+      $row = new BasicRow($row);
     }
     $this->content->append($row);
-    return $this;
+    return $row;
   }
 
   public function contentToString(): string {
     return $this->content->getHtml();
   }
 
-  public function count(): int {
-    return $this->content->count();
-  }
-
-  public function prepend($row) {
-    if (!($row instanceof RowInterface)) {
-      $row = new Row($row);
+  public function prepend($row): Row {
+    if (!($row instanceof Row)) {
+      $row = new BasicRow($row);
     }
     $this->content->prepend($row);
     return $this;

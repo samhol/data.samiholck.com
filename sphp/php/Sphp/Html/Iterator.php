@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Iterator.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
@@ -15,13 +18,13 @@ use Sphp\Stdlib\Arrays;
  * Implements a basic iterator for HTML content
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Iterator implements NativeIterator, Content, TraversableContent {
+class Iterator extends AbstractContent implements NativeIterator, TraversableContent {
 
-  use ContentTrait,
-      TraversableTrait;
+  use TraversableTrait;
 
   /**
    * the content
@@ -31,7 +34,7 @@ class Iterator implements NativeIterator, Content, TraversableContent {
   private $components = [];
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  mixed $content the content of the iterator
    * @link   http://www.php.net/manual/en/language.oop5.magic.php#object.tostring __toString() method
@@ -67,37 +70,8 @@ class Iterator implements NativeIterator, Content, TraversableContent {
     $this->components = Arrays::copy($this->components);
   }
 
-  /**
-   * Count the number of inserted elements in the container
-   *
-   * @return int number of elements in the HTML component
-   * @link   http://php.net/manual/en/class.countable.php Countable
-   */
-  public function count(): int {
-    return count($this->components);
-  }
-
   public function getHtml(): string {
-    $output = '';
-    foreach ($this->components as $value) {
-      if (is_scalar($value) || $value === null) {
-        $output .=   $value;
-      } else if (is_object($value)) {
-        if (method_exists($value, '__toString')) {
-          $output .=  $value;
-        } else if ($value instanceof \Traversable) {
-          $arr = iterator_to_array($value);
-          $output .= Arrays::implode($arr);
-        } else {
-          throw new InvalidArgumentException('Object has no string representation');
-        }
-      } else if (is_array($value)) {
-        $output .= Arrays::implode($value);
-      } else {
-        throw new InvalidArgumentException('value has no string representation');
-      }
-    }
-    return $output;
+    return Arrays::recursiveImplode($this->components);
   }
 
   /**
@@ -114,7 +88,7 @@ class Iterator implements NativeIterator, Content, TraversableContent {
    * 
    * @return void
    */
-  public function next() {
+  public function next(): void {
     next($this->components);
   }
 
@@ -132,7 +106,7 @@ class Iterator implements NativeIterator, Content, TraversableContent {
    * 
    * @return void
    */
-  public function rewind() {
+  public function rewind(): void {
     reset($this->components);
   }
 
@@ -142,7 +116,7 @@ class Iterator implements NativeIterator, Content, TraversableContent {
    * @return boolean current iterator position is valid
    */
   public function valid(): bool {
-    return false !== current($this->components);
+    return null !== key($this->components);
   }
 
 }

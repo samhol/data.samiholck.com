@@ -1,22 +1,26 @@
 <?php
 
 /**
- * Filesystem.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib;
 
-use Sphp\Exceptions\RuntimeException;
-use SplFileObject;
+use Sphp\Exceptions\FileSystemException;
 use Sphp\Stdlib\Arrays;
 use Exception;
+use SplFileInfo;
+use Sphp\Config\ErrorHandling\ErrorToExceptionThrower;
 
 /**
  * Tools to work with files and directories
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 abstract class Filesystem {
@@ -36,17 +40,27 @@ abstract class Filesystem {
     }
   }
 
+  public static function isAsciiFile(string $filename): bool {
+    $isAscii = false;
+    if (static::isFile($filename)) {
+      $finfo = new \finfo(\FILEINFO_MIME);
+      $mime = $finfo->file($filename);
+      $isAscii = substr($mime, 0, 4) === 'text';
+    }
+    return $isAscii;
+  }
+
   /**
    * Solves the full path to file
    * 
    * @param  string $path  relative path to file
    * @return string full path to file
-   * @throws RuntimeException if the file path cannot be resolved
+   * @throws FileSystemException if the file path cannot be resolved
    */
   public static function getFullPath(string $path): string {
     $fullPath = stream_resolve_include_path($path);
     if ($fullPath === false) {
-      throw new RuntimeException("The path '$path' does not exist");
+      throw new FileSystemException("The path '$path' does not exist");
     }
     return $fullPath;
   }
@@ -56,16 +70,12 @@ abstract class Filesystem {
    *
    * @param  string $path the path to the file
    * @return string the result of the script execution
-   * @throws RuntimeException if the parsing fails for any reason
+   * @throws FileSystemException if the parsing fails for any reason
    */
   public static function toString(string $path): string {
-    if (!static::isFile($path)) {
-      throw new RuntimeException("The path '$path' contains no file");
-    } else {
-      $data = file_get_contents(static::getFullPath($path), false);
-      if ($data === false) {
-        throw new RuntimeException("Parsing the file '$path' failed");
-      }
+    $data = file_get_contents(static::getFullPath($path), false);
+    if ($data === false) {
+      throw new FileSystemException("Parsing the file '$path' failed");
     }
     return $data;
   }
@@ -80,7 +90,7 @@ abstract class Filesystem {
    * 
    * @param  string|string[],... $paths the path to the executable PHP script
    * @return string the result of the script execution
-   * @throws RuntimeException if the $paths points to no actual file
+   * @throws FileSystemException if the $paths points to no actual file
    * @throws Exception 
    */
   public static function executePhpToString(...$paths): string {
@@ -88,7 +98,8 @@ abstract class Filesystem {
     ob_start();
     foreach (Arrays::flatten($paths) as $path) {
       if (!static::isFile($path)) {
-        throw new RuntimeException("The path '$path' contains no executable PHP script");
+        ob_end_clean();
+        throw new FileSystemException("The path '$path' contains no executable PHP script");
       }
       include($path);
     }
@@ -103,99 +114,87 @@ abstract class Filesystem {
    *
    * @param  string $path the path to the ASCII file
    * @return string[] rows of the ASCII file in an array
-   * @throws RuntimeException if the $path points to no actual file
+   * @throws FileSystemException if the $path points to no actual file
    */
   public static function getTextFileRows(string $path): array {
-    $result = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $result = file(static::getFullPath($path), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     if ($result === false) {
-      throw new RuntimeException("The path '$path' contains no file");
+      throw new FileSystemException("The path '$path' contains no readable file");
     }
     return $result;
-  }
-
-  /**
-   * Returns the file/directory structure under the given path
-   *
-   * @param  string $dir
-   * @return SplFileObject[] the file objects of the content files and directories
-   */
-  public static function dirToArray($dir, $sortingOrder = \SCANDIR_SORT_ASCENDING) {
-    $contents = [];
-    foreach (scandir($dir, $sortingOrder) as $node) {
-      $path = "$dir/$node";
-      if ($node == '.' || $node == '..') {
-        continue;
-      }
-      if (is_dir($path)) {
-        $contents[$path] = static::dirToArray($path, $sortingOrder);
-      } else {
-        $file = new SplFileObject($path);
-        $key = pathinfo($node, PATHINFO_FILENAME);
-        if (array_key_exists($key, $contents)) {
-          $key = $node;
-        }
-        $contents[$key] = $file;
-      }
-    }
-    return $contents;
   }
 
   /**
    * Attempts to create the directory specified by pathname
    *
-   * * For more information on modes, read the details on the {@link \chmod()} page.
-   *
    * @param  string $path the directory path
    * @param  int $mode the mode is `0777` by default, which means the widest possible access
-   * @return boolean true on success or false on failure
+   * @return SplFileInfo file info object pointing to the folder
+   * @throws FileSystemException if the operation fails
    */
-  public static function mkdir(string $path, int $mode = 0777): bool {
-    $result = is_dir($path);
-    if (!$result) {
-      $result = mkdir($path, $mode, true);
+  public static function mkdir(string $path, int $mode = 0777): SplFileInfo {
+    $thrower = new ErrorToExceptionThrower(FileSystemException::class);
+    $thrower->start();
+    $fileinfo = new SplFileInfo($path);
+    //$realPath = $fileinfo->getRealPath();
+    if (!$fileinfo->isDir()) {
+      if (!mkdir($path, $mode, true)) {
+        throw new FileSystemException("Directory path '$path' cannot be created");
+      }
     }
-    return $result;
+    if ($fileinfo->getPerms() !== $mode) {
+
+      $result = chmod($fileinfo->getRealPath(), $mode);
+      if (!$result) {
+        throw new FileSystemException("Permission cannot be set");
+      }
+    }
+    $thrower->stop();
+    return $fileinfo;
   }
 
   /**
    * Attempts to create the file specified by pathname
    *
-   * * For more information on modes, read the details on the {@link \chmod()} page.
-   *
    * @param  string $path the file path
    * @param  int $mode the mode is `0777` by default, which means the widest possible access
-   * @return boolean true on success or false on failure
+   * @return SplFileInfo file info object pointing to the file
+   * @throws FileSystemException if the file creation fails
    */
-  public static function mkFile(string $path, int $mode = 0777): bool {
-    if (is_file($path)) {
-      return false;
-    }
-    $dirname = dirname($path);
+  public static function mkFile(string $path, int $mode = 0777): SplFileInfo {
+    $fileinfo = new SplFileInfo($path);
+    $dirname = $fileinfo->getPath();
     if ($dirname !== '.' && !is_dir($dirname)) {
       static::mkdir($dirname, $mode);
     }
-    return fopen($path, 'w') !== false;
+    if (!$fileinfo->isWritable()) {
+      $success = fopen($path, 'w') !== false;
+      if (!$success) {
+        throw new FileSystemException("File '$path' cannot be created");
+      }
+    }
+    return $fileinfo;
   }
 
   /**
-   * Converts the file size (in bits) to bytes
-   *
-   * @param  int|string $filesize file size in bits
-   * @return string file size in bytes
+   * 
+   * @param string $path
+   * @return SplFileInfo
    */
-  public static function generateFilesizeString($filesize): string {
-    if (is_numeric($filesize)) {
-      $decr = 1024;
-      $step = 0;
-      $prefix = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-      while (($filesize / $decr) > 0.9) {
-        $filesize = $filesize / $decr;
-        $step++;
-      }
-      return round($filesize, 2) . ' ' . $prefix[$step];
-    } else {
-      return 'NaN';
+  public static function rmDir(string $path): SplFileInfo {
+    $fileinfo = new SplFileInfo($path);
+    if ($fileinfo->isDir()) {
+      rmdir($path);
     }
+    return $fileinfo;
+  }
+
+  public static function rmFile(string $path): SplFileInfo {
+    $fileinfo = new SplFileInfo($path);
+    if ($fileinfo->isFile()) {
+      unlink($fileinfo->getRealPath());
+    }
+    return $fileinfo;
   }
 
 }

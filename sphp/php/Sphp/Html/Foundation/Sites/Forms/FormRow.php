@@ -1,40 +1,32 @@
 <?php
 
 /**
- * FormRow.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Forms;
 
-use Sphp\Html\Foundation\Sites\Grids\Row;
+use Sphp\Html\Foundation\Sites\Grids\BasicRow;
 use Sphp\Html\Forms\Inputs\Input;
-use Sphp\Html\Foundation\Sites\Forms\Inputs\InputColumn;
-use Sphp\Html\NonVisualContent;
-use Sphp\Html\Foundation\Sites\Grids\ColumnInterface;
+use Sphp\Html\Foundation\Sites\Forms\Inputs\BasicInputCell;
+use Sphp\Html\Foundation\Sites\Grids\Cell;
 
 /**
  * Extends a Foundation Row for form components
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class FormRow extends Row {
+class FormRow extends BasicRow {
 
-  public function __construct($columns = null, $sizes = null) {
+  public function __construct($columns = null, array $sizes = []) {
     parent::__construct($columns, $sizes);
-    $this->layout()->usePadding(true);
-  }
-
-  public function appendColumn($content, array $layout = ['auto']) {
-    //echo "here " . $content;
-    if ($content instanceof InputInterface) {
-      $this->appendInput($content, $layout);
-    } else {
-      parent::appendColumn($content, $layout);
-    }
-    return $this;
+    //$this->usePadding(true);
   }
 
   /**
@@ -42,18 +34,18 @@ class FormRow extends Row {
    * 
    * @param  Input $input the appended input 
    * @param  array $layout
-   * @return $this for a fluent interface
+   * @return Cell appended input 
    */
-  public function appendInput(Input $input, array $layout = ['auto']) {
-    if ($input instanceof NonVisualContent) {
-      $this->append($input);
-    } else if ($input instanceof ColumnInterface) {
-      $input->layout()->setLayouts($layout);
+  public function appendInput(Input $input, array $layout = ['auto']): Cell {
+    if ($input instanceof Cell) {
+      $input->setLayouts($layout);
       $this->append($input);
     } else {
-      $this->append(new InputColumn($input, $layout));
+      $input = new BasicInputCell($input);
+      $input->setLayouts($layout);
+      $this->append($input);
     }
-    return $this;
+    return $input;
   }
 
 }

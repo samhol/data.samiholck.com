@@ -1,91 +1,63 @@
 <?php
 
 /**
- * Json.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Parsers;
 
-use Exception;
 use Zend\Config\Reader\Json as JsonFormat;
-use Sphp\Exceptions\RuntimeException;
+use Sphp\Exceptions\InvalidArgumentException;
+use Sphp\Config\ErrorHandling\ErrorToExceptionThrower;
 
 /**
- * Implements JSON reader
+ * Implements an JSON reader
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Json extends AbstractReader {
+class Json implements ArrayParser {
+
+  use ReaderFromFileTrait;
 
   /**
    * @var JsonFormat 
    */
   private $parser;
 
+  /**
+   * Constructor
+   */
   public function __construct() {
     $this->parser = new JsonFormat();
   }
-
-  public function fromString(string $string) {
-    try {
-      return $this->parser->fromString($string);
-    } catch (Exception $ex) {
-      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
-    }
-  }
-
-  /**
-   * processConfig(): defined by AbstractWriter.
-   *
-   * @param  array $config
-   * @return string
-   * @throws RuntimeException if encoding errors occur.
-   */
-  public function encode(array $config): string {
-    $serialized = json_encode($config, JSON_UNESCAPED_SLASHES|JSON_FORCE_OBJECT);
-
-    if (false === $serialized) {
-      throw new RuntimeException(json_last_error_msg());
-    }
-
-    return $serialized;
-  }
   
   /**
-   * processConfig(): defined by AbstractWriter.
-   *
-   * @param  string $config
-   * @return array
-   * @throws RuntimeException if decoding errors occur.
+   * Destructor
    */
-  public function decode(string $config): array {
-    $serialized = json_decode($config);
+  public function __destruct() {
+    unset($this->parser);
+  }
 
+  public function stringToArray(string $string): array {
+    $thrower = ErrorToExceptionThrower::getInstance(InvalidArgumentException::class);
+    $thrower->start();
+    $data = json_decode($string, JSON_BIGINT_AS_STRING);
+    $thrower->stop();
+    return $data;
+  }
+
+  public function toString($data, int $flags = JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT): string {
+    $serialized = json_encode($data, $flags);
     if (false === $serialized) {
-      throw new RuntimeException(json_last_error_msg());
+      throw new InvalidArgumentException(json_last_error_msg());
     }
-
     return $serialized;
   }
 
-  /**
-   * processConfig(): defined by AbstractWriter.
-   *
-   * @param  string $path
-   * @return array
-   * @throws RuntimeException if decoding errors occur.
-   */
-  public function decodeFromFile(string $path): array {
-    $raw = file_get_contents($path);
-    $serialized = json_decode($raw, true);
-    //var_dump($raw);
-    if (false === $serialized) {
-      throw new RuntimeException(json_last_error_msg());
-    }
-
-    return $serialized;
-  }
 }

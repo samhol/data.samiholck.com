@@ -1,9 +1,10 @@
 /**
- * _headings.scss (UTF-8)
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
  *
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
-
 
 > h2, > h3 {
   padding: rem-calc(0 5 0 10); // top right bottom left
@@ -23,7 +24,8 @@
   margin: rem-calc(0 5 15 5);  // top right bottom left
   padding: rem-calc(3 5 3 10); // top right bottom left
 }
-> h1, > h2, > h3, > h4, > h5, > h6 {
+> h1 {
+
   &:first-child {
     background-color: #eee;
     &.error {
@@ -39,6 +41,8 @@
       text-transform: none;
     }
   }
+}
+> h1, > h2, > h3, > h4, > h5, > h6 {
   a.api {
     border: solid 1px #ccc;
     line-height: 1.6;
@@ -58,3 +62,4 @@
     }
   }
 }
+

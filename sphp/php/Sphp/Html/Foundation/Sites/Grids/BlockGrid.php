@@ -1,8 +1,11 @@
 <?php
 
 /**
- * BlockGrid.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Grids;
@@ -12,10 +15,13 @@ use Traversable;
 use Sphp\Html\AbstractComponent;
 use Sphp\Html\TraversableContent;
 use Sphp\Html\ContentParser;
-use Sphp\Html\Container;
+use Sphp\Html\PlainContainer;
+use Sphp\Exceptions\RuntimeException;
+use Sphp\Stdlib\Arrays;
+use Sphp\Html\Foundation\Foundation;
 
 /**
- * Implements a Foundation framework based XY Block Grid
+ * Implements an XY Block Grid
  *
  * **Important!**
  *
@@ -32,38 +38,105 @@ use Sphp\Html\Container;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    https://foundation.zurb.com/sites/docs/xy-grid.html#block-grids Block Grid
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class BlockGrid extends AbstractComponent implements IteratorAggregate, ContentParser, TraversableContent {
 
   use \Sphp\Html\TraversableTrait,
-      \Sphp\Html\ContentParsingTrait;
+      \Sphp\Html\ContentParserTrait;
 
   /**
-   * @var Container
+   * @var PlainContainer
    */
   private $columns;
 
   /**
-   * @var BlockGridLayoutManager 
+   * @var int 
    */
-  private $layoutManager;
+  private $maxSize = 8;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param  string $layout,... block grid layout parameters
+   * @param  string... $layout block grid layout parameters
    */
   public function __construct(...$layout) {
-    $this->columns = new Container();
+    $this->columns = [];
     parent::__construct('div');
-    $this->layoutManager = new BlockGridLayoutManager($this);
-    $this->layout()->setLayouts($layout);
+    $this->setLayouts($layout);
+    $this->maxSize = 8;
+    $this->cssClasses()->protectValue('grid-x');
   }
 
-  public function layout(): BlockGridLayoutManager {
-    return $this->layoutManager;
+  public function __destruct() {
+    unset($this->columns);
+    parent::__destruct();
+  }
+
+  /**
+   * 
+   * @return int
+   */
+  public function getColumnCount(): int {
+    return $this->maxSize;
+  }
+
+  /**
+   * Sets the number of columns within the row for different screen sizes
+   * 
+   * @param  string|string[]... $layouts individual layout settings
+   * @return $this for a fluent interface
+   * @throws \Sphp\Exceptions\InvalidArgumentException
+   */
+  public function setLayouts(...$layouts) {
+    $this->setWidths($layouts);
+    return $this;
+  }
+
+  /**
+   * Sets the column width values for all screen sizes
+   * 
+   * @param  string|string[]... $widths column widths for different screens sizes
+   * @return $this for a fluent interface
+   */
+  public function setWidths(... $widths) {
+    $widths = Arrays::flatten($widths);
+    $filtered = preg_grep('/^((small|medium|large|xlarge|xxlarge)-up-([1-9]|(1[0-2])))+$/', $widths);
+    foreach ($filtered as $width) {
+      $parts = explode('-', $width);
+      $this->unsetGrid($parts[0]);
+      $this->cssClasses()->add($width);
+    }
+    return $this;
+  }
+
+  /**
+   * Unsets all layout settings 
+   * 
+   * @return $this for a fluent interface
+   */
+  public function unsetLayouts() {
+    foreach (Foundation::sizes() as $screenSize) {
+      $this->unsetGrid($screenSize);
+    }
+    return $this;
+  }
+
+  /**
+   * Unsets the block grid setting for the given screen widths
+   *
+   * @precondition `$screenSize` == `medium|large|xlarge|xxlarge`
+   * @param  string $screenSize the target screen size
+   * @return $this for a fluent interface
+   */
+  protected function unsetGrid(string $screenSize) {
+    $classes = [];
+    for ($i = 1; $i <= $this->getColumnCount(); $i++) {
+      $classes[] = "$screenSize-up-$i";
+    }
+    $this->cssClasses()->remove($classes);
+    return $this;
   }
 
   /**
@@ -73,10 +146,10 @@ class BlockGrid extends AbstractComponent implements IteratorAggregate, ContentP
    * @return $this for a fluent interface
    */
   public function setColumns(array $columns) {
-    $this->columns->clear();
+    $this->columns = [];
     foreach ($columns as $column) {
       if (!($column instanceof BlockGridColumnInterface)) {
-        $column = new BlockGridColumn($column);
+        $column = new DivBlock($column);
       }
       $this->append($column);
     }
@@ -86,15 +159,84 @@ class BlockGrid extends AbstractComponent implements IteratorAggregate, ContentP
   /**
    * Appends new Columns to the container
    * 
-   * @param  mixed,... $column column or column content
-   * @return $this for a fluent interface
+   * @param  mixed $column column or column content
+   * @return BlockGridColumn new column
    */
-  public function append(...$column) {
-    foreach ($column as $c) {
-      if (!($c instanceof BlockGridColumnInterface)) {
-        $c = new BlockGridColumn($column);
-      }
-      $this->columns->append($c);
+  public function append($column): Block {
+    if (!$column instanceof BlockGridColumn) {
+      $column = new DivBlock($column);
+    }
+    $this->columns[] = $column;
+    return $column;
+  }
+
+  /**
+   * Appends a parsed Mark Down string to the container
+   * 
+   * @param  string $md the path to the file
+   * @return DivBlock new column
+   * @throws RuntimeException if the parsing fails for any reason
+   */
+  public function appendMd(string $md): DivBlock {
+    try {
+      $column = new DivBlock();
+      $column->appendMd($md);
+      $this->append($column);
+      return $column;
+    } catch (\Exception $ex) {
+      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
+    }
+  }
+
+  /**
+   * Appends a parsed Mark Down file to the container
+   * 
+   * @param  string $path  the path to the file
+   * @return DivBlock new column
+   * @throws RuntimeException if the parsing fails for any reason
+   */
+  public function appendMdFile(string $path): DivBlock {
+    try {
+      $column = new DivBlock();
+      $column->appendMdFile($path);
+      $this->append($column);
+    } catch (\Exception $ex) {
+      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
+    }
+    return $this;
+  }
+
+  /**
+   * Appends a raw file to the container
+   * 
+   * @param  string $path path to the file
+   * @return DivBlock new column
+   * @throws RuntimeException if the parsing fails for any reason
+   */
+  public function appendRawFile(string $path): DivBlock {
+    try {
+      $column = new DivBlock();
+      $column->appendRawFile($path);
+      return $this->append($column);
+    } catch (\Exception $ex) {
+      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
+    }
+  }
+
+  /**
+   * Appends an executed PHP file to the container
+   * 
+   * @param  string $path  the path to the file
+   * @return DivBlock new column
+   * @throws RuntimeException if the parsing fails for any reason
+   */
+  public function appendPhpFile(string $path): DivBlock {
+    try {
+      $column = new DivBlock();
+      $column->appendPhpFile($path);
+      return $this->append($column);
+    } catch (\Exception $ex) {
+      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
     }
     return $this;
   }
@@ -110,15 +252,15 @@ class BlockGrid extends AbstractComponent implements IteratorAggregate, ContentP
   }
 
   public function getIterator(): Traversable {
-    return $this->columns->getIterator();
+    return new \Sphp\Html\Iterator($this->columns);
   }
 
   public function count(): int {
-    return $this->columns->count();
+    return count($this->columns);
   }
 
   public function contentToString(): string {
-    return $this->columns->getHtml();
+    return implode($this->columns);
   }
 
 }

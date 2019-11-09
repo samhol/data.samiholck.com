@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Breadcrumbs.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Navigation;
@@ -12,6 +15,7 @@ use Sphp\Html\AbstractComponent;
 use Sphp\Html\Lists\Ul;
 use Sphp\Html\TraversableContent;
 use Sphp\Html\TraversableTrait;
+use Traversable;
 
 /**
  * Implements a Breadcrumbs component
@@ -26,7 +30,8 @@ use Sphp\Html\TraversableTrait;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/breadcrumbs.html Foundation Breadcrumbs
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class BreadCrumbs extends AbstractComponent implements IteratorAggregate, TraversableContent {
@@ -36,22 +41,27 @@ class BreadCrumbs extends AbstractComponent implements IteratorAggregate, Traver
   private $items;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param mixed $content the value of the target attribute
    */
   public function __construct($content = null) {
     parent::__construct('nav', null);
-    $this->cssClasses()->protect('breadcrumbs');
+    $this->cssClasses()->protectValue('breadcrumbs');
     $this->items = new Ul();
-    $this->items->cssClasses()->protect('breadcrumbs');
+    $this->items->cssClasses()->protectValue('breadcrumbs');
     //$this->attributes()->lock('role', 'navigation');
-    $this->attributes()->set('aria-label', 'breadcrumbs');
+    $this->attributes()->setAttribute('aria-label', 'breadcrumbs');
     if ($content !== null) {
       foreach (is_array($content) ? $content : [$content] as $breadcrumb) {
         $this->append($breadcrumb);
       }
     }
+  }
+
+  public function __destruct() {
+    unset($this->items);
+    parent::__destruct();
   }
 
   /**
@@ -77,7 +87,7 @@ class BreadCrumbs extends AbstractComponent implements IteratorAggregate, Traver
   }
 
   /**
-   * Creates and appends new BreadCrumb object
+   * Creates and appends new BreadCrumb link
    *
    * **Notes:**
    * 
@@ -92,14 +102,14 @@ class BreadCrumbs extends AbstractComponent implements IteratorAggregate, Traver
    * @link   http://www.w3schools.com/tags/att_a_href.asp href attribute
    * @link   http://www.w3schools.com/tags/att_a_target.asp target attribute
    */
-  public function appendNew(string $href, $content = null, string $target = null): BreadCrumb {
+  public function appendLink(string $href, $content = null, string $target = null): BreadCrumb {
     $item = new BreadCrumb($href, $content, $target);
     $this->append($item);
     return $item;
   }
 
   /**
-   * Prepends a {@link BreadCrumb} component to the container
+   * Prepends a BreadCrumb component to the container
    *
    * @param  BreadCrumb $breadcrumb component to append
    * @return $this for a fluent interface
@@ -120,7 +130,7 @@ class BreadCrumbs extends AbstractComponent implements IteratorAggregate, Traver
     return $this;
   }
 
-  public function getIterator() {
+  public function getIterator(): Traversable {
     return $this->items->getIterator();
   }
 

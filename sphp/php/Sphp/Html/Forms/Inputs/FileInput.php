@@ -1,8 +1,11 @@
 <?php
 
 /**
- * FileInput.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -11,13 +14,13 @@ namespace Sphp\Html\Forms\Inputs;
  * Implements an HTML &lt;input type="file"&gt; tag
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class FileInput extends AbstractInputTag implements ValidableInput {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $name name attribute
    * @param  string|null $accept the accepted mime types for the file
@@ -39,7 +42,7 @@ class FileInput extends AbstractInputTag implements ValidableInput {
    * @link   http://www.w3schools.com/tags/att_input_accept.asp accept attribute
    */
   public function setFileTypes(string $accept) {
-    $this->attributes()->set('accept', $accept);
+    $this->attributes()->setAttribute('accept', $accept);
     return $this;
   }
 
@@ -51,12 +54,12 @@ class FileInput extends AbstractInputTag implements ValidableInput {
    * @link   http://www.w3schools.com/tags/att_input_multiple.asp multiple attribute
    */
   public function multipleFiles(bool $multiple = true) {
-    $this->attributes()->setBoolean('multiple', $multiple);
+    $this->attributes()->multiple = $multiple;
     return $this;
   }
 
   public function setRequired(bool $required = true) {
-    $this->attributes()->setBoolean('required', $required);
+    $this->attributes()->required = $required;
     return $this;
   }
 

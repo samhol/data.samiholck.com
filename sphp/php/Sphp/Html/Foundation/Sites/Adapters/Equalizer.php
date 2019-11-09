@@ -1,15 +1,19 @@
 <?php
 
 /**
- * Equalizer.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Adapters;
 
 use Sphp\Html\Adapters\AbstractComponentAdapter;
-use Sphp\Html\ComponentInterface;
-use Sphp\Html\ContainerComponentInterface;
+use Sphp\Html\Component;
+use Sphp\Html\ContainerComponent;
+use Sphp\Html\Attributes\IdAttribute;
 
 /**
  * Implements a Foundation Equalizer.
@@ -18,24 +22,25 @@ use Sphp\Html\ContainerComponentInterface;
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Equalizer extends AbstractComponentAdapter {
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @param ComponentInterface $equalizer
+   * @param Component $equalizer
    * @param string|null $name
    */
-  public function __construct(ComponentInterface $equalizer, string $name = null) {
+  public function __construct(Component $equalizer, string $name = null) {
     parent::__construct($equalizer);
+    $this->attributes()->getObjectMap()->mapType('data-equalizer', IdAttribute::class);
     $attr = $this->attributes()->setIdentifier('data-equalizer');
     if ($name === null) {
       $attr->identify();
     } else {
-      $attr->set($name);
+      $attr->setValue($name);
     }
   }
 
@@ -55,7 +60,7 @@ class Equalizer extends AbstractComponentAdapter {
    */
   public function equalizeOn(string $screenSize) {
     if ($screenSize != 'all') {
-      $this->getComponent()->attributes()->set('data-equalize-on', $screenSize);
+      $this->getComponent()->attributes()->setAttribute('data-equalize-on', $screenSize);
     } else {
       $this->getComponent()->attributes()->remove('data-equalize-on');
     }
@@ -70,7 +75,7 @@ class Equalizer extends AbstractComponentAdapter {
    */
   public function equalizeByRow(bool $flag = true) {
     if ($flag) {
-      $this->getComponent()->attributes()->set('data-equalize-by-row', 'true');
+      $this->getComponent()->attributes()->setAttribute('data-equalize-by-row', 'true');
     } else {
       $this->getComponent()->attributes()->remove('data-equalize-by-row');
     }
@@ -80,11 +85,11 @@ class Equalizer extends AbstractComponentAdapter {
   /**
    * Adds an equalizer observer
    * 
-   * @param  ComponentInterface $observer
+   * @param  Component $observer
    * @return $this for a fluent interface
    * @throws \Sphp\Exceptions\InvalidArgumentException
    */
-  public function addObserver(ComponentInterface $observer) {
+  public function addObserver(Component $observer) {
     if ($observer->attributeExists('data-equalizer-watch') && $observer->attributes()->getValue('data-equalizer-watch') !== $this->getEqualizerName()) {
       throw new \Sphp\Exceptions\InvalidArgumentException('');
     }
@@ -95,23 +100,23 @@ class Equalizer extends AbstractComponentAdapter {
   /**
    * Removes an equalizer observer
    * 
-   * @param  ComponentInterface $observer
+   * @param  Component $observer
    * @return $this for a fluent interface
    */
-  public function removeObserver(ComponentInterface $observer) {
+  public function removeObserver(Component $observer) {
     $observer->attributes()->remove('data-equalizer-watch');
     return $this;
   }
 
   /**
    * 
-   * @param  ContainerComponentInterface $cont
+   * @param  ContainerComponent $cont
    * @return Equalizer
    */
-  public static function equalizeContainer(ContainerComponentInterface $cont): Equalizer {
+  public static function equalizeContainer(ContainerComponent $cont): Equalizer {
     $equalizer = new static($cont);
     foreach ($cont as $component) {
-      if ($component instanceof ComponentInterface) {
+      if ($component instanceof Component) {
         $equalizer->addObserver($component);
       }
     }

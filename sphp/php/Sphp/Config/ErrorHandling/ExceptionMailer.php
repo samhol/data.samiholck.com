@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ExceptionMailer.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Config\ErrorHandling;
@@ -15,7 +18,7 @@ use Zend\Mail\Transport\Sendmail;
  * Sends a thrown exception as a email
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class ExceptionMailer implements ExceptionListener {
@@ -31,13 +34,14 @@ class ExceptionMailer implements ExceptionListener {
   private $receiver;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @param string $from optional senders email address 
+   * @param string $from senders email address 
    * @param string $to receivers email address
    */
   public function __construct(string $from, string $to) {
-    $this->setSender($from)->setReceiver($to);
+    $this->sender = $from;
+    $this->receiver = $to;
   }
 
   /**
@@ -56,28 +60,6 @@ class ExceptionMailer implements ExceptionListener {
    */
   public function getReceiver(): string {
     return $this->receiver;
-  }
-
-  /**
-   * Sets senders email address
-   * 
-   * @param  string $sender optional senders email address (null for none)
-   * @return $this for a fluent interface
-   */
-  public function setSender(string $sender) {
-    $this->sender = $sender;
-    return $this;
-  }
-
-  /**
-   * Sets receivers email address
-   * 
-   * @param  string $receiver receivers email address
-   * @return $this for a fluent interface
-   */
-  public function setReceiver(string $receiver) {
-    $this->receiver = $receiver;
-    return $this;
   }
 
   /**
@@ -128,7 +110,7 @@ class ExceptionMailer implements ExceptionListener {
     return $mailBody;
   }
 
-  public function onException(Throwable $e) {
+  public function onException(Throwable $e): void {
     $this->send($e);
   }
 

@@ -1,11 +1,19 @@
+/**
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
+ */
+
 $alert-callout-border-left-width: rem-calc(5);
 $alert-callout-border-padding: 1.3rem;
 $alert-callout-border-radius: 0.6rem;
-//@import '../../../vendor/zurb/foundation/sass/util/mixins';
+
 @mixin callout-colors($color: #333) { 
   border-color: $color;
   $scaled: smart-scale($color, 50%, 50%);
-  @include box-shadow(rgba(#bbb, 0.6) 0 0 25px, rgba(#ccc, 0.3) 0 0 3px 1px inset);
+  @include shadow();
   h1, h2, h3, h4, h5, h6, strong {
     color: $color;
   }
@@ -15,14 +23,13 @@ $alert-callout-border-radius: 0.6rem;
   }
 }
 
->.callout {
+>.sohp-callout {
   padding: $alert-callout-border-padding;
   border-left-width: $alert-callout-border-left-width;
   border-left-color: $medium-gray;
   strong {
     color: $body-font-color;
   }
-  //@include default-margin();
   @include border-radius(4px);
 
   h1, h2, h3, h4, h5, h6 {
@@ -56,3 +63,4 @@ $alert-callout-border-radius: 0.6rem;
     @include callout-colors($warning-color);
   }
 }
+

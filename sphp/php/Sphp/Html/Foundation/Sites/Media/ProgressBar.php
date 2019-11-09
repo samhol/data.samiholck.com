@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ProgressBar.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Media;
@@ -18,7 +21,8 @@ use Sphp\Html\Span;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/progress-bar.html Progress Bar
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class ProgressBar extends AbstractComponent implements Colourable {
@@ -31,7 +35,7 @@ class ProgressBar extends AbstractComponent implements Colourable {
   private $progressMeter;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param int $progress
    * @param string|null $name the name of the bar
@@ -39,12 +43,12 @@ class ProgressBar extends AbstractComponent implements Colourable {
   public function __construct(int $progress, string $name = null) {
     parent::__construct('div');
     $this->progressMeter = new Span();
-    $this->progressMeter->cssClasses()->protect('progress-meter');
+    $this->progressMeter->cssClasses()->protectValue('progress-meter');
     $this->progressMeter['progress-meter-text'] = new Span();
-    $this->progressMeter["progress-meter-text"]->cssClasses()->protect('progress-meter-text');
+    $this->progressMeter["progress-meter-text"]->cssClasses()->protectValue('progress-meter-text');
     //$this->identify();
     $this->attributes()
-            ->set('data-sphp-progressbar', 'blaa')
+            ->setAttribute('data-sphp-progressbar', 'blaa')
             ->protect('tabindex', 0)
             ->protect('role', 'progressbar')
             ->protect('aria-valuemin', 0)
@@ -52,7 +56,7 @@ class ProgressBar extends AbstractComponent implements Colourable {
             ->demand('aria-valuenow')
             ->demand('aria-valuenow')
             ->demand('data-sphp-progressbar-name');
-    $this->cssClasses()->protect('progress');
+    $this->cssClasses()->protectValue('progress');
     $this->setProgress($progress)->setBarName($name);
   }
 
@@ -78,7 +82,7 @@ class ProgressBar extends AbstractComponent implements Colourable {
    * @return $this for a fluent interface
    */
   public function setBarName(string $name = null) {
-    $this->attributes()->set('data-sphp-progressbar-name', $name);
+    $this->attributes()->setAttribute('data-sphp-progressbar-name', $name);
     return $this;
   }
 
@@ -94,11 +98,11 @@ class ProgressBar extends AbstractComponent implements Colourable {
       $progressText = "$progress%";
     }
     $this->attributes()
-            ->set('aria-valuenow', $progress)
-            ->set('aria-valuetext', $progressText);
-    $this->attributes()->set('title', $progressText);
+            ->setAttribute('aria-valuenow', $progress)
+            ->setAttribute('aria-valuetext', $progressText);
+    $this->attributes()->setAttribute('title', $progressText);
     $this->progressMeter->inlineStyles()->setProperty('width', "$progress%");
-    $this->progressMeter['progress-meter-text']->replaceContent("$progress%");
+    $this->progressMeter['progress-meter-text']->resetContent("$progress%");
     return $this;
   }
 
@@ -110,9 +114,9 @@ class ProgressBar extends AbstractComponent implements Colourable {
    */
   public function setProgressText(string $progressText) {
     $this->attributes()
-            ->set('aria-valuetext', $progressText);
-    $this->attributes()->set('title', $progressText);
-    $this->progressMeter['progress-meter-text']->replaceContent($progressText);
+            ->setAttribute('aria-valuetext', $progressText);
+    $this->attributes()->setAttribute('title', $progressText);
+    $this->progressMeter['progress-meter-text']->resetContent($progressText);
     return $this;
   }
 

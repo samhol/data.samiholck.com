@@ -1,13 +1,16 @@
 <?php
 
 /**
- * ColourableLayoutManager.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Core;
 
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Component;
 
 /**
  * Trait implements {@link ColourableInterface} functionality
@@ -15,7 +18,8 @@ use Sphp\Html\ComponentInterface;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/buttons.html Foundation Buttons
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class ColourableLayoutManager extends AbstractLayoutManager implements Colourable {
@@ -30,11 +34,11 @@ class ColourableLayoutManager extends AbstractLayoutManager implements Colourabl
   ];
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @param ComponentInterface $component
+   * @param Component $component
    */
-  public function __construct(ComponentInterface $component) {
+  public function __construct(Component $component) {
     parent::__construct($component);
   }
 

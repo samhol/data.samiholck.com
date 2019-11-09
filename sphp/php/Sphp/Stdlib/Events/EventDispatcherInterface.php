@@ -1,11 +1,16 @@
 <?php
 
 /**
- * EventDispatcherInterface.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Events;
+
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Defines minimum requirements of an Event Dispatcher
@@ -13,7 +18,7 @@ namespace Sphp\Stdlib\Events;
  * Event Dispatcher manages event listeners and dispatching events
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface EventDispatcherInterface {
@@ -21,47 +26,56 @@ interface EventDispatcherInterface {
   /**
    * Adds a new listener to an event
    *
-   * @param  string|string[] $event event name(s) of the event(s) the listener listens to
-   * @param  EventListenerInterface|\Closure $listener the listener to add 
-   * @param  mixed $priority optional priority of the listener: priorities are 
+   * @param  string $eventName event name of the event the listener listens to
+   * @param  EventListener|\Closure $listener the listener to add 
+   * @param  int $priority optional priority of the listener: priorities are 
    *         handled like queues, and multiple attachments added to the same 
    *         priority queue will be treated in the order of insertion.
    * @return $this for a fluent interface
-   * @throws \InvalidArgumentException if the `$listener` type is illegal
+   * @throws InvalidArgumentException if the `$listener` type is illegal
    * @return $this for a fluent interface
    */
-  public function addListener($event, $listener, $priority = 0);
+  public function addListener(string $eventName, $listener, int $priority = 0);
 
   /**
    * Removes an listener from the registry
    *
-   * @param  EventListenerInterface|callable $listener the listener to remove
+   * @param  EventListener|callable $listener the listener to remove
+   * @param  string|null $eventName optional name of the event
    * @return $this for a fluent interface
    */
-  public function remove($listener);
+  public function removeListener($listener, string $eventName = null);
+
+  /**
+   * Removes listeners of a specific event name from the registry
+   * *
+   * @param  string $eventName the name of the event
+   * @return $this for a fluent interface
+   */
+  public function removeListenersOf(string $eventName);
 
   /**
    * Triggers a new event to all corresponding listeners
    *
-   * @param    EventInterface $event event object
-   * @return   self for PHP Method Chaining
-   * @triggers {@link EventInterface} the `$event` passed as parameter 
+   * @param    Event $event event object
+   * @return   $this for a fluent interface
+   * @triggers {@link Event} the `$event` passed as parameter 
    */
-  public function trigger(EventInterface $event);
+  public function trigger(Event $event);
 
   /**
    * Checks whether the given event has listeners
    *
-   * @param  EventInterface|string $event event object or the name of the event
+   * @param  string $eventName the name of the event
    * @return boolean true if event has listeners, false otherwise
    */
-  public function hasListeners($event): bool;
+  public function hasListeners(string $eventName): bool;
 
   /**
    * Get all listeners for an event
    *
-   * @param  EventInterface|string $event event object or the name of the event
+   * @param  string $eventName the name of the event
    * @return mixed[] containing the listener objects
    */
-  public function getListeners($event): array;
+  public function getListeners(string $eventName): array;
 }

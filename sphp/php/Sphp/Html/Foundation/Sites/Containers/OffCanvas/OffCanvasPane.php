@@ -1,14 +1,17 @@
 <?php
 
 /**
- * OffCanvasArea.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers\OffCanvas;
 
-use Sphp\Html\AbstractContainerTag;
-use Sphp\Html\Foundation\Sites\Buttons\CloseButton;
+use Sphp\Html\Component;
+use Sphp\Html\Foundation\Sites\Controllers\CloseButton;
 
 /**
  * An abstract implementation of on Off-canvas area
@@ -18,67 +21,24 @@ use Sphp\Html\Foundation\Sites\Buttons\CloseButton;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation 6
  * @link    http://foundation.zurb.com/sites/docs/off-canvas.html Foundation 6 Off-canvas
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class OffCanvasPane extends AbstractContainerTag implements OffCanvasAreaInterface {
+interface OffCanvasPane extends Component, \Sphp\Html\Foundation\Sites\Adapters\VisibilityToggler {
+
+  public function getSide(): int;
 
   /**
-   *
-   * @var CloseButton
+   * Sets the pane position
+   * 
+   * @param  string $position the pane position
+   * @return $this for a fluent interface
    */
-  private $closeButton;
-
-  /**
-   * Constructs a new instance
-   *
-   * @param string $tagname
-   */
-  public function __construct($side, $position = 'fixed') {
-    parent::__construct('div');
-    $this->attributes()->demand('data-off-canvas');
-    $this->identify();
-    $this->closeButton = new CloseButton();
-    $this->setSide($side)
-            ->setPosition($position);
-  }
+  public function setPosition(string $position = 'fixed');
 
   /**
    * 
-   * @param  string $position
-   * @return $this for a fluent interface
+   * @param Component $content
    */
-  protected function setSide($position) {
-    $this->cssClasses()->protect("position-$position");
-    return $this;
-  }
-
-  /**
-   * 
-   * @param  string $position
-   * @return $this for a fluent interface
-   */
-  protected function setPosition($position = 'fixed') {
-    if ($position !== 'fixed') {
-      $this->cssClasses()->set("off-canvas-$position");
-    } else {
-      $this->cssClasses()->set("off-canvas");
-    }
-    return $this;
-  }
-
-  public function contentToString(): string {
-    return $this->closeButton->getHtml() . parent::contentToString();
-  }
-
-  public function getOpener($content = null) {
-    if ($content === null) {
-      $button = new OffCanvasOpener($this);
-    }
-    if ($button instanceof OffCanvasOpener) {
-      $button->setCanvas($this);
-    }
-    return $button;
-  }
-
+  public function createToggleButton(Component $content = null);
 }

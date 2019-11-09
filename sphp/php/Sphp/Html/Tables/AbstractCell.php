@@ -1,8 +1,11 @@
 <?php
 
 /**
- * AbstractCell.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Tables;
@@ -13,7 +16,7 @@ use Sphp\Html\ContainerTag;
  * Implements HTML table tag's cells
  *
  * @author Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 abstract class AbstractCell extends ContainerTag implements ContainerCell {
@@ -22,7 +25,7 @@ abstract class AbstractCell extends ContainerTag implements ContainerCell {
     if ($value <= 1) {
       $this->attributes()->remove('colspan');
     } else {
-      $this->attributes()->set('colspan', $value);
+      $this->attributes()->setAttribute('colspan', $value);
     }
     return $this;
   }
@@ -39,7 +42,7 @@ abstract class AbstractCell extends ContainerTag implements ContainerCell {
     if ($value <= 1) {
       $this->attributes()->remove('rowspan');
     } else {
-      $this->attributes()->set('rowspan', $value);
+      $this->attributes()->setAttribute('rowspan', $value);
     }
     return $this;
   }

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * NestablePDO.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database;
@@ -13,7 +16,7 @@ use PDO;
  * Represents a connection between PHP and a database server
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class NestablePDO extends PDO {
@@ -38,7 +41,7 @@ class NestablePDO extends PDO {
    * @return boolean true if the database engine supports nestable transactions 
    *         or false otherwise
    */
-  protected function nestable() {
+  protected function nestable(): bool {
     return in_array($this->getAttribute(PDO::ATTR_DRIVER_NAME), self::$savepointTransactions);
   }
 
@@ -111,8 +114,7 @@ class NestablePDO extends PDO {
    */
   public function rollBack() {
     $this->transLevel--;
-
-    if (!$this->nestable() || $this->transLevel == 0) {
+    if (!$this->nestable() || $this->transLevel === 0) {
       parent::rollBack();
     } else {
       $this->exec("ROLLBACK TO SAVEPOINT LEVEL{$this->transLevel}");

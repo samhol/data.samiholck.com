@@ -18,7 +18,7 @@
       return this[0].outerHTML ||
               (ret = this.wrap('<div>').parent().html(), this.unwrap(), ret);
     }
-    // Setter overload
+    // Setter overload 
     $.each(this, function (i, el) {
       var fnRet,
               pass = el,
@@ -151,7 +151,7 @@
           display: "block",
           position: "absolute"
         });
-        console.log($this.css("display") + ":" + $this.width());
+        //console.log($this.css("display") + ":" + $this.width());
         var pos = el.position(),
                 x = Math.floor(pos.left + (el.width() - $this.width()) / 2),
                 y = Math.floor(pos.top + (el.height() - $this.height()) / 2);
@@ -166,56 +166,6 @@
       }
     });
 
-  };
-  /**
-   * Peittää ruudun asettalla div.Fog-elementin annettuihin jQuery-objekteihin.
-   * Kaikki elementit, joiden z-indeksi on pienempi kuin $z_index-parametri
-   * jäävät piiloon.
-   *
-   * @author   Sami Holck <sami.holck@gmail.com>
-   * @memberOf jQuery.fn#
-   * @method   addFog
-   * @param    {Object} options {zIndex: int div.Fog-elementin z-indeksi (oletus 20000),
-   *                           delay: int esiintuloefektin kesto millisekunneissa (oletus 1000 ms)}
-   * @returns  {jQuery.fn} object for method chaining
-   */
-  $.fn.addFog = function (options) {
-    var opts = $.extend({}, $.fn.addFog.defaults, options);
-    return this.each(function () {
-      var $this = $(this), $fog, $o;
-      $o = $.meta ? $.extend({}, opts, $this.data()) : opts;
-      $fog = $('<div class="Fog"></div>');
-      $fog.css("zIndex", $o.zIndex);
-      $fog.appendTo($this);
-      $fog.fadeIn($o.delay);
-    });
-  };
-  $.fn.addFog.defaults = {
-    zIndex: 20000,
-    delay: 1000
-  };
-
-  /**
-   * Poistaa div.Fog-elementin annettuista jQuery-objekteista
-   *
-   * @author   Sami Holck <sami.holck@gmail.com>
-   * @memberOf jQuery.fn#
-   * @method   removeFog
-   * @param    {Object} options {delay: int postumisefektin kesto millisekunneissa (oletus 1000 ms)}
-   * @returns  {jQuery.fn} object for method chaining
-   */
-  $.fn.removeFog = function (options) {
-    var opts = $.extend({}, $.fn.removeFog.defaults, options);
-    return this.each(function () {
-      var $this = $(this), $fog = $this.find(".Fog"), $o;
-      $o = $.meta ? $.extend({}, opts, $this.data()) : opts;
-      $fog.fadeOut($o.delay, function () {
-        $fog.remove();
-      });
-    });
-  };
-  $.fn.removeFog.defaults = {
-    delay: 1000
   };
 
   /**
@@ -235,44 +185,36 @@
   };
 
   /**
-   * Loads the data from the server pointed on the data attribute 'data-sph-load' using 
-   * jQuery's Ajax capabilities and places the returned HTML into the object.
-   * 
-   * @function external:"jQuery.fn".sphpAjaxPrepend
-   * @param   {string} content
-   * @param   {Object} options
-   * @returns {jQuery.fn} object for fluent interface
+   * Sets popups default javascript functionality
+   *
+   * Requires <a href="http://jqueryui.com/">jQuery UI (1.8.19)+ </a>
+   *
+   * @author   Sami Holck <sami.holck@gmail.com>
+   * @memberOf jQuery.fn#
+   * @method   sphpPopup
+   * @returns  {jQuery.fn} object for method chaining
    */
-  $.fn.sphpPopup = function (content, options) {
-    var opts = $.extend({}, $.fn.sphpPopup.defaults, options);
-    return this.each(function () {
-      var $this = $(this), $o, $popper;
-      $o = $.meta ? $.extend({}, opts, $this.data()) : opts;
-      $popper = $('<div class="simple-popup">');
-      console.log("initializing simple popup...");
-      $popper.html(content);
-      if ($o.classes) {
-        $popper.addClass($o.classes);
+  $.fn.sphpPopup = function () {
+    this.each(function () {
+      var $popup = $(this), $closers = $popup.find('[name="close"]');
+      $closers = $("[data-sphp-foundation-modal-close]");
+      $closers.click(function () {
+        var $popupId = $(this).attr("data-sphp-foundation-modal-close");
+        $('#' + $popupId).foundation('reveal', 'close');
+      });
+      //console.log("data-sphp-modal-default-closer:" + $popup.attr("data-sphp-modal-default-closer"));
+      if ($popup.attr("data-sphp-modal-default-closer") !== undefined) {
+        $popup.append('<a class="close-reveal-modal" aria-label="Close">&#215;</a>');
       }
-      $popper.appendTo($this)
-              .css({
-                zIndex: $o.zIndex,
-              })
-              .hide()
-              .fadeIn($o.delay, "linear", function () {
-                setTimeout(function () {
-                  $popper.fadeOut($o.delay, "linear", function () {
-                    $popper.remove();
-                  });
-                }, $o.show);
-              });
     });
+    return this;
   };
-  $.fn.sphpPopup.defaults = {
-    zIndex: 20000,
-    delay: 500,
-    show: 2000,
-    content: 'This is the popper!'
+  $.fn.hasAttr = function (name) {
+    var attr = this.attr(name);
+    if (typeof attr !== typeof undefined && attr !== false) {
+      console.log('has attribute ' + name);
+    }
+    return typeof attr !== typeof undefined && attr !== false;
   };
 
 }(jQuery));

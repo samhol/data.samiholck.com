@@ -1,8 +1,11 @@
 <?php
 
 /**
- * StopWatch.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib;
@@ -11,7 +14,7 @@ namespace Sphp\Stdlib;
  * Implements a simple interface to track the consumed time
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class StopWatch {
@@ -22,13 +25,6 @@ class StopWatch {
    * @var float
    */
   private $startTime;
-
-  /**
-   * Constructs a new instance
-   */
-  public function __construct() {
-    
-  }
 
   /**
    * Starts the clock from the page request
@@ -54,25 +50,23 @@ class StopWatch {
    * Returns the amount of the time from the constructor call or start call to
    *  the current time
    *
-   * @param  float $precision number of decimal digits to round to (defaults to 2)
    * @return float the requested time
    */
-  public function getTime(int $precision = 2): float {
+  public function getTime(): float {
     $seconds = microtime(true) - $this->startTime;
-    return number_format($seconds, $precision);
+    return $seconds;
   }
 
   /**
    * Returns the amount of the time from the start of the execution to the
    * current time
    *
-   * @param  float $precision number of decimal digits to round to (defaults to 2)
    * @return float the requested time
    */
-  public static function getEcecutionTime(int $precision = 2): float {
+  public static function getExecutionTime(): float {
     $instance = new Static();
     $instance->startFromRequest();
-    return $instance->getTime($precision);
+    return $instance->getTime();
   }
 
 }

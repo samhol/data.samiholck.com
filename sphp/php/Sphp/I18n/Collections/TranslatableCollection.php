@@ -1,8 +1,11 @@
 <?php
 
 /**
- * TranslatableCollection.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\I18n\Collections;
@@ -14,7 +17,7 @@ use Countable;
 use Sphp\Stdlib\Datastructures\Arrayable;
 use Sphp\I18n\Translatable;
 use ArrayAccess;
-use Sphp\I18n\Messages\Message;
+use Sphp\I18n\Messages\Msg;
 use Sphp\Exceptions\InvalidArgumentException;
 use Traversable;
 
@@ -22,10 +25,10 @@ use Traversable;
  * Implements a list that holds {@link Translatable} objects in a priority list
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class TranslatableCollection implements Iterator, TranslatableCollectionInterface, ArrayAccess, Countable ,Arrayable{
+class TranslatableCollection implements Iterator, TranslatableCollectionInterface, ArrayAccess, Countable, Arrayable {
 
   /**
    * Array that holds the messages
@@ -42,7 +45,7 @@ class TranslatableCollection implements Iterator, TranslatableCollectionInterfac
   private $translator;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  TranslatorInterface|null $translator the translator component
    */
@@ -116,7 +119,7 @@ class TranslatableCollection implements Iterator, TranslatableCollectionInterfac
   /**
    * Merges given collection to this collection
    *
-   * @param  Translatable $m
+   * @param  Translatable $translatable
    * @return $this for a fluent interface
    */
   public function contains(Translatable $translatable): bool {
@@ -133,7 +136,7 @@ class TranslatableCollection implements Iterator, TranslatableCollectionInterfac
   /**
    * Counts the number of stored translatable objects
    *
-   * @return int the number of {@link Translatable} objects in the list
+   * @return int the number of Translatable objects in the list
    */
   public function count(): int {
     return count($this->translatables);
@@ -236,7 +239,7 @@ class TranslatableCollection implements Iterator, TranslatableCollectionInterfac
    */
   public function offsetSet($offset, $translatable) {
     if (is_string($translatable)) {
-      $translatable = Message::singular($translatable);
+      $translatable = Msg::singular($translatable);
     }
     if (!$translatable instanceof Translatable) {
       throw new InvalidArgumentException();

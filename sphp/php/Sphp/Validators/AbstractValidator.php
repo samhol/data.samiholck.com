@@ -1,42 +1,30 @@
 <?php
 
 /**
- * AbstractValidator.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Validators;
-
-use Sphp\I18n\MessageInterface;
-use Sphp\I18n\Collections\TranslatableCollection;
-use Sphp\I18n\Messages\Message;
-use Sphp\I18n\Translatable;
 
 /**
  * Abstract superclass for miscellaneous data validation
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-abstract class AbstractValidator implements ValidatorInterface {
+abstract class AbstractValidator implements Validator {
 
   /**
-   * `ID` for default error message
-   */
-  const INVALID = '_invalid_';
-
-  /**
-   * stores error messages if not valid
    *
-   * @var TranslatableCollection
+   * @var ErrorMessages 
    */
-  private $errors;
-
-  /**
-   * @var MessageInterface[] 
-   */
-  private $messageTemplates = [];
+  private $messages;
 
   /**
    * @var mixed 
@@ -44,24 +32,20 @@ abstract class AbstractValidator implements ValidatorInterface {
   private $value;
 
   /**
-   * Constructs a new validator
+   * Constructor
    *
-   * @param string $error error message
+   * @param string $error error message template
    */
   public function __construct(string $error = 'Invalid value') {
-    $this->messageTemplates = [];
-    $this->errors = new TranslatableCollection();
-    $this->setMessageTemplate(static::INVALID, $error);
+    $this->messages = new ErrorMessages();
+    $this->errors()->setTemplate(static::INVALID, $error);
   }
 
   /**
-   * Destroys the instance
-   *
-   * The destructor method will be called as soon as there are no other references
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
-    unset($this->messageTemplates, $this->errors, $this->value);
+    unset($this->messages, $this->value);
   }
 
   /**
@@ -72,8 +56,7 @@ abstract class AbstractValidator implements ValidatorInterface {
    * @link http://www.php.net/manual/en/language.oop5.cloning.php#object.clone PHP Object Cloning
    */
   public function __clone() {
-    $this->errors = clone $this->errors;
-    $this->messageTemplates = clone $this->messageTemplates;
+    $this->messages = clone $this->messages;
   }
 
   /**
@@ -84,45 +67,6 @@ abstract class AbstractValidator implements ValidatorInterface {
    */
   public function __invoke($value) {
     return $this->isValid($value);
-  }
-
-  /**
-   * 
-   * @param  string $id
-   * @return Message
-   * @throws \Sphp\Exceptions\InvalidArgumentException if the template does not exist
-   */
-  public function getMessageTemplate(string $id) {
-    if (!array_key_exists($id, $this->messageTemplates)) {
-      throw new \Sphp\Exceptions\InvalidArgumentException("Template with id: '$id' does not exist");
-    }
-    return $this->messageTemplates[$id];
-  }
-
-  /**
-   * 
-   * @param  string $id
-   * @param  string $messageTemplate
-   * @return $this for a fluent interface
-   */
-  public function setMessageTemplate(string $id, $messageTemplate) {
-    if (!$messageTemplate instanceof Translatable) {
-      $messageTemplate = Message::singular($messageTemplate);
-    }
-    $this->messageTemplates[$id] = $messageTemplate;
-    return $this;
-  }
-
-  /**
-   * Sets the error message 
-   * 
-   * @param  string $id the id of the message
-   * @param  array $params optional message parameters
-   * @return $this for a fluent interface
-   */
-  public function error(string $id, array $params = []) {
-    $this->errors->append($this->getMessageTemplate($id)->setArguments($params));
-    return $this;
   }
 
   /**
@@ -141,23 +85,17 @@ abstract class AbstractValidator implements ValidatorInterface {
    * @return $this for a fluent interface
    */
   public function setValue($value) {
-    $this->reset();
+    $this->messages->setEmpty();
     $this->value = $value;
     return $this;
   }
 
-  /**
-   * Resets the validator to for revalidation
-   *
-   * @return $this for a fluent interface
-   */
-  public function reset() {
-    $this->errors->clearContent();
-    return $this;
+  public function errors(): ErrorMessages {
+    return $this->messages;
   }
 
-  public function getErrors(): TranslatableCollection {
-    return $this->errors;
+  public function errorsToArray(): array {
+    return $this->messages->toArray();
   }
 
 }

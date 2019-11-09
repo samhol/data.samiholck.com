@@ -1,8 +1,11 @@
 <?php
 
 /**
- * SessionUserStorage.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database\Objects;
@@ -14,13 +17,13 @@ use Doctrine\ORM\EntityManagerInterface;
  * Implements a {@link SessionUser} storage
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class SessionUserStorage extends AbstractObjectStorage {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param EntityManagerInterface $em
    */
@@ -115,7 +118,7 @@ class SessionUserStorage extends AbstractObjectStorage {
    */
   public function findByUserPass($username, $password) {
     $candidate = $this->getRepository()->findOneBy(['username' => $username]);
-    if ($candidate !== null && $candidate->getPassword()->verify($password)) {
+    if ($candidate !== null && $candidate->getPassword()->getScoreFor($password)) {
       return $candidate;
     } else {
       return null;

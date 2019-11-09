@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Choicebox.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -11,13 +14,13 @@ namespace Sphp\Html\Forms\Inputs;
  * Implements an HTML &lt;input type="radio|checkbox"&gt; tag
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Choicebox extends InputTag implements BooleanInput {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $type the value of the type attribute ('radio'|'checkbox')
    * @param  string $name the value of the name attribute
@@ -41,9 +44,12 @@ class Choicebox extends InputTag implements BooleanInput {
    * @link   http://www.w3schools.com/tags/att_input_checked.asp checked attribute
    */
   public function setChecked(bool $checked = true) {
-    $this->attributes()->setBoolean('checked', $checked);
+    $this->attributes()->checked = $checked;
     return $this;
   }
 
-}
+  public function isChecked(): bool {
+    return $this->attributeExists('checked');
+  }
 
+}

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Address.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database\Doctrine\Objects;
@@ -11,7 +14,7 @@ namespace Sphp\Database\Doctrine\Objects;
  * Implements a geographical address
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  * @Embeddable
  */
@@ -30,7 +33,6 @@ class Address extends AbstractArrayableObject implements GeographicalAddress {
   private $zipcode;
 
   /**
-   *
    * @var string|null
    * @Column(type = "string") 
    */
@@ -119,7 +121,7 @@ class Address extends AbstractArrayableObject implements GeographicalAddress {
     return $address;
   }
 
-  public function equals($object) {
+  public function equals($object): bool {
     return $object == $this;
   }
 

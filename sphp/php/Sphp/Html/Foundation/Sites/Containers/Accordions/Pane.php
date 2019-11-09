@@ -1,94 +1,56 @@
 <?php
 
 /**
- * Pane.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers\Accordions;
 
-use Sphp\Html\AbstractContainerTag;
-use Sphp\Html\AjaxLoader as AjaxLoaderInterface;
-use Sphp\Html\ContainerTag;
-use Sphp\Html\Div;
+use Sphp\Html\Component;
+use Sphp\Html\ContainerComponent;
 
 /**
- * Implements a Pane for a Foundation Accordion
+ * Defines a Pane for Foundation Accordion
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/accordion.html Foundation Accordion
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Pane extends AbstractContainerTag implements PaneInterface, AjaxLoaderInterface {
+interface Pane extends Component {
 
   /**
-   * The title component of the pane
+   * Sets the title of the accordion pane
    *
-   * @var ContainerTag
+   * @param  mixed $title the heading content
+   * @return $this for a fluent interface
    */
-  private $bar;
+  public function setPaneTitle($title);
 
   /**
-   * Constructs a new instance
+   * Sets the visibility of the content after initialization
    *
-   * **Important!**
-   *
-   * Parameters `$title` and `$content` can be of any type that converts to a PHP
-   * string. So also an object of any class that implements magic method
-   * `__toString()` is allowed.
-   *
-   * @param null|mixed $title the content of the pane title
-   * @param null|mixed $content the content of the actual pane
+   * @param  boolean $visibility true if the content is visible, false otherwise
+   * @return $this for a fluent interface
    */
-  public function __construct($title = null, $content = null) {
-    $div = new Div($content);
-    $div->attributes()->demand('data-tab-content');
-    $div->cssClasses()->protect('accordion-content');
-    parent::__construct('li', null, $div);
-    $this->bar = (new ContainerTag('a', $title));
-    $this->bar->cssClasses()->protect('accordion-title');
-    $this->bar->attributes()->protect('href', '#');
-    $this->cssClasses()->protect('accordion-item');
-    $this->attributes()->demand('data-accordion-item');
-  }
+  public function contentVisible(bool $visibility = true);
 
   /**
    * Returns the inner title area of the accordion pane
    *
-   * @return ContainerTag the inner title area of the accordion pane
+   * @return ContainerComponent the inner title area of the accordion pane
    */
-  public function getBar() {
-    return $this->bar;
-  }
+  public function getBar(): ContainerComponent;
 
-  public function setPaneTitle($title) {
-    $this->bar->replaceContent($title);
-    return $this;
-  }
-
-  public function contentVisible(bool $visibility = true) {
-    if ($visibility) {
-      $this->addCssClass('is-active');
-    } else {
-      $this->removeCssClass('is-active');
-    }
-    return $this;
-  }
-
-  public function contentToString(): string {
-    return $this->bar->getHtml() . parent::contentToString();
-  }
-
-  public function ajaxAppend(string $url) {
-    $this->getInnerContainer()->ajaxAppend($url);
-    return $this;
-  }
-
-  public function ajaxPrepend(string $url) {
-    $this->getInnerContainer()->ajaxPrepend($url);
-    return $this;
-  }
-
+  /**
+   * Returns the inner content area of the accordion pane
+   *
+   * @return ContainerComponent the inner content area of the accordion pane
+   */
+  public function getContent(): ContainerComponent;
 }

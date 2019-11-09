@@ -1,13 +1,19 @@
 <?php
 
 /**
- * CRSFToken.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Security;
 
 use Sphp\Exceptions\RuntimeException;
+use Sphp\Html\Forms\Inputs\HiddenInput;
+use Sphp\Stdlib\Random\UUID;
+use Sphp\Html\Forms\Form;
 
 /**
  * Implements a CRSF token generator and validator
@@ -36,21 +42,20 @@ use Sphp\Exceptions\RuntimeException;
  * </code>
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class CRSFToken {
 
   /**
-   *
    * @var self
    */
   private static $instance;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @throws \Sphp\Exceptions\RuntimeException if there is no session
+   * @throws RuntimeException if there is no session
    */
   public function __construct() {
     if (session_status() == PHP_SESSION_NONE) {
@@ -70,10 +75,24 @@ class CRSFToken {
     if (array_key_exists($tokenName, $_SESSION)) {
       return $_SESSION[$tokenName];
     } else {
-      $token = md5(uniqid(microtime(), true));
+      $token = UUID::v5(UUID::v4(), $tokenName);
       $_SESSION[$tokenName] = $token;
       return $token;
     }
+  }
+
+  /**
+   * Creates a CRSF token to use
+   * 
+   * @param  string $tokenName the CRSF token name
+   * @return HiddenInput the CRSF token generated
+   */
+  public function generateTokenInput(string $tokenName): HiddenInput {
+    return new HiddenInput($tokenName, $this->generateToken($tokenName));
+  }
+
+  public function insertIntoForm(Form $form, string $tokenName) {
+    $form->appendHiddenVariable($tokenName, $this->generateToken($tokenName));
   }
 
   /**
@@ -96,6 +115,33 @@ class CRSFToken {
    * @param  int $type input type
    * @return boolean true if the token value matches
    */
+
+  /**
+   * Verifies a named CRSF token from the input data
+   * 
+   * @param string $tokenName the CRSF token name
+   * @param array $data
+   * @return bool true if the token value matches
+   */
+  public function verifyToken(string $tokenName, array $data): bool {
+    $verified = false;
+    if (array_key_exists($tokenName, $data)) {
+      $token = $data[$tokenName];
+      if (array_key_exists($tokenName, $_SESSION) && $_SESSION[$tokenName] === $token) {
+        $verified = true;
+      }
+    }
+    return $verified;
+  }
+
+  /**
+   * Verifies a named CRSF token from the input data
+   * 
+   * @param  string $tokenName the CRSF token name
+   * @param  int $type input type
+   * @return boolean true if the token value matches
+   * @codeCoverageIgnore
+   */
   public function verifyInputToken(string $tokenName, int $type): bool {
     $token = filter_input($type, $tokenName, FILTER_SANITIZE_STRING);
     if (!isset($_SESSION[$tokenName])) {
@@ -113,6 +159,7 @@ class CRSFToken {
    * 
    * @param  string $tokenName the CRSF token name
    * @return boolean true if the token value matches
+   * @codeCoverageIgnore
    */
   public function verifyPostToken(string $tokenName): bool {
     return $this->verifyInputToken($tokenName, \INPUT_POST);
@@ -123,6 +170,7 @@ class CRSFToken {
    * 
    * @param  string $tokenName the CRSF token name
    * @return boolean true if the token value matches
+   * @codeCoverageIgnore
    */
   public function verifyGetToken(string $tokenName): bool {
     return $this->verifyInputToken($tokenName, \INPUT_GET);

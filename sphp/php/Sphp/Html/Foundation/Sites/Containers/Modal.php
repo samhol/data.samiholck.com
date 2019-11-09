@@ -1,15 +1,18 @@
 <?php
 
 /**
- * Modal.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers;
 
-use Sphp\Html\Content;
+use Sphp\Html\AbstractContent;
 use Sphp\Html\Foundation\Sites\Core\ClosableInterface;
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Component;
 
 /**
  * Implements Reveal Modal 
@@ -19,17 +22,16 @@ use Sphp\Html\ComponentInterface;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation 
  * @link    http://foundation.zurb.com/sites/docs/reveal.html Foundation Reveal
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Modal implements Content, ClosableInterface {
-
-  use \Sphp\Html\ContentTrait;
+class Modal extends AbstractContent implements ClosableInterface {
 
   /**
    * the Modal reveal controller
    *
-   * @var ComponentInterface
+   * @var Component
    */
   private $trigger;
 
@@ -39,9 +41,9 @@ class Modal implements Content, ClosableInterface {
   private $popup;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param ComponentInterface|string $trigger
+   * @param Component|string $trigger
    * @param mixed $popup the content of the component
    */
   public function __construct($trigger, $popup = null) {
@@ -55,9 +57,9 @@ class Modal implements Content, ClosableInterface {
   /**
    * Returns the opener component
    * 
-   * @return ComponentInterface the opener component
+   * @return Component the opener component
    */
-  public function getTrigger(): ComponentInterface {
+  public function getTrigger(): Component {
     return $this->trigger;
   }
 
@@ -73,10 +75,10 @@ class Modal implements Content, ClosableInterface {
   /**
    * Sets the opener component
    * 
-   * @param  ComponentInterface $trigger the opener component
-   * @param mixed $popup the content of the component
+   * @param  Component $trigger the opener component
+   * @return $this for a fluent interface
    */
-  public function setTrigger(ComponentInterface $trigger) {
+  public function setTrigger(Component $trigger) {
     $this->trigger = $trigger;
     return $this;
   }
@@ -85,7 +87,7 @@ class Modal implements Content, ClosableInterface {
    * Sets the popup component
    * 
    * @param  Popup $popup the popup component
-   * @param mixed $popup the content of the component
+   * @return $this for a fluent interface
    */
   public function setPopup(Popup $popup) {
     $this->popup = $popup;
@@ -106,10 +108,10 @@ class Modal implements Content, ClosableInterface {
    * that implements magic method `__toString()` is allowed.
    *
    * @param  mixed $content the controller component
-   * @return ComponentInterface a controller component pointing to this Modal
+   * @return Component a controller component pointing to this Modal
    */
   public function createController($content) {
-    if (!$content instanceof ComponentInterface) {
+    if (!$content instanceof Component) {
       $content = new \Sphp\Html\Span($content);
     }
     return $this->popup->createController($content);
@@ -120,7 +122,16 @@ class Modal implements Content, ClosableInterface {
   }
 
   public function setClosable($closable = true) {
-    $this->getPopup()->setClosable($closable);
+    $this->getPopup()->setOption('closable',$closable);
+    return $this;
+  }
+
+  public function useOverLay(bool $use = true) {
+    if ($use) {
+      $this->getPopup()->removeAttribute('data-overlay');
+    } else {
+      $this->getPopup()->setAttribute('data-overlay', 'false');
+    }
     return $this;
   }
 

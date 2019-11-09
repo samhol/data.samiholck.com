@@ -1,23 +1,25 @@
 <?php
 
 /**
- * Address.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Data;
 
-use Sphp\Stdlib\Datastructures\Arrayable;
 use Sphp\Stdlib\Strings;
 
 /**
  * Implements a geographical address
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Address implements GeographicalAddress, Arrayable {
+class Address extends AbstractDataObject implements GeographicalAddress {
 
   /**
    * @var string|null
@@ -43,62 +45,80 @@ class Address implements GeographicalAddress, Arrayable {
   /**
    * @var string|null
    */
-  protected $maplink = [];
-
-  public function __construct(array $data = []) {
-    $this->fromArray($data);
-  }
+  protected $maplinks = [];
 
   public function getStreet() {
-    return $this->street;
+    return (string) $this->street;
   }
 
+  /**
+   * Sets the street address
+   *
+   * @param  string $streetaddress the street address
+   * @return $this for a fluent interface
+   */
   public function setStreet(string $streetaddress = null) {
     $this->street = $streetaddress;
     return $this;
   }
 
-  public function hasZipcode(): bool {
-    return Strings::isEmpty($this->zipcode);
+  public function getZipcode(): string {
+    return (string) $this->zipcode;
   }
 
-  public function getZipcode() {
-    return $this->zipcode;
-  }
-
+  /**
+   * Sets the zipcode
+   *
+   * @param  string|null $zipcode the zipcode
+   * @return $this for a fluent interface
+   */
   public function setZipcode(string $zipcode = null) {
     $this->zipcode = $zipcode;
     return $this;
   }
 
-  public function hasCity(): bool {
-    return Strings::isEmpty($this->zipcode);
+  public function getCity(): string {
+    return (string) $this->city;
   }
 
-  public function getCity() {
-    return $this->city;
-  }
-
+  /**
+   * Sets the city or the district name
+   *
+   * @param  string|null $city the city or the district name
+   * @return $this for a fluent interface
+   */
   public function setCity(string $city = null) {
     $this->city = $city;
     return $this;
   }
 
-  public function getCountry() {
-    return $this->country;
+  public function getCountry(): string {
+    return (string) $this->country;
   }
 
+  /**
+   * Sets the the country name
+   *
+   * @param  string|null $country the country name
+   * @return $this for a fluent interface
+   */
   public function setCountry(string $country = null) {
     $this->country = $country;
     return $this;
   }
 
   public function getMaplinks(): array {
-    return $this->maplink;
+    return $this->maplinks;
   }
 
-  public function setMaplinks(array $maplink = []) {
-    $this->maplink = $maplink;
+  /**
+   * Sets the map links
+   *
+   * @param  array $maplinks map links
+   * @return $this for a fluent interface
+   */
+  public function setMaplinks(array $maplinks = []) {
+    $this->maplinks = $maplinks;
     return $this;
   }
 
@@ -108,10 +128,10 @@ class Address implements GeographicalAddress, Arrayable {
         'zip' => \FILTER_SANITIZE_STRING,
         'city' => \FILTER_SANITIZE_STRING,
         'country' => \FILTER_SANITIZE_STRING,
-        'maplinks' => array(
+        'maplinks' => [
             'filter' => FILTER_REQUIRE_ARRAY,
             'flags' => FILTER_FORCE_ARRAY,
-        )
+        ]
     ];
     $address = filter_var_array($raw, $args, true);
     $this->setStreet($address['street']);
@@ -128,23 +148,26 @@ class Address implements GeographicalAddress, Arrayable {
     return get_object_vars($this);
   }
 
-  public function toJson(): string {
-    return json_encode($this->toArray());
-  }
-
   /**
-   * Returns the string representation of the object
+   * Serializes to string
    *
    * @return string the string representation of the object
    */
   public function __toString(): string {
-    $address = $this->getStreet();
-    if ($this->hasZipcode()) {
-      $address .= ', ' . $this->getZipcode();
+    $output = '';
+    if ($this->street != '' && !Strings::isEmpty($this->street)) {
+      $output .= $this->street;
     }
-    $address .= ' ' . $this->getCity();
-    $address .= ', ' . $this->getCountry();
-    return $address;
+    if ($this->zipcode != '' && !Strings::isEmpty($this->zipcode)) {
+      $output .= ", $this->zipcode";
+    }
+    if ($this->city != '' && !Strings::isEmpty($this->city)) {
+      $output .= " $this->city";
+    }
+    if ($this->country != '' && !Strings::isEmpty($this->country)) {
+      $output .= ", $this->country";
+    }
+    return $output;
   }
 
   public function equals($object) {

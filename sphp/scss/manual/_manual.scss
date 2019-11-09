@@ -1,7 +1,9 @@
 /**
- * _manual.scss (UTF-8)
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
  *
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 @charset "UTF-8";
@@ -16,7 +18,7 @@ $sphp6-root-border-color: #333;
 
 $default-left-margin: rem-calc(35);
 $default-margins: ( top: rem-calc(5), right: rem-calc(25), bottom: rem-calc(15), left: rem-calc(35) );
-$error-bg: rgba(255,127,80, 0.40);
+$error-bg: rgba(#FF7F50, 0.4);
 
 @mixin default-margin($margin: all) { 
   @if $margin == all or map-has-key($default-margins, $margin) {
@@ -39,56 +41,62 @@ $error-bg: rgba(255,127,80, 0.40);
 @import "api-stuff";
 @import "form-submission-viewer";
 @import "footer";
-//@import 'topbar';
 @import 'gettext-form';
-@import "forms"; 
-@import 'icon-examples';
+@import "forms";
+@import "logo-area";
+@import "social-icons";
 
-@import "logo-area"; 
-
-.sphp-sidenav {
-  margin-top: rem-calc(20);
-}
-.manual .mainContent {
-  border: solid 1px #888;
-  @include border-radius(4px);
-  //@include box-shadow(#888 3px 0px 8px 4px);
-  padding: rem-calc(0 10 0 10);// top right bottom left
-  margin: rem-calc(5 0 20 0); // top right bottom left
-  @include box-shadow(#888 0px 3px 8px 4px);
-  background: #eaeaea;
-  @include breakpoint(medium down) {  
-    margin: rem-calc(5 0 20 0);
+.manual {
+  .sphp.sidenav {
+    @include shadow(0px 3px 8px 4px rgba(#888,1));
+    margin: rem-calc(20 20 20 20); /* top right bottom left */
+    border: solid 1px #888;
+  } 
+  .sphp.responsive-bar-container {
+    .top-bar, .title-bar {   
+      @include shadow(0px 3px 8px 4px #888);
+    }
+  }
+  .mainContent {
+    //max-width: rem-calc(1200);
+    border: solid 1px #888;
+    @include border-radius(4px);
+    //@include box-shadow(#888 3px 0px 8px 4px);
+    padding: rem-calc(0 10 0 10);// top right bottom left
+    margin: rem-calc(20 10 20 0); // top right bottom left
+    @include shadow(0px 3px 8px 4px rgba(#888,1));
+    //@include box-shadow1(-3px, -3px, 8px, #888);
+    //@include box-shadow1(-3px, 3px, 8px, #888);
+    //@include box-shadow1(3px, -3px, 8px, #888);
+    background: #eaeaea;
+    @include breakpoint(medium down) {  
+      margin: rem-calc(5 0 20 0);
+    }
+    @include breakpoint(xlarge) {  
+      // margin-right: rem-calc(70);
+    }
+    .container {
+      // @import "example-accordion";
+      border-left: solid 1px #ccc;
+      border-right: solid 1px #ccc;
+      //@include border-radius(4px);
+      //@include box-shadow(#888 3px 0px 8px 4px);
+      //@include box-shadow(#888 0px 3px 8px 4px);
+      padding: rem-calc(0 3 40 3);// top right bottom left
+      //margin: rem-calc(5 0 20 0); // top right bottom left
+      background: #fafafa;
+    }
+    &.error {
+      @import "error-page";
+    }
   }
 }
-.mainContent .container  { 
+
+main, main>section, main section.main {   
+  @import "accordions"; 
 
   >.button-group, >.grid-x {
     @include default-margin();
-  }
-  @import "example-accordion";
-  border-left: solid 1px #ccc;
-  border-right: solid 1px #ccc;
-  //@include border-radius(4px);
-  //@include box-shadow(#888 3px 0px 8px 4px);
-  //@include box-shadow(#888 0px 3px 8px 4px);
-  padding: rem-calc(0 3 40 3);// top right bottom left
-  //margin: rem-calc(5 0 20 0); // top right bottom left
-  background: #fafafa;
-  >.intro {
-    @include default-margin(left);
-    .callout{
-      @include box-shadow(#ddd 0px 2px 3px 2px);
-      border: solid 1px #ccc;
-      @include border-radius(4px);
-      h5, dt {
-        font-weight: bold;
-        border-bottom: dotted 1px #ccc;
-      }
-      p {
-        text-align: justify;
-      }
-    } 
   }
   @import "sphp-factory-tables"; 
   //@import "breadcrumbs";
@@ -101,51 +109,23 @@ $error-bg: rgba(255,127,80, 0.40);
   }
 
   @import "callouts"; 
-  > p:not([class]), > blockquote:not([class]) {
+  > p:not([class]) {
     @include default-margin();
     //margin: rem-calc(5 25 15 35); // top right bottom left
     text-align: justify;
     padding: 0;
   }
-  > ul:not([class]), > ul:not([class]) ul, > ol:not([class]) ul {
-    list-style-type: none;
-    li:before {
-      position: relative;
-      content: "\00BB \0020";
-      font-weight: bold;
-      margin-right: rem-calc(10); 
-      list-style-type: none;
-    }
-  }
-  > ul:not([class]), > ol:not([class]) { 
-    //margin: rem-calc(6 25 10 55);
-    @include default-margin();
-    list-style-position: inside;
-    ul, ol {
-      margin-left: rem-calc(15);
-      list-style-position: inside;
-    }
-  }
   @import "headings"; 
   @import "hyperlinks"; 
-
+  @import "lists"; 
+  @import "vendor-readme-section"; 
   @import "technologies"; 
-  @import "grid-examples"; 
-
-  .plain.sphp-syntax-highlighter {
-    border: solid 1px #666;
-    @include border-radius(4px);
-    @include default-margin();
-    .syntax {
-      padding: rem-calc(10);  
-    }
-  }
-  > div.wrapper {
-    @include default-margin();
-  }
   @import "carousels";
+  @import "styling-tags";
+  @import "quoting";
+  @import "carousels/terminology-carousel";
+  //@import "pagination";
 }
+@import "examples/examples"; 
 
 @import "body";
-@import "pagination";
-

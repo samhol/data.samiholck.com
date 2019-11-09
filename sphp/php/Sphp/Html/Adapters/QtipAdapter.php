@@ -1,13 +1,16 @@
 <?php
 
 /**
- * QtipAdapter.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Adapters;
 
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Component;
 use Sphp\Html\IdentifiableContent;
 
 /**
@@ -15,17 +18,19 @@ use Sphp\Html\IdentifiableContent;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://qtip2.com/ qTip 2
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework Github repository
  * @filesource
  */
 class QtipAdapter extends AbstractComponentAdapter {
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @param ComponentInterface $component
+   * @param Component $component
+   * @param string|null $qtip the value of the title attribute
    */
-  public function __construct(ComponentInterface $component, $qtip = null) {
+  public function __construct(Component $component, string $qtip = null) {
     parent::__construct($component);
     if ($qtip !== null) {
       $this->setQtip($qtip);
@@ -39,10 +44,10 @@ class QtipAdapter extends AbstractComponentAdapter {
    * @return $this for a fluent interface
    * @link   http://www.w3schools.com/tags/att_global_title.asp title attribute
    */
-  public function setQtip($qtip) {
+  public function setQtip(string $qtip = null) {
     $this->getComponent()->attributes()
-            ->set('title', $qtip)
-            ->set('data-sphp-qtip', true);
+            ->setAttribute('title', $qtip)
+            ->setAttribute('data-sphp-qtip', true);
     return $this;
   }
 
@@ -55,9 +60,9 @@ class QtipAdapter extends AbstractComponentAdapter {
    */
   public function setQtipPosition(string $my, string $at) {
     $this->getComponent()->attributes()
-            ->set('data-sphp-qtip', true)
-            ->set('data-sphp-qtip-at', $at)
-            ->set('data-sphp-qtip-my', $my);
+            ->setAttribute('data-sphp-qtip', true)
+            ->setAttribute('data-sphp-qtip-at', $at)
+            ->setAttribute('data-sphp-qtip-my', $my);
     return $this;
   }
 
@@ -70,7 +75,7 @@ class QtipAdapter extends AbstractComponentAdapter {
     if ($viewport instanceof IdentifiableContent) {
       $id = $viewport->identify();
     }
-    $this->attributes()->set('data-sphp-qtip-viewport', "#$id");
+    $this->attributes()->setAttribute('data-sphp-qtip-viewport', "#$id");
     return $this;
   }
 

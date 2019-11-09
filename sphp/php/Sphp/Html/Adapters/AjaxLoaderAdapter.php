@@ -1,33 +1,35 @@
 <?php
 
 /**
- * AjaxLoaderAdapter.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Adapters;
 
 use Sphp\Html\AjaxLoader;
-use Sphp\Stdlib\Networks\URL;
-use Sphp\Html\ComponentInterface;
+use Sphp\Network\URL;
+use Sphp\Html\Component;
 
-/** 
- * Executes {@link AjaxLoaderInterface} functionality on the adaptee
+/**
+ * Executes Ajax functionality on the adaptee
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://api.jquery.com/load/ jQuery load()
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-
 class AjaxLoaderAdapter extends AbstractComponentAdapter implements AjaxLoader {
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @param ComponentInterface $component
+   * @param Component $component
    */
-  public function __construct(ComponentInterface $component) {
+  public function __construct(Component $component) {
     parent::__construct($component);
   }
 

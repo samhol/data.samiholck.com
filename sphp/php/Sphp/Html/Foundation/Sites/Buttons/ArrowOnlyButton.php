@@ -1,15 +1,18 @@
 <?php
 
 /**
- * ArrowOnlyButton.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Buttons;
 
 use Sphp\Html\AbstractComponent;
 use Sphp\Html\Foundation\Sites\Core\ScreenReaderLabelable;
-use Sphp\Html\Foundation\Sites\Core\Factory;
+use Sphp\Html\Foundation\Foundation;
 
 /**
  * Implements a Close Button
@@ -17,7 +20,7 @@ use Sphp\Html\Foundation\Sites\Core\Factory;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://zurb.com/playground/foundation-icon-fonts-3 Foundation Icon Fonts 3
  * @link    http://foundation.zurb.com/sites/docs/button-group.html#split-buttons Foundation 6 Buttons
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class ArrowOnlyButton extends AbstractComponent implements ButtonInterface, ScreenReaderLabelable {
@@ -32,14 +35,14 @@ class ArrowOnlyButton extends AbstractComponent implements ButtonInterface, Scre
   private $screenReaderLabel;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $screenReaderLabel the screen reader label text
    */
   public function __construct(string $screenReaderLabel = null) {
     parent::__construct('button');
     $this->cssClasses()
-            ->protect('button dropdown arrow-only');
+            ->protectValue('button dropdown arrow-only');
     $this->setScreenReaderLabel($screenReaderLabel);
     $this->setScreenReaderLabel($screenReaderLabel);
   }
@@ -50,7 +53,7 @@ class ArrowOnlyButton extends AbstractComponent implements ButtonInterface, Scre
   }
 
   public function contentToString(): string {
-    return Factory::screenReaderLabel($this->screenReaderLabel)->getHtml();
+    return Foundation::screenReaderLabel($this->screenReaderLabel)->getHtml();
   }
 
 }

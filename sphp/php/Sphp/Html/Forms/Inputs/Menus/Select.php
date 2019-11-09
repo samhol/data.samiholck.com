@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Select.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs\Menus;
@@ -29,40 +32,27 @@ use Sphp\Html\TraversableContent;
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_select.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Select extends AbstractOptionsContainer implements SelectMenuInterface {
 
   /**
-   * Constructs a new instance
-   *
-   * **`$opt` types:**
-   * 
-   * 1. a {@link SelectContentInterface} is stored as such
-   * 2. a single dimensional array with $key => $val pairs corresponds to an 
-   *    array of new {@link Option}($key, $val) objects
-   * 3. a multidimensional array corresponds to a multidimensional menu structure with 
-   *    {@link Optgroup} components containing new {@link Option}($key, $val) objects
+   * Constructor
    * 
    * @param string|null $name name attribute
-   * @param MenuComponent|mixed[] $opt the content of the menu
-   * @param string|string[] $selectedValues the option values selected
    */
-  public function __construct(string $name = null, $opt = null, $selectedValues = null) {
-    parent::__construct('select', $opt);
-    if (isset($name)) {
+  public function __construct(string $name = null) {
+    parent::__construct('select');
+    if ($name !== null) {
       $this->setName($name);
-    }
-    if ($selectedValues !== null) {
-      $this->setSelectedValues($selectedValues);
     }
   }
 
   public function getOptions(): TraversableContent {
     return $this->getComponentsByObjectType(Option::class);
   }
-  
+
   public function getSelectedOptions(): TraversableContent {
     $isSelected = function($component) {
       if ($component instanceof Option) {
@@ -96,22 +86,22 @@ class Select extends AbstractOptionsContainer implements SelectMenuInterface {
     return array_unique($selected);
   }
 
-  public function setSubmitValue($value) {
+  public function setInitialValue($value) {
     return $this->setSelectedValues($value);
   }
 
   public function selectMultiple(bool $multiple = true) {
-    $this->attributes()->set('multiple', $multiple);
+    $this->attributes()->setAttribute('multiple', $multiple);
     return $this;
   }
 
   public function setSize(int $size = null) {
-    $this->attributes()->set('size', $size);
+    $this->attributes()->setAttribute('size', $size);
     return $this;
   }
 
   public function setRequired(bool $required = true) {
-    $this->attributes()->setBoolean('required', $required);
+    $this->attributes()->required($required);
     return $this;
   }
 
@@ -119,26 +109,34 @@ class Select extends AbstractOptionsContainer implements SelectMenuInterface {
     return $this->attributeExists('required');
   }
 
-  public function getName(): string {
-    return (string) $this->attributes()->getValue('name');
+  public function getName(): ?string {
+    return $this->attributes()->getValue('name');
   }
 
-  public function setName(string $name) {
-    $this->attributes()->set('name', $name);
+  public function setName(string $name = null) {
+    $this->attributes()->setAttribute('name', $name);
     return $this;
   }
 
   public function isNamed(): bool {
-    return $this->attributes()->exists('name');
+    return $this->attributes()->isVisible('name');
   }
 
   public function disable(bool $disabled = true) {
-    $this->attributes()->setBoolean('disabled', $disabled);
+    $this->attributes()->disabled = $disabled;
     return $this;
   }
 
   public function isEnabled(): bool {
-    return !$this->attributes()->exists('disabled');
+    return !$this->attributes()->isVisible('disabled');
+  }
+
+  public static function from(string $name = null, array $opt = null): Select {
+    $select = new Select($name);
+    if ($opt !== null) {
+      $select->appendArray($opt);
+    }
+    return $select;
   }
 
 }

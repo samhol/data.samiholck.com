@@ -1,45 +1,43 @@
 <?php
 
 /**
- * AbstractComponentAdapter.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Adapters;
 
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\AbstractContent;
+use Sphp\Html\Component;
 
 /**
  * Abstract base class for HTML component adapters
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class AbstractComponentAdapter implements Adapter {
-
-  use \Sphp\Html\ContentTrait;
+abstract class AbstractComponentAdapter extends AbstractContent implements Adapter {
 
   /**
-   *
-   * @var ComponentInterface
+   * @var Component
    */
   private $component;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @param ComponentInterface $component
+   * @param Component $component
    */
-  public function __construct(ComponentInterface $component) {
+  public function __construct(Component $component) {
     $this->component = $component;
   }
 
   /**
-   * Destroys the instance
-   *
-   * The destructor method will be called as soon as there are no other references
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->component);
@@ -57,9 +55,9 @@ class AbstractComponentAdapter implements Adapter {
 
   /**
    * 
-   * @return ComponentInterface
+   * @return Component
    */
-  public function getComponent(): ComponentInterface {
+  public function getComponent(): Component {
     return $this->component;
   }
 

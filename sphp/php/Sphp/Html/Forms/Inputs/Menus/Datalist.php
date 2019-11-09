@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Datalist.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs\Menus;
@@ -11,14 +14,13 @@ namespace Sphp\Html\Forms\Inputs\Menus;
  * Description of Datalist
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @since   2017-12-27
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Datalist extends AbstractOptionsContainer {
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param type $opt
    */

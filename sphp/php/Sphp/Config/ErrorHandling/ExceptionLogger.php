@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ExceptionLogger.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Config\ErrorHandling;
@@ -17,7 +20,7 @@ use Sphp\Stdlib\Filesystem;
  * the exception in an ExceptionBox element
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class ExceptionLogger implements ExceptionListener {
@@ -28,12 +31,15 @@ class ExceptionLogger implements ExceptionListener {
   private $destination;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param string $destination the filename of the destination file
    */
   public function __construct(string $destination) {
-    $this->setDestination($destination);
+    if (!is_writable($destination)) {
+      Filesystem::mkFile($destination);
+    }
+    $this->destination = $destination;
   }
 
   /**
@@ -45,20 +51,7 @@ class ExceptionLogger implements ExceptionListener {
     return $this->destination;
   }
 
-  /**
-   * 
-   * @param  string $destination
-   * @return $this for a fluent interface
-   */
-  public function setDestination(string $destination) {
-    if (!is_writable($destination)) {
-      Filesystem::mkFile($destination);
-    }
-    $this->destination = $destination;
-    return $this;
-  }
-
-  public function onException(Throwable $e) {
+  public function onException(Throwable $e): void {
     error_log($this->parseThrowable($e), 3, $this->getDestination());
   }
 

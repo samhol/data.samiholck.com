@@ -1,19 +1,23 @@
 <?php
 
 /**
- * PatternAttribute.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
 
-use Sphp\Html\Attributes\Exceptions\InvalidAttributeException;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Implements a regular expression validable attribute
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class PatternAttribute extends AbstractScalarAttribute {
@@ -24,7 +28,7 @@ class PatternAttribute extends AbstractScalarAttribute {
   private $pattern;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $name the name of the attribute
    * @param string $pattern 
@@ -37,7 +41,7 @@ class PatternAttribute extends AbstractScalarAttribute {
   public function filterValue($value) {
     $filtered = filter_var($value, \FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => $this->pattern]]);
     if (!$filtered) {
-      throw new InvalidAttributeException("Invalid value for '{$this->getName()}' pattern attribute");
+      throw new InvalidArgumentException("Invalid value ($value) for '{$this->getName()}' pattern attribute");
     }
     return $value;
   }

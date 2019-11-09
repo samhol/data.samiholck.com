@@ -1,8 +1,11 @@
 <?php
 
 /**
- * BulletContainer.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Media\Orbit;
@@ -15,7 +18,8 @@ use Sphp\Html\AbstractComponent;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/orbit.html Foundation Orbit slider
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class BulletContainer extends AbstractComponent {
@@ -27,7 +31,7 @@ class BulletContainer extends AbstractComponent {
   private $bullets = [];
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  int $count slide(s)
    */
@@ -36,7 +40,7 @@ class BulletContainer extends AbstractComponent {
     for ($i = 0; $i < $count; $i++) {
       $this->setBullet($i);
     }
-    $this->cssClasses()->protect('orbit-bullets');
+    $this->cssClasses()->protectValue('orbit-bullets');
   }
 
   /**

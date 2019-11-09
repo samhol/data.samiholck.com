@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ViewerJS.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media;
@@ -15,36 +18,19 @@ namespace Sphp\Html\Media;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_iframe.asp w3schools HTML API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-iframe-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class ViewerJS extends Iframe {
 
   /**
-   * Constructs a new instance
-   *
-   * @param  string $src the address of the document to embed in the object
-   * @param  string $name the value of the name attribute
-   * @link   http://www.w3schools.com/TAGS/att_iframe_src.asp src attribute
-   */
-  public function __construct(string $src = null) {
-    parent::__construct();
-    if ($src !== null) {
-      $this->setSrc($src);
-    }
-  }
-
-  /**
    * Sets the path to the image source (The URL of the image file)
    * 
-   * **Important:** if {@link LazyLoaderInterface::isLazy()} this method sets the value of the 
-   * `data-src` attribute instead of the `src` attribute
-   *
    * @param  string|URL $src the path to the image source (The URL of the image file)
    * @return LazyLoaderInterface for PHP Method Chaining
    */
-  public function setSrc(string $src) {
-    parent::setSrc("sphp/viewerjs/#../../$src");
+  public function setSrc(string $src = null) {
+    parent::setSrc("./sphp/viewerjs/index.html#../../$src");
     return $this;
   }
 

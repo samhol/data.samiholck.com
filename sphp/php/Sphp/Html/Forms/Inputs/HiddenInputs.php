@@ -1,144 +1,151 @@
 <?php
 
 /**
- * HiddenInputs.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
 
-use Sphp\Html\Content;
-use ArrayAccess;
-use Iterator;
-use Sphp\Html\Container;
+use Sphp\Html\AbstractContent;
+use IteratorAggregate;
+use Sphp\Html\Iterator;
+use Traversable;
+use Sphp\Html\Forms\FormController;
+use Sphp\Stdlib\Arrays;
 
 /**
- * Description of HiddenInputs
+ * Implements hidden data component for HTML forms
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class HiddenInputs implements Content, ArrayAccess, Iterator {
-
-  use \Sphp\Html\ContentTrait;
+class HiddenInputs extends AbstractContent implements IteratorAggregate, \Sphp\Html\TraversableContent, FormController {
 
   /**
    * @var HiddenInput[]
    */
   private $inputs;
 
+  /**
+   * Constructor
+   */
   public function __construct() {
     $this->inputs = [];
   }
 
+  /**
+   * Destructor
+   */
+  public function __destruct() {
+    unset($this->inputs);
+  }
+
+  public function __clone() {
+    $this->inputs = Arrays::copy($this->inputs);
+  }
+
   public function getHtml(): string {
-    $output = new Container();
-    foreach ($this->inputs as $name => $value) {
-      $output->offsetSet($name, new HiddenInput($name, $value));
-    }
-    return $output->getHtml();
+    return implode($this->inputs);
   }
 
   /**
-   * Sets a hidden variable to the form
+   * Inserts a hidden variable
    *
-   * The <var>$name => $value</var> pair is stored into a {@link HiddenInput} component.
-   *
-   * @param  string $name th name of the hidden variable
+   * @param  string $name the name of the hidden variable
    * @param  scalar $value the value of the hidden variable
-   * @return $this for a fluent interface
-   * @see    HiddenInput
+   * @return HiddenInput inserted instance
    */
-  public function setVariable($name, $value) {
-    $this->inputs[$name] = $value;
-    return $this;
+  public function insertVariable(string $name, $value): HiddenInput {
+    $input = new HiddenInput($name, $value);
+    return $this->insertHiddenInput($input);
   }
 
   /**
-   * Sets the hidden data to the form
-   *
-   * Appended <var>$key => $value</var> pairs are stored into 
-   *  {@link HiddenInput} components.
-   *
-   * @param  string[] $vars name => value pairs
-   * @return $this for a fluent interface
-   * @see    HiddenInput
+   * Inserts a hidden input object
+   * 
+   * @param  HiddenInput $input hidden input object
+   * @return HiddenInput inserted instance
    */
-  public function setVariables(array $vars) {
-    foreach ($vars as $name => $value) {
-      $this->setVariable($name, $value);
-    }
-    return $this;
+  public function insertHiddenInput(HiddenInput $input): HiddenInput {
+    $this->inputs[] = $input;
+    return $input;
   }
 
-  public function offsetExists($offset): bool {
-    return array_key_exists($offset, $this->inputs);
+  public function contains(string $name): bool {
+    $contains = false;
+    foreach ($this->inputs as $input) {
+      if ($input->getName() === $name) {
+        $contains = true;
+        break;
+      }
+    }
+    return $contains;
   }
 
   /**
    * Returns the value of the hidden variable
    *
-   * @param  mixed $name the name of the hidden variable
-   * @return mixed the value of the hidden variable or `null`
+   * @param  string $name the name of the hidden variable
+   * @return HiddenInputs the value of the hidden variable or `null`
    */
-  public function offsetGet($name) {
-    $result = null;
-    if ($this->offsetExists($name)) {
-      $result = $this->components[$name];
+  public function getByName(string $name): HiddenInputs {
+    $result = new HiddenInputs();
+    foreach ($this->inputs as $input) {
+      if ($input->getName() === $name) {
+        $result->insertHiddenInput($input);
+      }
     }
     return $result;
   }
 
-  public function offsetSet($offset, $value) {
-    $this->inputs[$offset] = $value;
+  public function getIterator(): Traversable {
+    return new Iterator($this->inputs);
   }
 
-  public function offsetUnset($offset) {
-    if ($this->offsetExists($offset)) {
-      unset($this->inputs[$offset]);
+  public function disable(bool $disabled = true) {
+    foreach ($this->inputs as $input) {
+      $input->disable($disabled);
     }
+    return $this;
   }
 
   /**
-   * Returns the current element
+   * Checks whether the controller is enabled or not
    * 
-   * @return mixed the current element
-   */
-  public function current() {
-    return current($this->inputs);
-  }
-
-  /**
-   * Advance the internal pointer of the collection
-   */
-  public function next() {
-    next($this->inputs);
-  }
-
-  /**
-   * Return the key of the current element
+   * Important: This controller is disabled only if all of its inputs are disabled.
    * 
-   * @return mixed the key of the current element
+   * @return bool true if enabled, otherwise false
    */
-  public function key() {
-    return key($this->inputs);
+  public function isEnabled(): bool {
+    $enabled = false;
+    foreach ($this->inputs as $input) {
+      $enabled = $input->isEnabled();
+      if ($enabled) {
+        break;
+      }
+    }
+    return $enabled;
   }
 
-  /**
-   * Rewinds the Iterator to the first element
-   */
-  public function rewind() {
-    reset($this->inputs);
+  public function count(): int {
+    return count($this->inputs);
   }
 
-  /**
-   * Checks if current iterator position is valid
-   * 
-   * @return boolean current iterator position is valid
-   */
-  public function valid(): bool {
-    return false !== current($this->inputs);
+  public function getComponentsBy(callable $rules): \Sphp\Html\TraversableContent {
+    
+  }
+
+  public function getComponentsByObjectType($typeName): \Sphp\Html\TraversableContent {
+    
+  }
+
+  public function toArray(): array {
+    return $this->inputs;
   }
 
 }

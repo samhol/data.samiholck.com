@@ -1,14 +1,19 @@
 <?php
 
 /**
- * Console.php (UTF-8)
- * Copyright (c) 2018 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Log;
 
-use Sphp\Html\Programming\ScriptCode;
+use Sphp\Html\Scripts\ScriptCode;
 use Sphp\Exceptions\BadMethodCallException;
+use Sphp\Exceptions\InvalidArgumentException;
+use Sphp\Stdlib\Parsers\ParseFactory;
 
 /**
  * Implements PHP message outputting To Browser Console
@@ -19,7 +24,7 @@ use Sphp\Exceptions\BadMethodCallException;
  * @method void error(mixed $message) Logs error message to browser console
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Console {
@@ -30,7 +35,15 @@ class Console {
   const ERROR = 'error';
   const TABLE = 'table';
 
+  /**
+   * @var string[] 
+   */
   private static $types = [self::LOG, self::INFO, self::WARN, self::ERROR, self::TABLE];
+
+  /**
+   *
+   * @var string[] 
+   */
   private $rows = [];
 
   /**
@@ -39,6 +52,7 @@ class Console {
    * @param  string $name the name of the component
    * @param  array $arguments
    * @throws BadMethodCallException
+   * @throws InvalidArgumentException
    */
   public static function __callStatic(string $name, array $arguments) {
     if (!in_array($name, static::$types)) {
@@ -46,7 +60,7 @@ class Console {
     }
     $message = array_shift($arguments);
     if ($message === null) {
-      throw new \Sphp\Exceptions\InvalidArgumentException("Method $name does not exist");
+      throw new InvalidArgumentException("Method $name does not exist");
     }
     $obj = new static();
     $obj->add($name, $message);
@@ -54,22 +68,14 @@ class Console {
   }
 
   /**
-   * Logs messages/variables/data to browser console from within php
-   *
-   * @param $name message to be shown for optional data/vars
-   * @param $data variable (scalar/mixed) arrays/objects, etc to be logged
-   * @param $jsEval whether to apply JS eval() to arrays/objects
-   *
-   * @return none
-   * @author Sarfraz
+   * 
+   * @param  string $type
+   * @param  mixed $data
+   * @return string
    */
-  public static function log1($name, $data = NULL, $jsEval = FALSE) {
-    
-  }
-
-  protected function createLog(string $type, $data) {
+  protected function createLog(string $type, $data): string {
     if (is_array($data)) {
-      $data = \Sphp\Stdlib\Parser::json()->encode($data);
+      $data = ParseFactory::json()->toString($data);
       //echo "console.$type($data);";
     } else if (is_string($data)) {
       $data = "'$data'";
@@ -77,6 +83,12 @@ class Console {
     return "console.$type($data);";
   }
 
+  /**
+   * 
+   * @param  string $type
+   * @param  mixed $logText
+   * @return $this for a fluent interface
+   */
   public function add(string $type, $logText) {
     $this->rows[] = ['type' => $type, 'message' => $logText];
     return $this;
@@ -106,6 +118,10 @@ class Console {
     return $this;
   }
 
+  /**
+   * 
+   * @return $this for a fluent interface
+   */
   public function clear() {
     $this->rows = [];
     return $this;

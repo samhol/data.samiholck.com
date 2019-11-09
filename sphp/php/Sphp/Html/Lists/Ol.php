@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Ol.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Lists;
@@ -13,13 +16,14 @@ namespace Sphp\Html\Lists;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_ol.asp w3schools API
  * @link    http://www.w3.org/html/wg/drafts/html/master/semantics.html#the-ol-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class Ol extends StandardList {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Notes:**
    *
@@ -27,7 +31,7 @@ class Ol extends StandardList {
    *    within {@link Li} component
    * 2. All items of an array are treated according to note (1)
    *
-   * @param  mixedmixed[]|null $items optional content of the component
+   * @param  mixed|mixed[]|null $items optional content of the component
    */
   public function __construct($items = null) {
     parent::__construct('ol');
@@ -46,7 +50,7 @@ class Ol extends StandardList {
    * @link   http://www.w3schools.com/tags/att_ol_reversed.asp reversed attribute
    */
   public function setReversed(bool $reversed = true) {
-    $this->attributes()->set('reversed', $reversed);
+    $this->attributes()->setAttribute('reversed', $reversed);
     return $this;
   }
 
@@ -61,7 +65,7 @@ class Ol extends StandardList {
    * @link   http://www.w3schools.com/tags/att_ol_start.asp start attribute
    */
   public function setStart(int $start) {
-    $this->attributes()->set('start', $start);
+    $this->attributes()->setAttribute('start', $start);
     return $this;
   }
 
@@ -76,7 +80,7 @@ class Ol extends StandardList {
    */
   public function getStart(): int {
     $start = 1;
-    if ($this->attributes()->exists('start')) {
+    if ($this->attributes()->isVisible('start')) {
       $start = $this->attributes()->getValue('start');
     }
     return (int) $start;
@@ -90,7 +94,7 @@ class Ol extends StandardList {
    * @link   http://www.w3schools.com/tags/att_ol_type.asp type attribute
    */
   public function setListType(string $type = '1') {
-    $this->attributes()->set('type', $type);
+    $this->attributes()->setAttribute('type', $type);
     return $this;
   }
 
@@ -102,7 +106,7 @@ class Ol extends StandardList {
    */
   public function getListType(): string {
     $type = '1';
-    if ($this->attributes()->exists('type')) {
+    if ($this->attributes()->isVisible('type')) {
       $type = $this->attributes()->getValue('type');
     }
     return $type;

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * TranslatablePriorityList.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\I18n\Collections;
@@ -12,14 +15,14 @@ use Sphp\I18n\TranslatorInterface;
 use Sphp\I18n\Gettext\Translator;
 use IteratorAggregate;
 use Sphp\I18n\Translatable;
-use Zend\Stdlib\PriorityQueue;
-use Sphp\Stdlib\Datastructures\StablePriorityQueue;
+use Sphp\Stdlib\Datastructures\PriorityQueue;
+use Traversable;
 
 /**
  * Implements a list that holds {@link Translatable} objects in a reusable priority queue
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class TranslatablePriorityList implements IteratorAggregate, TranslatableCollectionInterface, Arrayable {
@@ -39,13 +42,13 @@ class TranslatablePriorityList implements IteratorAggregate, TranslatableCollect
   private $translator;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  TranslatorInterface|null $translator the translator component
    */
   public function __construct(TranslatorInterface $translator = null) {
     $this->messages = new PriorityQueue();
-    $this->messages->setInternalQueueClass(StablePriorityQueue::class);
+    //$this->messages->setInternalQueueClass(StablePriorityQueue::class);
     if ($translator === null) {
       $translator = new Translator();
     }
@@ -93,16 +96,16 @@ class TranslatablePriorityList implements IteratorAggregate, TranslatableCollect
    * @return $this for a fluent interface
    */
   public function insert(Translatable $messages, int $priority = 0) {
-    $this->messages->insert($messages, $priority);
+    $this->messages->enqueue($messages, $priority);
     return $this;
   }
 
   /**
    * Create a new iterator from the instance
    *
-   * @return \ArrayIterator iterator
+   * @return Traversable iterator
    */
-  public function getIterator() {
+  public function getIterator(): Traversable {
     return clone $this->messages->getIterator();
   }
 
@@ -132,7 +135,7 @@ class TranslatablePriorityList implements IteratorAggregate, TranslatableCollect
    * @return $this for a fluent interface
    */
   public function clearContent() {
-    $this->messages = new StablePriorityQueue();
+    $this->messages = new PriorityQueue();
     return $this;
   }
 

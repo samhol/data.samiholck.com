@@ -1,8 +1,11 @@
 <?php
 
 /**
- * AbstractSwitch.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Forms\Inputs;
@@ -13,7 +16,7 @@ use Sphp\Html\Forms\Label;
 use Sphp\Html\Span;
 use Sphp\Html\Foundation\Sites\Core\ScreenReaderLabelable;
 use Sphp\Html\Forms\Inputs\BooleanInput;
-use Sphp\Html\Foundation\Sites\Core\Factory;
+use Sphp\Html\Foundation\Foundation;
 
 /**
  * Implements an abstract foundation based switch
@@ -21,7 +24,7 @@ use Sphp\Html\Foundation\Sites\Core\Factory;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/switch.html Foundation Sliders
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenReaderLabelable {
@@ -46,17 +49,17 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
   private $screenReaderLabel, $inactive, $active;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param Choicebox $box the inner form component
    * @param string|null $srText text for screen readers
    */
   public function __construct(Choicebox $box, string $srText = null) {
-    $box->cssClasses()->protect('switch-input');
+    $box->cssClasses()->protectValue('switch-input');
     parent::__construct('div');
     $this->input = $box;
     $this->cssClasses()
-            ->protect('switch');
+            ->protectValue('switch');
     $box->identify();
     $this->setScreenReaderLabel($srText);
   }
@@ -70,20 +73,20 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
     $paddle = new Label();
     $paddle->setFor($this->input);
     $paddle->cssClasses()
-            ->protect('switch-paddle');
+            ->protectValue('switch-paddle');
     if ($this->screenReaderLabel !== null) {
-      $paddle->append(Factory::screenReaderLabel($this->screenReaderLabel));
+      $paddle->append(Foundation::screenReaderLabel($this->screenReaderLabel));
     }
     if ($this->active !== null || $this->inactive !== null) {
       $activeLabel = new Span($this->active);
       $activeLabel->attributes()
               ->protect('aria-hidden', 'true')
-              ->classes()->protect('switch-active');
+              ->classes()->protectValue('switch-active');
       $paddle->append($activeLabel);
       $inactiveLabel = new Span($this->inactive);
       $inactiveLabel->attributes()
               ->protect('aria-hidden', 'true')
-              ->classes()->protect('switch-inactive');
+              ->classes()->protectValue('switch-inactive');
       $paddle->append($inactiveLabel);
     }
     return $paddle;
@@ -92,6 +95,10 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
   public function setScreenReaderLabel(string $label = null) {
     $this->screenReaderLabel = $label;
     return $this;
+  }
+
+  public function getScreenReaderLabel(): ?string {
+    return $this->screenReaderLabel;
   }
 
   /**
@@ -110,7 +117,7 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
   public function setSize($size) {
     $this->resetSize();
     if (in_array($size, self::$sizes)) {
-      $this->cssClasses()->add($size);
+      $this->addCssClass($size);
     }
     return $this;
   }
@@ -121,8 +128,7 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
    * @return $this for a fluent interface
    */
   public function resetSize() {
-    $this->cssClasses()
-            ->remove(self::$sizes);
+    $this->removeCssClass(self::$sizes);
     return $this;
   }
 
@@ -139,6 +145,10 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
     return $this;
   }
 
+  public function getInput(): Choicebox {
+    return $this->input;
+  }
+
   public function disable(bool $disabled = true) {
     $this->input->disable($disabled);
     return $this;
@@ -148,11 +158,11 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
     return $this->input->isEnabled();
   }
 
-  public function getName() {
+  public function getName(): ?string {
     return $this->input->getName();
   }
 
-  public function setName(string $name) {
+  public function setName(string $name = null) {
     $this->input->setName($name);
     return $this;
   }
@@ -161,8 +171,8 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
     return $this->input->isNamed();
   }
 
-  public function setSubmitValue($value) {
-    $this->input->setSubmitValue($value);
+  public function setInitialValue($value) {
+    $this->input->setInitialValue($value);
     return $this;
   }
 
@@ -202,6 +212,10 @@ class AbstractSwitch extends AbstractComponent implements BooleanInput, ScreenRe
   public function setChecked(bool $checked = true) {
     $this->input->setChecked($checked);
     return $this;
+  }
+
+  public function isChecked(): bool {
+    return $this->input->isChecked();
   }
 
 }

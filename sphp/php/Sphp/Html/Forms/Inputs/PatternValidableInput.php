@@ -1,8 +1,11 @@
 <?php
 
 /**
- * PatternValidableInput.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -12,7 +15,7 @@ namespace Sphp\Html\Forms\Inputs;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface PatternValidableInput extends ValidableInput {
@@ -25,16 +28,16 @@ interface PatternValidableInput extends ValidableInput {
    * @param  string $pattern a regular expression pattern
    * @return $this for a fluent interface
    */
-  public function setPattern(string $pattern);
+  public function setPattern(string $pattern = null);
 
   /**
    * Returns the validation pattern string
    *
-   * @return string the regular expression pattern that the component's 
+   * @return string|null the regular expression pattern that the component's 
    *         value is checked against
    * @link   http://www.w3schools.com/tags/att_input_pattern.asp pattern attribute
    */
-  public function getPattern();
+  public function getPattern(): ?string;
 
   /**
    * Checks if validation pattern is set for the component
@@ -45,4 +48,3 @@ interface PatternValidableInput extends ValidableInput {
    */
   public function hasPattern(): bool;
 }
-

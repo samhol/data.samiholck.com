@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Locale.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Config;
@@ -16,7 +19,7 @@ namespace Sphp\Config;
  *
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 abstract class Locale {
@@ -25,18 +28,19 @@ abstract class Locale {
    * Sets the locale information
    *
    * **`$category` constant values:**
-   *
-   * * {@link LC_ALL} for all of the below
-   * * {@link LC_COLLATE} for string comparison, see {@link strcoll()}
-   * * {@link LC_CTYPE} for character classification and conversion, for example {@link strtoupper()}
-   * * {@link LC_MONETARY} for localeconv()
-   * * {@link LC_NUMERIC} for decimal separator (See also {@link localeconv()})
-   * * {@link LC_TIME} for date and time formatting with {@link strftime()}
-   * * {@link LC_MESSAGES} for system responses (available if PHP was compiled with libintl)
-   *
+   * <ul>
+   * <li> {@link LC_ALL} for all of the below </li>
+   * <li>{@link LC_COLLATE} for string comparison, see {@link strcoll()} </li>
+   * <li> {@link LC_CTYPE} for character classification and conversion, for example {@link strtoupper()} </li>
+   * <li> {@link LC_MONETARY} for localeconv() </li>
+   * <li> {@link LC_NUMERIC} for decimal separator (See also {@link localeconv()}) </li>
+   * <li> {@link LC_TIME} for date and time formatting with {@link strftime()} </li>
+   * <li> {@link LC_MESSAGES} for system responses (available if PHP was compiled with libintl) </li>
+   * </ul>
+   * 
    * @param  int $category a named constant specifying the category of the functions affected by the locale setting:
    * @param  string $locale the name of the locale
-   * @return boolean true if the setting was succesfull and false otherwise
+   * @return boolean true if the setting was successful and false otherwise
    */
   public static function setLocale(int $category, $locale): bool {
     return setLocale($category, $locale) !== false;

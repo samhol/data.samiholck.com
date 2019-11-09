@@ -1,14 +1,16 @@
 <?php
 
 /**
- * Img.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media;
 
 use Sphp\Html\EmptyTag;
-use Sphp\Images\ImageScaler;
 use Sphp\Stdlib\Strings;
 
 /**
@@ -32,16 +34,16 @@ use Sphp\Stdlib\Strings;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_img.asp w3schools API
  * @link    http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#the-img-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Img extends EmptyTag implements ImgInterface {
 
-  use SizeableTrait,
+  use SizeableMediaTrait,
       LazyMediaSourceTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $src specifies the URL of an image
    * @param  string $alt specifies an alternate text for an image
@@ -68,7 +70,7 @@ class Img extends EmptyTag implements ImgInterface {
     if (!Strings::startsWith($map, '#')) {
       $map = "#$map";
     }
-    $this->attributes()->set('usemap', $map);
+    $this->attributes()->setAttribute('usemap', $map);
     return $this;
   }
 
@@ -92,7 +94,7 @@ class Img extends EmptyTag implements ImgInterface {
    * @link   http://www.w3schools.com/tags/att_img_alt.asp alt attribute
    */
   public function setAlt(string $alt) {
-    $this->attributes()->set('alt', $alt);
+    $this->attributes()->setAttribute('alt', $alt);
     return $this;
   }
 
@@ -121,100 +123,6 @@ class Img extends EmptyTag implements ImgInterface {
       $output .= "<noscript>$nonLazy</noscript>";
     }
     return $output;
-  }
-
-  /**
-   * Returns a new instance of the component containing a scaled image
-   *
-   * **IMPORTANT:** Remote image manipulation is also supported but it could easily be a huge security risk. 
-   * 
-   * @param  string $src the path to the image file
-   * @param  int $width width to fit in
-   * @param  int $height height to fit in
-   * @return self new instance containing a resized image
-   */
-  public static function scaleToFit(string $src, int $width, int $height) {
-    $path = (new ImageScaler($src))
-            ->scaleToFit($width, $height)
-            ->saveToCache()
-            ->httpCachePath();
-    return new static($path);
-  }
-
-  /**
-   * Returns a new instance of the component containing a scaled image
-   * 
-   * **IMPORTANT:** Remote image manipulation is also supported but it could easily be a huge security risk. 
-   *
-   * @param  string $src the path to the image file
-   * @param  float $ratio positive scaling ratio
-   * @return self new instance containing a resized image
-   */
-  public static function scale($src, float $ratio) {
-    $path = (new ImageScaler($src))
-            ->scale($ratio)
-            ->saveToCache()
-            ->httpCachePath();
-    return new static($path);
-  }
-
-  /**
-   * Returns a new instance of the component containing a resizes image
-   * 
-   * **IMPORTANT:** Remote image manipulation is also supported but it could easily be a huge security risk. 
-   *
-   * @param  string $src the path to the image file
-   * @param  int $width new width of the image
-   * @param  int $height new height of the image
-   * @return self new instance containing a resized image
-   */
-  public static function resize(string $src, int $width, int $height) {
-    $path = (new ImageScaler($src))
-            ->resize($width, $height)
-            ->saveToCache()
-            ->httpCachePath();
-    return new static($path);
-  }
-
-  /**
-   * 
-   * Returns a new instance of the {@link Img} component containing a widen image
-   * 
-   * Resizes the original image to given width, constraining proportions
-   * 
-   * **IMPORTANT:** Remote image manipulation is also supported but it could easily be a huge security risk. 
-   *
-   * @param  string $src the path to the image file
-   * @param  int $width the new width
-   * @return self new instance containing a resized image
-   * @uses   ImageScaler
-   */
-  public static function widen(string $src, int $width) {
-    $path = (new ImageScaler($src))
-            ->widen($width)
-            ->saveToCache()
-            ->httpCachePath();
-    return new static($path);
-  }
-
-  /**
-   * Returns a new instance of the {@link Img} component containing a scaled image
-   * 
-   * Resizes the original image to given height, constraining proportions
-   * 
-   * **IMPORTANT:** Remote image manipulation is also supported but it could easily be a huge security risk. 
-   *
-   * @param  string $src the path to the image file
-   * @param  int $height the new height
-   * @return Img new instance of the component containing a resized image
-   * @uses   ImageScaler
-   */
-  public static function heighten(string $src, int $height) {
-    $path = (new ImageScaler($src))
-            ->heighten($height)
-            ->saveToCache()
-            ->httpCachePath();
-    return new static($path);
   }
 
 }

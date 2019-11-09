@@ -1,15 +1,18 @@
 <?php
 
 /**
- * AbstractMultimediaTag.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
 
 use Sphp\Html\AbstractComponent;
 use Sphp\Html\Attributes\HtmlAttributeManager;
-use Sphp\Html\Container;
+use Sphp\Html\PlainContainer;
 use Traversable;
 use Sphp\Html\Iterator;
 use Sphp\Html\TraversableContent;
@@ -18,25 +21,20 @@ use Sphp\Html\TraversableContent;
  * Implements an abstract HTML multimedia tag
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-abstract class AbstractMultimediaTag extends AbstractComponent implements \IteratorAggregate, \Sphp\Html\TraversableContent, MediaTagInterface {
+abstract class AbstractMultimediaTag extends AbstractComponent implements \IteratorAggregate, \Sphp\Html\TraversableContent, MediaTag {
 
   use \Sphp\Html\TraversableTrait;
 
   /**
-   * @var Container
+   * @var MultimediaSource[]
    */
   private $sources;
 
   /**
-   * @var Container
-   */
-  private $tracks;
-
-  /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $tagname the name of the tag
    * @param HtmlAttributeManager|null $attrManager optional attribute manager to use in the component
@@ -44,8 +42,7 @@ abstract class AbstractMultimediaTag extends AbstractComponent implements \Itera
    */
   public function __construct(string $tagname, HtmlAttributeManager $attrManager = null, $sources = null) {
     parent::__construct($tagname, $attrManager);
-    $this->sources = new Container();
-    $this->tracks = new Container();
+    $this->sources = [];
     if ($sources !== null) {
       foreach (is_array($sources) ? $sources : [$sources] as $src) {
         if ($src instanceof Source) {
@@ -58,24 +55,18 @@ abstract class AbstractMultimediaTag extends AbstractComponent implements \Itera
   }
 
   public function __destruct() {
-    unset($this->sources, $this->tracks);
+    unset($this->sources);
     parent::__destruct();
   }
 
   public function contentToString(): string {
-    return $this->sources->getHtml()
-            . $this->tracks->getHtml()
+    return implode($this->sources)
             . "<p>Your browser does not support the &lt;"
             . $this->getTagName() . "&gt; tag!</p>";
   }
 
   public function addMediaSrc(MultimediaSource $src) {
-    if ($src instanceof Source) {
-      $this->sources->append($src);
-    }
-    if ($src instanceof Track) {
-      $this->tracks->append($src);
-    }
+    $this->sources[] = $src;
     return $this;
   }
 
@@ -85,37 +76,29 @@ abstract class AbstractMultimediaTag extends AbstractComponent implements \Itera
     return $source;
   }
 
-  public function getSources(): TraversableContent {
-    return $this->sources->getIterator();
-  }
-
   public function addTrack(string $src, string $srclang = null): Track {
     $track = new Track($src, $srclang);
     $this->addMediaSrc($track);
     return $track;
   }
 
-  public function getTracks(): TraversableContent {
-    return $this->tracks->getIterator();
-  }
-
   public function autoplay(bool $autoplay = true) {
-    $this->attributes()->set('autoplay', (bool) $autoplay);
+    $this->attributes()->setAttribute('autoplay', (bool) $autoplay);
     return $this;
   }
 
   public function loop(bool $loop = true) {
-    $this->attributes()->set('loop', (bool) $loop);
+    $this->attributes()->setAttribute('loop', (bool) $loop);
     return $this;
   }
 
   public function mute(bool $muted = true) {
-    $this->attributes()->set('muted', (bool) $muted);
+    $this->attributes()->setAttribute('muted', (bool) $muted);
     return $this;
   }
 
   public function showControls(bool $show = true) {
-    $this->attributes()->set('controls', (bool) $show);
+    $this->attributes()->setAttribute('controls', (bool) $show);
     return $this;
   }
 
@@ -143,7 +126,15 @@ abstract class AbstractMultimediaTag extends AbstractComponent implements \Itera
    * @return Traversable iterator
    */
   public function getIterator(): Traversable {
-    return new Iterator($this->tracks->toArray() + $this->sources->toArray());
+    return new Iterator($this->sources);
+  }
+
+  public function getSources(): iterable {
+    return (new Iterator($this->sources))->getComponentsByObjectType(Source::class)->toArray();
+  }
+
+  public function getTracks(): iterable {
+    return (new Iterator($this->sources))->getComponentsByObjectType(Track::class)->toArray();
   }
 
 }

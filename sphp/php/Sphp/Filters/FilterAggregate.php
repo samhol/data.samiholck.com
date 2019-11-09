@@ -1,20 +1,24 @@
 <?php
 
 /**
- * FilterAggregate.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Filters;
 
 use IteratorAggregate;
 use ArrayIterator;
+use Traversable;
 
 /**
  * An aggregate of filters
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class FilterAggregate extends AbstractFilter implements IteratorAggregate {
@@ -27,7 +31,7 @@ class FilterAggregate extends AbstractFilter implements IteratorAggregate {
   private $filters = [];
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param callable|callable[] $filters optional filters to add
    */
@@ -40,10 +44,7 @@ class FilterAggregate extends AbstractFilter implements IteratorAggregate {
   }
 
   /**
-   * Destroys the instance
-   * 
-   * The destructor method will be called as soon as there are no other references 
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->filters);
@@ -76,9 +77,9 @@ class FilterAggregate extends AbstractFilter implements IteratorAggregate {
   /**
    * Returns the iterator
    * 
-   * @return ArrayIterator iterator over filters
+   * @return Traversable iterator over filters
    */
-  public function getIterator() {
+  public function getIterator(): Traversable {
     return new ArrayIterator($this->filters);
   }
 

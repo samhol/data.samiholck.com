@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Track.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
@@ -19,13 +22,13 @@ use Sphp\Html\EmptyTag;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_track.asp w3schools API
  * @link    http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#the-track-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Track extends EmptyTag implements MultimediaSource {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $src the URL of the media file
    * @param  string $srclang the language of the track text data
@@ -62,7 +65,7 @@ class Track extends EmptyTag implements MultimediaSource {
   /**
    * Checks whether the option is enabled or not
    * 
-   * @param  boolean true if the track is default, otherwise false
+   * @return boolean true if the track is default, otherwise false
    */
   public function isDefault(): bool {
     return $this->attributeExists('default');
@@ -86,7 +89,7 @@ class Track extends EmptyTag implements MultimediaSource {
    * @link   http://www.w3schools.com/tags/att_track_src.asp src attribute
    */
   public function getSrc(): string {
-    return $this->getAttribute('src');
+    return (string) $this->getAttribute('src');
   }
 
   /**

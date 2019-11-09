@@ -1,21 +1,24 @@
 <?php
 
 /**
- * Sequence.php (UTF-8)
- * Copyright (c) 2018 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Datastructures;
 
 use Iterator;
 use Sphp\Exceptions\OutOfBoundsException;
+use Sphp\Exceptions\UnderflowException;
 
 /**
  * An implementation of a sequence of values
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @since   2018-03-06
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Sequence implements Iterator {
@@ -25,26 +28,23 @@ class Sequence implements Iterator {
    *
    * @var array
    */
-  private $sequence = [];
+  private $sequence;
 
   /**
-   * Destroys the instance
-   * 
-   * The destructor method will be called as soon as there are no other references 
-   * to a particular object, or in any order during the shutdown sequence.
+   * @var int
    */
-  public function __destruct() {
-    unset($this->sequence);
+  private $maxLength;
+
+  public function __construct(int $maxLength = \PHP_INT_MAX) {
+    $this->sequence = [];
+    $this->maxLength = $maxLength;
   }
 
   /**
-   * 
-   * @param  int $position
-   * @return boolean
+   * Destructor
    */
-  protected function isValidPosition(int $position): bool {
-    $test = $position + 1;
-    return $this->minLength <= $test && ($this->maxLength === null || $this->maxLength >= $test);
+  public function __destruct() {
+    unset($this->sequence);
   }
 
   /**
@@ -57,7 +57,9 @@ class Sequence implements Iterator {
    */
   public function insert(int $index, $values) {
     if ($index < 0) {
-      throw new OutOfBoundsException("Indec ($index) mest be zero or positive integer");
+      throw new OutOfBoundsException("Index ($index) must be zero or positive integer");
+    }if ($index > $this->maxLength - 1) {
+      throw new OutOfBoundsException("Index ($index) must be smaller than $this->maxLength");
     }
     $this->sequence[$index] = $values;
     ksort($this->sequence);
@@ -65,29 +67,14 @@ class Sequence implements Iterator {
   }
 
   /**
-   * Adds new atomic values to the attribute
+   * Pushes given values to the end of the sequence
    *
    * @param  mixed,... $value the value(s) to push
    * @return $this for a fluent interface
    */
-  public function push(...$value) {
-    foreach ($value as $val) {
-      $this->sequence[] = $val;
-    }
-    return $this;
-  }
-
-  /**
-   * Adds new atomic values to the attribute
-   *
-   * @param  array $values an array of values to push
-   * @return $this for a fluent interface
-   */
-  public function pushFromArray(array $values) {
-    foreach ($values as $val) {
-      $this->sequence[] = $val;
-    }
-    return $this;
+  public function push($value): int {
+    $this->sequence[] = $value;
+    return max(array_keys($this->sequence));
   }
 
   /**
@@ -98,8 +85,8 @@ class Sequence implements Iterator {
    * @throws OutOfRangeException if the index is not valid.
    */
   public function remove(int $index) {
-    if ($this->exists($index)) {
-      throw new OutOfRangeException("Index ($index) is not valid");
+    if (!$this->exists($index)) {
+      throw new OutOfBoundsException("Index ($index) is not valid");
     }
     $value = $this->sequence[$index];
     unset($this->sequence[$index]);
@@ -152,7 +139,7 @@ class Sequence implements Iterator {
   public function contains(...$values): bool {
     $exists = false;
     foreach ($values as $needle) {
-      $exists = in_array($needle, $this->sequence);
+      $exists = in_array($needle, $this->sequence, true);
       if (!$exists) {
         break;
       }
@@ -201,7 +188,7 @@ class Sequence implements Iterator {
    * 
    * @return void
    */
-  public function next() {
+  public function next(): void {
     next($this->sequence);
   }
 
@@ -219,7 +206,7 @@ class Sequence implements Iterator {
    * 
    * @return void
    */
-  public function rewind() {
+  public function rewind(): void {
     reset($this->sequence);
   }
 
@@ -229,7 +216,7 @@ class Sequence implements Iterator {
    * @return boolean current iterator position is valid
    */
   public function valid(): bool {
-    return false !== current($this->sequence);
+    return null !== key($this->sequence);
   }
 
 }

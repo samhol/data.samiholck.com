@@ -1,15 +1,22 @@
 <?php
 
 /**
- * Reveal.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers;
 
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Component;
 use Sphp\Html\Div;
-use Sphp\Html\Foundation\Sites\Buttons\CloseButton;
+use Sphp\Html\PlainContainer;
+use Sphp\Html\Foundation\Sites\Core\JavaScript\JavaScriptComponent;
+use Sphp\Html\Foundation\Sites\Controllers\CloseButton;
+use Sphp\Html\Foundation\Sites\Core\JavaScript\AbstractJavaScriptComponent;
 
 /**
  * Implements Reveal Modal 
@@ -19,10 +26,12 @@ use Sphp\Html\Foundation\Sites\Buttons\CloseButton;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation 
  * @link    http://foundation.zurb.com/sites/docs/reveal.html Founfation Reveal
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Popup extends Div {
+class Popup extends AbstractJavaScriptComponent {
+
+  private $content;
 
   /**
    * @var CloseButton
@@ -35,7 +44,7 @@ class Popup extends Div {
   private $layoutManager;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Important!**
    *
@@ -46,12 +55,21 @@ class Popup extends Div {
    * @param  mixed|null $content added content
    */
   public function __construct($content = null) {
-    parent::__construct($content);
+    parent::__construct('div');
     $this->identify();
-    $this->cssClasses()->protect('reveal');
+    $this->cssClasses()->protectValue('reveal');
     $this->attributes()->demand('data-reveal');
     $this->closeButton = new CloseButton();
     $this->layoutManager = new PopupLayoutManager($this);
+    $this->content = new PlainContainer($content);
+  }
+
+  /**
+   * 
+   * @return PlainContainer
+   */
+  public function getContent(): PlainContainer {
+    return $this->content;
   }
 
   /**
@@ -92,17 +110,17 @@ class Popup extends Div {
   }
 
   public function contentToString(): string {
-    $output = parent::contentToString() . $this->getCloseButton()->getHtml();
+    $output = $this->content . $this->getCloseButton()->getHtml();
     return $output;
   }
 
   /**
    * Returns a controller component pointing to the Modal component
    *
-   * @param  ComponentInterface $content the controller component
-   * @return ComponentInterface a controller component pointing to this Modal
+   * @param  Component $content the controller component
+   * @return Component a controller component pointing to this Modal
    */
-  public function createController(ComponentInterface $content): ComponentInterface {
+  public function createController(Component $content): Component {
     $content->setAttribute('data-open', $this->identify());
     return $content;
   }

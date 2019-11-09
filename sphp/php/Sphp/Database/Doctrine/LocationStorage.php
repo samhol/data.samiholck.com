@@ -1,8 +1,11 @@
 <?php
 
 /**
- * LocationStorage.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database\Doctrine;
@@ -10,19 +13,19 @@ namespace Sphp\Database\Doctrine;
 use Doctrine\ORM\EntityManagerInterface;
 use Sphp\Stdlib\Datastructures\Collection;
 use Sphp\Database\Doctrine\Objects\Location;
-use Sphp\Database\Doctrine\Objects\DbObjectInterface;
 
 /**
  * Implements a {@link Location} storage
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class LocationStorage extends AbstractObjectStorage implements \IteratorAggregate {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param EntityManagerInterface $em
    */
@@ -58,6 +61,8 @@ class LocationStorage extends AbstractObjectStorage implements \IteratorAggregat
    * Finds all managed location objects that have the same country name
    * 
    * @param  string $country the name of the country
+   * @param type $limit
+   * @param type $offset
    * @return Location[] all managed objects that have the same country name
    */
   public function findByCountry(string $country, $limit = null, $offset = null): array {

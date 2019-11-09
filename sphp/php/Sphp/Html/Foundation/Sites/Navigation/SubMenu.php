@@ -1,14 +1,17 @@
 <?php
 
 /**
- * SubMenu.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Navigation;
 
 use Sphp\Html\AbstractComponent;
-use Sphp\Html\Navigation\Hyperlink;
+use Sphp\Html\Navigation\A;
 
 /**
  * Implements a Foundation navigation submenu
@@ -17,15 +20,16 @@ use Sphp\Html\Navigation\Hyperlink;
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/ Foundation for Sites
  * @link    http://foundation.zurb.com/sites/docs/menu.html Foundation menus
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class SubMenu extends AbstractComponent implements MenuItemInterface, MenuInterface {
+class SubMenu extends AbstractComponent implements MenuItem, Menu {
 
   /**
    * The root component
    *
-   * @var Hyperlink
+   * @var A
    */
   private $rootlink;
 
@@ -35,31 +39,36 @@ class SubMenu extends AbstractComponent implements MenuItemInterface, MenuInterf
   private $menu;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param null|string|Hyperlink $root root content
-   * @param null|Menu $menu
+   * @param null|string|A $root root content
+   * @param Menu $menu
    */
-  public function __construct($root = null, AbstractMenu $menu = NULL) {
+  public function __construct($root = null, Menu $menu = null) {
     if ($menu === null) {
-      $this->menu = new Menu();
+      $this->menu = new FlexibleMenu();
     }
     parent::__construct('li');
     $this->setRoot($root);
-    $this->cssClasses()->add('is-dropdown-submenu-parent');
   }
+
+  public function __destruct() {
+    unset($this->menu, $this->rootlink);
+    parent::__destruct();
+  }
+
 
   /**
    * Sets the root component of the menu
    *
-   * @param string|Hyperlink $root root content
+   * @param string|A $root root content
    * @return $this for a fluent interface
    */
   public function setRoot($root) {
-    if ($root instanceof Hyperlink) {
+    if ($root instanceof A) {
       $this->rootlink = $root;
     } else {
-      $this->rootlink = new Hyperlink('#', $root);
+      $this->rootlink = new A('#', $root);
     }
     return $this;
   }
@@ -68,69 +77,41 @@ class SubMenu extends AbstractComponent implements MenuItemInterface, MenuInterf
    * 
    * @return Menu
    */
-  public function getMenu() {
+  public function getMenu(): Menu {
     return $this->menu;
   }
 
-  /**
-   * Appends a menu item object to the menu
-   *
-   * @param  MenuItemInterface $item
-   * @return $this for a fluent interface
-   */
-  public function append(MenuItemInterface $item) {
+  public function append(MenuItem $item): MenuItem {
     if ($item instanceof SubMenu) {
-      $item->vertical($this->isVertical());
+      $item->setVertical($this->isVertical());
     }
     $this->menu->append($item);
     if ($item instanceof MenuLink && $item->isActive()) {
       $this->setActive(true);
     }
-    return $this;
+    return $item;
   }
 
-  /**
-   * Appends a {@link MenuLink} link object to the menu
-   *
-   * @param  string $href the URL of the link
-   * @param  mixed $content link content
-   * @param  string $target the value of the target attribute
-   * @return $this for a fluent interface
-   * @link   http://www.w3schools.com/tags/att_a_href.asp href attribute
-   * @link   http://www.w3schools.com/tags/att_a_target.asp target attribute
-   */
-  public function appendLink(string $href, string $content = '', string $target = '_self') {
+  public function appendLink(string $href, string $content = '', string $target = '_self'): MenuLink {
     $menuLink = new MenuLink($href, $content, $target);
     $this->append($menuLink);
-    return $this;
+    return $menuLink;
   }
 
-  /**
-   * Appends a {@link MenuLabel} text component to the menu
-   *
-   * @param  mixed|MenuLabel $text
-   * @return $this for a fluent interface
-   */
-  public function appendText($text) {
+  public function appendText($text): MenuLabel {
     if (!($text instanceof MenuLabel)) {
       $text = new MenuLabel($text);
     }
     $this->append($text);
-    return $this;
+    return $text;
   }
 
-  /**
-   * Appends a {@link MenuLabel} text component to the menu
-   *
-   * @param  mixed|MenuLabel $r
-   * @return $this for a fluent interface
-   */
-  public function appendRuler(Ruler $r = null) {
+  public function appendRuler(Ruler $r = null): Ruler {
     if ($r === null) {
       $r = new Ruler();
     }
     $this->append($r);
-    return $this;
+    return $r;
   }
 
   public function contentToString(): string {
@@ -142,8 +123,8 @@ class SubMenu extends AbstractComponent implements MenuItemInterface, MenuInterf
     return $this;
   }
 
-  public function vertical(bool $vertical = true) {
-    $this->getMenu()->vertical($vertical);
+  public function setVertical(bool $vertical = true) {
+    $this->getMenu()->setVertical($vertical);
     return $this;
   }
 

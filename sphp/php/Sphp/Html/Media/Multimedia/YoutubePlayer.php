@@ -1,8 +1,11 @@
 <?php
 
 /**
- * YoutubePlayer.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
@@ -15,13 +18,13 @@ namespace Sphp\Html\Media\Multimedia;
  * browsers support `postMessage`, though Internet Explorer 7 does not support it.
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class YoutubePlayer extends AbstractVideoPlayer {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $videoId the id of the YouTube video or playlist
    * @param boolean $isPlaylist whether the videoid is a playlist or a single video
@@ -33,7 +36,7 @@ class YoutubePlayer extends AbstractVideoPlayer {
     } else {
       
     }
-    $this->cssClasses()->protect('youtube-player');
+    $this->cssClasses()->protectValue('youtube-player');
     $this->setTitle('Youtube video');
   }
 
@@ -44,7 +47,7 @@ class YoutubePlayer extends AbstractVideoPlayer {
    */
   protected function loadPlaylist(string $playlistId) {
     $this->getUrl()
-            ->setPath('embed');
+            ->setPart(PHP_URL_PATH, 'embed');
     $this->getUrl()->getQuery()
             ->offsetSet('listType', 'playlist')
             ->offsetSet('list', $playlistId);

@@ -1,11 +1,16 @@
 <?php
 
 /**
- * MenuBuilder.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Navigation;
+
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Implements a Foundation framework based menu builder
@@ -13,7 +18,8 @@ namespace Sphp\Html\Foundation\Sites\Navigation;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/menu.html Foundation Menu
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class MenuBuilder {
@@ -21,7 +27,7 @@ class MenuBuilder {
   /**
    * @var string 
    */
-  private $menuType = Menu::class;
+  private $menuType = FlexibleMenu::class;
 
   /**
    * @var MenuLinkBuilder 
@@ -29,7 +35,7 @@ class MenuBuilder {
   private $linkBuilder;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param MenuLinkBuilder $linkBuilder
    */
@@ -52,36 +58,50 @@ class MenuBuilder {
 
   /**
    * 
-   * @param  string|null $target
-   * @return $this for a fluent interface
+   * @param  array $contentData
+   * @param  Menu $instance
+   * @return Menu
    */
-  public function setDefaultTarget(string $target = null) {
-    $this->linkBuilder->setDefaultTarget($target);
-    return $this;
+  private function insertIntoMenu(array $contentData, Menu $instance = null): Menu {
+    if ($instance === null) {
+      $instance = new FlexibleMenu();
+    }
+    foreach ($contentData as $item) {
+      if (array_key_exists('link', $item)) {
+        $object = $instance->append($this->linkBuilder->parseLink($item));
+      } else if (array_key_exists('menu', $item) && array_key_exists('items', $item)) {
+        $object = $instance->append($this->buildSub($item));
+      } else if (array_key_exists('separator', $item)) {
+        $object = $instance->appendText($item['separator']);
+      } else if (array_key_exists('ruler', $item)) {
+        $object = $instance->appendRuler();
+      } else {
+        throw new InvalidArgumentException('Invalid Menu data given cannot parse menu item');
+      }
+      if (array_key_exists('class', $item)) {
+        $object->addCssClass($item['class']);
+      }
+    }
+    return $instance;
   }
 
   /**
    * 
-   * @param  array $contentData
-   * @param  MenuInterface $instance
-   * @return MenuInterface
+   * 
+   * @param  array $linkData
+   * @return string
+   * @throws InvalidArgumentException
    */
-  private function insertIntoMenu(array $contentData, MenuInterface $instance = null): MenuInterface {
-    if ($instance === null) {
-      $instance = new Menu();
+  public function parseSubMenuRootText(array $linkData): string {
+    if (!array_key_exists('menu', $linkData)) {
+      throw new InvalidArgumentException("Malformed submenu data given");
     }
-    foreach ($contentData as $item) {
-      if (array_key_exists('link', $item)) {
-        $instance->append($this->linkBuilder->parseLink($item));
-      } else if (array_key_exists('menu', $item) && array_key_exists('items', $item)) {
-        $instance->append($this->buildSub($item));
-      } else if (array_key_exists('separator', $item)) {
-        $instance->appendText($item['separator']);
-      } else if (array_key_exists('ruler', $item)) {
-        $instance->appendRuler();
-      }
+    $text = '';
+    if (array_key_exists('icon', $linkData)) {
+      $text .= $linkData['icon'] . ' ';
     }
-    return $instance;
+    $text .= $linkData['menu'];
+    return $text;
   }
 
   /**
@@ -91,7 +111,8 @@ class MenuBuilder {
    * @return SubMenu new sub menu
    */
   public function buildSub(array $data): SubMenu {
-    $instance = new SubMenu($data['menu']);
+    $root = $this->parseSubMenuRootText($data);
+    $instance = new SubMenu($root);
     $this->buildMenu($data, $instance);
     return $instance;
   }
@@ -100,38 +121,15 @@ class MenuBuilder {
    * Builds a new menu from given menu data
    * 
    * @param  array $data the menu data
-   * @param  MenuInterface|null $instance
-   * @return MenuInterface new menu
+   * @param  Menu|null $instance
+   * @return Menu new menu
    */
-  public function buildMenu(array $data, MenuInterface $instance = null): MenuInterface {
+  public function buildMenu(array $data, Menu $instance = null): Menu {
     if ($instance === null) {
       $instance = new $this->menuType();
     }
-    if (array_key_exists('defaultTarget', $data)) {
-      $instance->setDefaultTarget($data['defaultTarget']);
-    }
     $this->insertIntoMenu($data['items'], $instance);
     return $instance;
-  }
-
-  /**
-   * Builds a new drop down menu from given menu data
-   * 
-   * @param  array $data the menu data
-   * @return DropdownMenu new menu instance
-   */
-  public function buildDropdownMenu(array $data): DropdownMenu {
-    return $this->buildMenu($data, new DropdownMenu());
-  }
-
-  /**
-   * Builds a new accordion menu from given menu data
-   * 
-   * @param  array $data the menu data
-   * @return AccordionMenu new menu instance
-   */
-  public function buildAccordionMenu(array $data): AccordionMenu {
-    return $this->buildMenu($data, new AccordionMenu());
   }
 
 }

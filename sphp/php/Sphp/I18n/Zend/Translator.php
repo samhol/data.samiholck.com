@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Translator.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\I18n\Zend;
@@ -22,7 +25,7 @@ use Sphp\Exceptions\BadMethodCallException;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    https://zendframework.github.io/zend-i18n/translation/
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Translator extends AbstractTranslator {
@@ -46,10 +49,9 @@ class Translator extends AbstractTranslator {
   private $reflector;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param string|null $lang optional translation language
-   * @param ZendTranslator $t
+   * @param ZendTranslator|null $t
    */
   public function __construct(ZendTranslator $t = null) {
     if ($t === null) {
@@ -74,10 +76,10 @@ class Translator extends AbstractTranslator {
    * 
    * @param string $name
    * @param mixed[] $arguments
-   * @return \Sphp\I18n\Zend\Translator
+   * @return mixed
    * @throws BadMethodCallException
    */
-  public function __call($name, array $arguments = []) {
+  public function __call(string $name, array $arguments = []) {
     try {
       $result = $this->reflector->getMethod($name)->invokeArgs($this->translator, $arguments);
     } catch (Exception $ex) {
@@ -116,12 +118,7 @@ class Translator extends AbstractTranslator {
     return $this->getZend()->getLocale();
   }
 
-  /**
-   * 
-   * @param string $lang
-   * @return $this for a fluent interface
-   */
-  public function setLang(string $lang) {
+  public function setLang(string $lang = null) {
     $this->getZend()->setLocale($lang);
     return $this;
   }

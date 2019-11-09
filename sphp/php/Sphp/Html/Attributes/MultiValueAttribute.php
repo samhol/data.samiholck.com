@@ -1,8 +1,11 @@
 <?php
 
 /**
- * MultiValueAttribute.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
@@ -10,16 +13,18 @@ namespace Sphp\Html\Attributes;
 use Iterator;
 use Sphp\Stdlib\Strings;
 use Sphp\Stdlib\Arrays;
+use Sphp\Exceptions\InvalidArgumentException;
 use Sphp\Html\Attributes\Exceptions\ImmutableAttributeException;
 
 /**
  * An implementation of a multi value HTML attribute
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, CollectionAttributeInterface {
+class MultiValueAttribute extends AbstractAttribute implements Iterator, CollectionAttribute {
 
   /**
    * stored individual values
@@ -34,12 +39,19 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
   private $locked = false;
 
   /**
-   * Constructs a new instance
-   *
-   * @param string $name the name of the attribute
+   * @var MultiValueParser
    */
-  public function __construct(string $name) {
+  private $valueParser;
+
+  /**
+   * Constructor
+   *
+   * @param string $name
+   * @param MultiValueParser|null $properties
+   */
+  public function __construct(string $name, MultiValueParser $properties = null) {
     parent::__construct($name);
+    $this->setValueParser($properties);
   }
 
   /**
@@ -49,62 +61,18 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
    * to a particular object, or in any order during the shutdown sequence.
    */
   public function __destruct() {
-    unset($this->values, $this->locked);
-    parent::__destruct();
+    unset($this->values, $this->valueParser);
   }
 
-  /**
-   * Returns an array of unique values parsed from the input
-   *
-   * **Important:** Parameter <var>$raw</var> restrictions and rules
-   * 
-   * 1. A string parameter can contain a single atomic value
-   * 2. An array can be be multidimensional
-   * 3. Duplicate values are ignored
-   *
-   * @param  mixed $raw the value(s) to parse
-   * @param  bool $validate
-   * @return string[] separated atomic values in an array
-   * @throws InvalidAttributeException if validation is set and the input is not valid
-   */
-  public function parse($raw, bool $validate = false): array {
-    $parsed = [];
-    if (is_array($raw)) {
-      $flat = Arrays::flatten($raw);
-      foreach ($flat as $item) {
-        $parsed = array_merge($parsed, $this->parseStringToArray($item));
-      }
-      //$vals = array_filter($parsed, 'is_string');
-    } else if (is_string($raw)) {
-      $parsed = $this->parseStringToArray($raw);
+  protected function setValueParser($properties) {
+    if ($properties === null) {
+      $properties = new MultiValueParser();
     }
-    if ($validate) {
-      foreach ($parsed as $value) {
-        if (!$this->isValidAtomicValue($value)) {
-          throw new InvalidAttributeException("Invalid attribute value '$value'");
-        }
-      }
-    }
-    return $parsed;
+    $this->valueParser = $properties;
+    return $this;
   }
 
-  /**
-   * Validates given atomic value
-   * 
-   * @param  mixed $value an atomic value to validate
-   * @return bool true if the value is valid atomic value
-   */
-  public function isValidAtomicValue($value): bool {
-    return is_scalar($value);
-  }
 
-  public function parseStringToArray(string $subject): array {
-    $result = preg_split('/[\s]+/', $subject, -1, \PREG_SPLIT_NO_EMPTY);
-    if (!$result) {
-      $result = [];
-    }
-    return $result;
-  }
 
   /**
    * Sets new atomic values to the attribute removing old non locked ones
@@ -116,15 +84,14 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
    * 3. Any numeric value is treated as a string value
    * 4. Stores only a single instance of every value (no duplicates)
    *
-   * @param  scalar|scalar[] $values the values to set
+   * @param  mixed ...$values the values to set
    * @return $this for a fluent interface
    */
-  public function set($values) {
-    if ($this->isProtected()) {
-      throw new ImmutableAttributeException();
-    }
+  public function setValue($values) {
     $this->clear();
-    $this->add(func_get_args());
+    if ($values !== null && $values !== false) {
+      $this->add(func_get_args());
+    }
     return $this;
   }
 
@@ -144,7 +111,7 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
     if ($this->isProtected()) {
       throw new ImmutableAttributeException();
     }
-    $parsed = $this->parse($values);
+    $parsed = $this->valueParser->filter($values);
     $this->values = array_merge($this->values, $parsed);
     return $this;
   }
@@ -170,7 +137,7 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
    * @param  scalar|scalar[] $values the atomic values to lock
    * @return $this for a fluent interface
    */
-  public function protect($values) {
+  public function protectValue($values) {
     $this->locked = true;
     return $this;
   }
@@ -191,15 +158,16 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
     if ($this->isProtected()) {
       throw new ImmutableAttributeException();
     }
-    $arr = $this->parse($values);
+    $arr = $this->valueParser->filter($values);
     $this->values = array_diff($this->values, $arr);
     return $this;
   }
 
   public function clear() {
-    if (!$this->isProtected()) {
-      $this->values = [];
+    if ($this->isProtected()) {
+      throw new ImmutableAttributeException("Attribute '{$this->getName()}' is immutable");
     }
+    $this->values = [];
     return $this;
   }
 
@@ -215,7 +183,7 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
    * @return boolean true if the given atomic values exists
    */
   public function contains(...$values): bool {
-    $needles = $this->parse($values);
+    $needles = $this->valueParser->filter($values);
     $exists = false;
     foreach ($needles as $needle) {
       $exists = in_array($needle, $this->values);
@@ -229,12 +197,7 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
   public function getValue() {
     $output = null;
     if (!empty($this->values)) {
-      $output = '';
-      foreach ($this->values as $value) {
-        $output .= ' ' . htmlspecialchars($value);
-      }
-    } else {
-      $output = $this->isDemanded();
+      $output = $this->valueParser->parseArrayToString($this->values);
     }
     return $output;
   }
@@ -263,19 +226,6 @@ class MultiValueAttribute extends AbstractMutableAttribute implements Iterator, 
     };
     $this->filter($filter);
     return $this;
-  }
-
-  public function getHtml(): string {
-    $output = '';
-    $value = $this->getValue();
-    if ($value !== false) {
-      $output .= $this->getName();
-      if ($value !== true && !Strings::isEmpty($value)) {
-        $strVal = Strings::toString($value);
-        $output .= '="' . htmlspecialchars($strVal, ENT_COMPAT | ENT_HTML5) . '"';
-      }
-    }
-    return $output;
   }
 
   /**

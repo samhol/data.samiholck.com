@@ -33,6 +33,24 @@
     // should results be grouped?
     this.config.groupResults = true;
     this.config.showErrors = true;
+    this.config.layout = {
+          mobile: { // below 992px
+             type: 'list', // can be either "grid" or "list", default: "list"
+             showImages: true, // whether to show images in search result, default: true
+             showSnippet: true, // whether to show text snippet in search result, default: true
+             showTitle: true, // whether to show title in search result, default: true
+             showDataPoints: true, // whether to show data points in search result, default: true
+             showUrl: false, // whether to show link in search result, default: false
+          },
+          desktop: { // 992 px and larger
+             type: 'list', // can be either "grid" or "list", default: "list"
+             showImages: true, // whether to show images in search result, default: true
+             showSnippet: true, // whether to show text snippet in search result, default: true
+             showTitle: true, // whether to show title in search result, default: true
+             showDataPoints: true, // whether to show data points in search result, default: true
+             showUrl: true, // whether to show link in search result, default: false
+          }
+        };
     return this;
   };
   sphp.ss360ConfigGenerator.prototype = {
@@ -41,7 +59,7 @@
      * Runs all the processess needed for the application
      * 
      * @protected
-     * @returns {sphp.PhotoAlbum} self for method chaining
+     * @returns {sphp.ss360ConfigGenerator} self for method chaining
      */
     create: function () {
       console.log('ss360Config creation');
@@ -55,8 +73,16 @@
      * @param  {String} selector the selector to the search box(es)
      */
     setSearchSelector: function (selector) {
-      console.log('setSearchSelector: ' + selector);
-      this.config.searchBoxSelector = selector;
+      console.log('setSearchSelector: foo' + selector);
+      //this.config.searchBoxSelector = selector;
+
+      this.config.searchBox = {
+        placeholder: 'Sitesearch360',
+        autofocus: false, // if true, the search box will get focus after initialization
+        selector: selector, // the selector to the search box,
+        searchButton: undefined, // CSS selector of search buttons
+        focusLayer: false // if true, a layer will be shown when the user focuses on the search input
+      };
       return this;
     },
 
@@ -93,11 +119,11 @@
 
 
 
-  var ss360Config;
+var ss360Config;
 
-  var gen = new sphp.ss360ConfigGenerator('playground.samiholck.com', '.sphp-ss360-searchBox');
+var gen = new sphp.ss360ConfigGenerator('playground.samiholck.com', '.sphp-ss360-searchBox');
 
-  console.log(gen.create());
+console.log(gen.create());
 
-  ss360Config = gen.create();
+ss360Config = gen.create();
 

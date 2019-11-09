@@ -1,8 +1,11 @@
 <?php
 
 /**
- * AbstractList.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Lists;
@@ -10,31 +13,32 @@ namespace Sphp\Html\Lists;
 use Sphp\Html\AbstractComponent;
 use Sphp\Html\TraversableContent;
 use IteratorAggregate;
-use ArrayAccess;
 use Sphp\Html\Attributes\HtmlAttributeManager;
 use Sphp\Exceptions\InvalidArgumentException;
-use Sphp\Html\Container;
+use Sphp\Html\PlainContainer;
 use Traversable;
+use Sphp\Exceptions\RuntimeException;
 
 /**
  * Abstract implementation of both ordered and unordered HTML-list
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link http://www.w3schools.com/html/html_lists.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-abstract class StandardList extends AbstractComponent implements IteratorAggregate, TraversableContent, ArrayAccess {
+abstract class StandardList extends AbstractComponent implements IteratorAggregate, TraversableContent {
 
   use \Sphp\Html\TraversableTrait;
 
   /**
-   * @var Container 
+   * @var PlainContainer 
    */
   private $items;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param  string $tagName the tag name of the component
    * @param  HtmlAttributeManager|null $attrManager the attribute manager of the component
@@ -42,7 +46,7 @@ abstract class StandardList extends AbstractComponent implements IteratorAggrega
    */
   public function __construct(string $tagName, HtmlAttributeManager $attrManager = null) {
     parent::__construct($tagName, $attrManager);
-    $this->items = new Container();
+    $this->items = new PlainContainer();
   }
 
   public function __destruct() {
@@ -56,13 +60,23 @@ abstract class StandardList extends AbstractComponent implements IteratorAggrega
   }
 
   /**
+   * Clears the contents
+   *
+   * @return $this for a fluent interface
+   */
+  public function clear() {
+    $this->items->clear();
+    return $this;
+  }
+
+  /**
    * Prepends a new list item to the list
    * 
    * @param  mixed $item the item or the content of it
-   * @return LiInterface prepended instance
+   * @return StandardListItem prepended instance
    */
-  public function prepend($item): LiInterface {
-    if (!$item instanceof LiInterface) {
+  public function prepend($item): StandardListItem {
+    if (!$item instanceof StandardListItem) {
       $item = new Li($item);
     }
     $this->items->prepend($item);
@@ -73,14 +87,33 @@ abstract class StandardList extends AbstractComponent implements IteratorAggrega
    * Appends a new list item to the list
    * 
    * @param  mixed $item the item or the content of it
-   * @return LiInterface appended instance
+   * @return StandardListItem appended instance
    */
-  public function append($item): LiInterface {
-    if (!$item instanceof LiInterface) {
+  public function append($item): StandardListItem {
+    if (!$item instanceof StandardListItem) {
       $item = new Li($item);
     }
     $this->items->append($item);
     return $item;
+  }
+
+  /**
+   * Appends a parsed inline Mark Down string to the list
+   * 
+   * @param  string $md inline Mark Down string
+   * @param  bool $inlineOnly
+   * @return Li appended instance
+   * @throws RuntimeException if the parsing fails for any reason
+   */
+  public function appendMd(string $md, bool $inlineOnly = false): Li {
+    try {
+      $li = new Li();
+      $li->appendMd($md, $inlineOnly);
+      $item = $this->append($li);
+      return $item;
+    } catch (\Exception $ex) {
+      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
+    }
   }
 
   /**
@@ -93,7 +126,7 @@ abstract class StandardList extends AbstractComponent implements IteratorAggrega
    * @link   http://www.w3schools.com/tags/att_a_href.asp href attribute
    * @link   http://www.w3schools.com/tags/att_a_target.asp target attribute
    */
-  public function appendLink(string $href, $content = '', string $target = null): HyperlinkListItem {
+  public function appendLink(string $href, $content = null, string $target = null): HyperlinkListItem {
     $item = new HyperlinkListItem($href, $content, $target);
     $this->append($item);
     return $item;
@@ -101,60 +134,6 @@ abstract class StandardList extends AbstractComponent implements IteratorAggrega
 
   public function contentToString(): string {
     return $this->items->getHtml();
-  }
-
-  /**
-   * Checks whether an offset exists
-   *
-   * @param  mixed $offset an offset to check for
-   * @return boolean true on success or false on failure
-   */
-  public function offsetExists($offset): bool {
-    return $this->items->offsetExists($offset);
-  }
-
-  /**
-   * Returns the list element at the specified offset
-   *
-   * @param  mixed $offset the index with the content element
-   * @return LiInterface content element or null
-   */
-  public function offsetGet($offset): LiInterface {
-    return $this->items->offsetGet($offset);
-  }
-
-  /**
-   * Assigns content to the specified offset
-   *
-   * @param  mixed $offset the offset to assign the value to
-   * @param  mixed $value the value to set
-   * @return void
-   */
-  public function offsetSet($offset, $value) {
-    if (!$value instanceof LiInterface) {
-      $value = new Li($value);
-    }
-    $this->items->offsetSet($offset, $value);
-  }
-
-  /**
-   * Unsets an offset
-   *
-   * @param  mixed $offset offset to unset
-   * @return void
-   */
-  public function offsetUnset($offset) {
-    $this->items->offsetUnset($offset);
-  }
-
-  /**
-   * Count the number of inserted items in the list
-   *
-   * @return int number of elements in the list
-   * @link   http://php.net/manual/en/class.countable.php Countable
-   */
-  public function count(): int {
-    return $this->items->count();
   }
 
   /**

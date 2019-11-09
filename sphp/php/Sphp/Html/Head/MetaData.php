@@ -1,14 +1,17 @@
 <?php
 
 /**
- * MetaData.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Head;
 
 use Sphp\Html\NonVisualContent;
-
+use Sphp\Stdlib\Datastructures\Arrayable;
 /**
  * Implements an HTML &lt;meta&gt; tag
  *
@@ -19,72 +22,10 @@ use Sphp\Html\NonVisualContent;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_meta.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-interface MetaData extends HeadContent, NonVisualContent {
+interface MetaData extends OverlappingHeadContent, NonVisualContent, Arrayable {
 
-  /**
-   * Checks whether the name attribute exists or not
-   *
-   * @return boolean true if the name attribute exists, otherwise false
-   * @link   http://www.w3schools.com/tags/att_meta_name.asp name attribute
-   */
-  public function hasNamedContent(): bool;
-
-  /**
-   * Checks whether the name attribute has the given value or not
-   *
-   * @param  string $name the name value of the metadata
-   * @return boolean true if the name attribute has the given value, otherwise false
-   * @link   http://www.w3schools.com/tags/att_meta_name.asp name attribute
-   */
-  public function hasName(string $name): bool;
-
-  /**
-   * Returns the value of the name attribute
-   *
-   * @return string|null the value of the name attribute or null if the 
-   *         attribute is not set
-   * @link   http://www.w3schools.com/tags/att_meta_name.asp name attribute
-   */
-  public function getName();
-
-  /**
-   * Checks whether the http-equiv attribute exists or not
-   *
-   * @return boolean true if the http-equiv attribute exists, otherwise false
-   * @link   http://www.w3schools.com/tags/att_meta_http_equiv.asp http-equiv attribute
-   */
-  public function hasHttpEquivContent(): bool;
-
-  /**
-   * Checks whether the http_equiv attribute has the given value or not
-   *
-   * @param  string $http_equiv the http_equiv value of the metadata
-   * @return boolean true if the http_equiv attribute has the given value, otherwise false
-   * @link   http://www.w3schools.com/tags/att_meta_http_equiv.asp http_equiv attribute
-   */
-  public function hasHttpEquiv(string $http_equiv): bool;
-
-  /**
-   * Returns the value of the http_equiv attribute
-   *
-   * @return string|null the value of the http_equiv attribute or null if the 
-   *         attribute is not set
-   * @link   http://www.w3schools.com/tags/att_meta_http_equiv.asp http_equiv attribute
-   */
-  public function getHttpEquiv();
-
-  /**
-   * Checks whether the property attribute exists or not
-   *
-   * @return boolean true if the property attribute exists, otherwise false
-   * @link   http://ogp.me/ The Open Graph protocol
-   * @link   https://developers.facebook.com/docs/concepts/opengraph/ Open Graph Concepts (Facebook)
-   * @link   http://en.wikipedia.org/wiki/RDFa RDFa (Wikipedia)
-   */
-  public function hasPropertyContent(): bool;
-  
-  public function metaToArray():array ;
 }

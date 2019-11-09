@@ -11,13 +11,13 @@
 namespace Sphp\Html\Forms\Inputs;
 
 use Sphp\Html\Forms\FormController;
-use Sphp\Html\Exceptions\InvalidStateException;
+use Sphp\Exceptions\InvalidStateException;
 
 /**
  * Defines required operations for all HTML form input components
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface Input extends FormController {
@@ -27,7 +27,7 @@ interface Input extends FormController {
    *
    * @return string|null the name of the form input
    */
-  public function getName();
+  public function getName(): ?string;
 
   /**
    * Sets the name of the input
@@ -38,7 +38,7 @@ interface Input extends FormController {
    * @param  string $name the name of the input
    * @return $this for a fluent interface
    */
-  public function setName(string $name);
+  public function setName(string $name = null);
 
   /**
    * Checks whether the form input has a name
@@ -58,11 +58,11 @@ interface Input extends FormController {
   public function getSubmitValue();
 
   /**
-   * Sets  the value of the input
+   * Sets the initial submit value of the input
    *
-   * @param  scalar $value the value of the input
+   * @param  mixed $value the value of the input
    * @return $this for a fluent interface
    * @throws InvalidStateException if value is not suitable for input
    */
-  public function setSubmitValue($value);
+  public function setInitialValue($value);
 }

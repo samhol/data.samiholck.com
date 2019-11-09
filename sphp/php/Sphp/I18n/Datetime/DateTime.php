@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Calendar.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\I18n\Datetime;
@@ -17,7 +20,7 @@ use DateTimeZone;
  * Class localizes weekday and month names
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class DateTime {
@@ -33,9 +36,9 @@ class DateTime {
   private $fmt;
 
   /**
+   * Constructor
    * 
    * @param DateTimeInterface|null $dateTime
-   * @param string $lang optional name of the language used for translations
    */
   public function __construct(DateTimeInterface $dateTime = null) {
     if ($dateTime === null) {
@@ -104,10 +107,7 @@ class DateTime {
   public function getIntlFormatter(): IntlDateFormatter {
     if ($this->fmt === null) {
       $this->fmt = new IntlDateFormatter(
-              null,
-              IntlDateFormatter::FULL, IntlDateFormatter::FULL,
-              $this->getTimezone(),
-              IntlDateFormatter::GREGORIAN
+              null, IntlDateFormatter::FULL, IntlDateFormatter::FULL, $this->getTimezone(), IntlDateFormatter::GREGORIAN
       );
     }
     return $this->fmt;
@@ -116,7 +116,7 @@ class DateTime {
   /**
    * ICU stands for: International Components for Unicode
    * 
-   * @param string $format
+   * @param  string $format
    * @param  string $lang optional name of the language used for translations
    * @return string
    * @link   http://userguide.icu-project.org/formatparse/datetime#TOC-Date-Time-Format-Syntax Internationalization patterns
@@ -126,11 +126,7 @@ class DateTime {
       $lang = Locale::getDatetimeLocale();
     }
     $fmt = new IntlDateFormatter(
-            $lang,
-            IntlDateFormatter::FULL, IntlDateFormatter::FULL,
-            $this->getTimezone(),
-            IntlDateFormatter::GREGORIAN,
-            $format
+            $lang, IntlDateFormatter::FULL, IntlDateFormatter::FULL, $this->getTimezone(), IntlDateFormatter::GREGORIAN, $format
     );
     return $fmt->format($this->date);
   }
@@ -218,7 +214,7 @@ class DateTime {
    * @param  DateTimeZone $timezone
    * @return DateTime new instance 
    */
-  public static function fromTimestamp(int $timestamp, DateTimeZone $timezone = null) {
+  public static function fromTimestamp(int $timestamp, DateTimeZone $timezone = null): DateTime {
     return new static(new PHPDateTime("@$timestamp"), $timezone);
   }
 
@@ -236,8 +232,9 @@ class DateTime {
    * 
    * **NOTE:** If time zone is omitted and time contains no time zone, the current time zone will be used.
    * 
-   * @param  string $time the format that the passed in string should be in
-   * @param  DateTimeZone $timezone 
+   * @param  string $format
+   * @param  string $time
+   * @param  DateTimeZone $timezone
    * @return DateTime new instance 
    * @link   http://php.net/manual/en/datetime.createfromformat.php#refsect1-datetime.createfromformat-parameters
    */

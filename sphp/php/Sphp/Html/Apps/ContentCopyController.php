@@ -1,14 +1,17 @@
 <?php
 
 /**
- * ContentCopyController.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Apps;
 
-use Sphp\Html\Content;
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\AbstractContent;
+use Sphp\Html\Component;
 
 /**
  * Implements an action controller that copies content from the target component to the user's clipboard
@@ -19,42 +22,42 @@ use Sphp\Html\ComponentInterface;
  * using an invisible Adobe Flash movie and a JavaScript interface.
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class ContentCopyController implements Content {
-
-  use \Sphp\Html\ContentTrait;
+class ContentCopyController extends AbstractContent {
 
   private $target;
 
   /**
-   * @var ComponentInterface 
+   * @var Component
    */
   private $button;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * **Important!**
-   *
-   * Parameter `mixed $content` can be of any type that converts to a
-   * string. So also an object of any class that implements magic method
-   * `__toString()` is allowed.
-   *
-   * @param  mixed|mixed[] $button the copier component
-   * @param  ComponentInterface|string $target the component or the id
+   * @param  Component $button the copier component
+   * @param  Component|string $target the component or the id
    *         attribute of the target container
    * @link   http://www.w3schools.com/tags/att_global_id.asp id attribute
    */
-  public function __construct(ComponentInterface $button, $target = '') {
+  public function __construct(Component $button, $target = '') {
     $this->button = $button;
     $this->setCopyTarget($target);
   }
 
   /**
+   * Destructor
+   */
+  public function __destruct() {
+    unset($this->button);
+  }
+
+  /**
    * 
-   * @return ComponentInterface
+   * @return Component
    */
   public function getController() {
     return $this->button;
@@ -62,12 +65,12 @@ class ContentCopyController implements Content {
 
   /**
    * 
-   * @param  ComponentInterface $target
+   * @param  Component $target
    * @return $this for a fluent interface
    */
   public function setCopyTarget($target) {
     if ($target !== $this->target) {
-      if ($target instanceof ComponentInterface) {
+      if ($target instanceof Component) {
         $id = $target->identify(32);
       } else {
         $id = $target;

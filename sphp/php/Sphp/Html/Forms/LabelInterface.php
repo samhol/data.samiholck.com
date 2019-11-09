@@ -1,13 +1,16 @@
 <?php
 
 /**
- * LabelInterface.php(UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms;
 
-use Sphp\Html\Forms\Inputs\IdentifiableInput;
+use Sphp\Html\IdentifiableContent;
 
 /**
  * Implements an HTML &lt;label&gt; tag
@@ -20,7 +23,7 @@ use Sphp\Html\Forms\Inputs\IdentifiableInput;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_label.asp w3schools HTML API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-label-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface LabelInterface {
@@ -32,11 +35,11 @@ interface LabelInterface {
    *
    * - For attribute specifies which form element a label is bound to.
    *
-   * @param  string|IdentifiableInput $for the value of the for attribute
+   * @param  string|IdentifiableContent|null $for the value of the for attribute
    * @return $this for a fluent interface
    * @link   http://www.w3schools.com/tags/att_label_for.asp for attribute
    */
-  public function setFor($for);
+  public function setFor($for = null);
 
   /**
    * Returns the value of the for attribute

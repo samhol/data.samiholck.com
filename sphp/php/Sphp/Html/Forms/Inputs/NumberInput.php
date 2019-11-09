@@ -1,8 +1,11 @@
 <?php
 
 /**
- * NumberInput.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -13,13 +16,13 @@ namespace Sphp\Html\Forms\Inputs;
  * @author Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_input.asp w3schools HTML
  * @link    https://www.w3.org/TR/html-markup/input.number.html W3C reference
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class NumberInput extends InputTag implements RangeInput, InputField {
+class NumberInput extends InputTag implements RangeInput {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $name the value of the  name attribute
    * @param  scalar $value the value of the  value attribute
@@ -38,9 +41,9 @@ class NumberInput extends InputTag implements RangeInput, InputField {
     return $this;
   }
 
-  public function setRange(float $min, float $max) {
-    $this->attributes()->set('min', $min);
-    $this->attributes()->set('max', $max);
+  public function setRange(float $min = null, float $max = null) {
+    $this->attributes()->setAttribute('min', $min);
+    $this->attributes()->setAttribute('max', $max);
     return $this;
   }
 
@@ -53,17 +56,17 @@ class NumberInput extends InputTag implements RangeInput, InputField {
   }
 
   public function setStepLength(float $step) {
-    $this->attributes()->set('step', $step);
+    $this->attributes()->setAttribute('step', $step);
     return $this;
   }
 
   public function setPlaceholder(string $placeholder = null) {
-    $this->attributes()->set('placeholder', $placeholder);
+    $this->attributes()->setAttribute('placeholder', $placeholder);
     return $this;
   }
 
   public function autocomplete(bool $allow = true) {
-    $this->attributes()->set('autocomplete', $allow ? 'on' : 'off');
+    $this->attributes()->setAttribute('autocomplete', $allow ? 'on' : 'off');
     return $this;
   }
 

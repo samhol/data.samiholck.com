@@ -1,8 +1,11 @@
 <?php
 
 /**
- * VimeoPlayer.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
@@ -12,13 +15,13 @@ namespace Sphp\Html\Media\Multimedia;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://developer.vimeo.com/player/embedding Vimeo embedding
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class VimeoPlayer extends AbstractVideoPlayer {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $videoId the id of the Vimeo video
    */
@@ -29,7 +32,7 @@ class VimeoPlayer extends AbstractVideoPlayer {
   /**
    * Sets the color of the video controls
    * 
-   * **Default:** the default color is `00adef`
+   * **Default:** the default color is `#00adef`
    * 
    * @param  string $color the hexadecimal color code string
    * @return $this for a fluent interface

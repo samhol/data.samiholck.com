@@ -1,27 +1,30 @@
 <?php
 
 /**
- * HyperlinkContainer.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Navigation;
 
 use Sphp\Html\AbstractContainerTag;
+use Sphp\Html\Navigation\A;
 use Sphp\Html\Navigation\Hyperlink;
-use Sphp\Html\Navigation\HyperlinkInterface;
 
 /**
  * Implements a hyperlink container
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class HyperlinkContainer extends AbstractContainerTag implements HyperlinkInterface {
+class HyperlinkContainer extends AbstractContainerTag implements Hyperlink {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Notes:**
    * 
@@ -29,11 +32,11 @@ class HyperlinkContainer extends AbstractContainerTag implements HyperlinkInterf
    * * If the `href` attribute is not present, the &lt;a&gt; tag is not a hyperlink.
    *
    * @param  string $tagName the tag name of the component
-   * @param  Hyperlink|null $hyperlink the inner hyperlink object or null
+   * @param  A|null $hyperlink the inner hyperlink object or null
    */
-  public function __construct(string $tagName, Hyperlink $hyperlink = null) {
+  public function __construct(string $tagName, A $hyperlink = null) {
     if ($hyperlink === null) {
-      $hyperlink = new Hyperlink();
+      $hyperlink = new A();
     }
     parent::__construct($tagName, null, $hyperlink);
   }
@@ -41,17 +44,17 @@ class HyperlinkContainer extends AbstractContainerTag implements HyperlinkInterf
   /**
    * Returns the actual hyperlink component in the menu item component
    * 
-   * @return Hyperlink the actual hyperlink component in the menu item component
+   * @return A the actual hyperlink component in the menu item component
    */
-  public function getHyperlink() {
+  public function getHyperlink(): A {
     return $this->getInnerContainer();
   }
 
-  public function getHref() {
+  public function getHref(): ?string {
     return $this->getHyperlink()->getHref();
   }
 
-  public function setHref(string $href) {
+  public function setHref(string $href = null) {
     $this->getHyperlink()->setHref($href);
     return $this;
   }
@@ -61,29 +64,17 @@ class HyperlinkContainer extends AbstractContainerTag implements HyperlinkInterf
     return $this;
   }
 
-  public function getTarget() {
+  public function getTarget(): ?string {
     return $this->getHyperlink()->getTarget();
   }
 
-  /**
-   * Sets the value of the title attribute
-   *
-   * @param  string|null $title the value of the title attribute
-   * @return $this for a fluent interface
-   * @link   http://www.w3schools.com/tags/att_global_title.asp title attribute
-   */
-  public function setTitle(string $title = null) {
-    $this->getHyperlink()->setAttribute("title", $title);
+  public function setRelationship(string $rel = null) {
+    $this->getHyperlink()->setRelationship($rel);
     return $this;
   }
 
-  public function setRel(string $rel = null) {
-    $this->getHyperlink()->setRel($rel);
-    return $this;
-  }
-
-  public function getRel() {
-    return $this->getHyperlink()->getRel();
+  public function getRelationship(): ?string {
+    return $this->getHyperlink()->getRelationship();
   }
 
 }

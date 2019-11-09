@@ -1,16 +1,20 @@
 <?php
 
 /**
- * Tr.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Tables;
 
-use Sphp\Html\AbstractContainerComponent;
-Use IteratorAggregate;
-use Sphp\Html\TraversableContent;
+use Sphp\Html\AbstractComponent;
+use IteratorAggregate;
 use Traversable;
+use Sphp\Html\Iterator;
+use Sphp\Html\TraversableContent;
 
 /**
  * Implements an HTML &lt;tr&gt; tag
@@ -21,22 +25,27 @@ use Traversable;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_tr.asp w3schools API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-tr-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Tr extends AbstractContainerComponent implements IteratorAggregate, TraversableContent, Row {
+class Tr extends AbstractComponent implements IteratorAggregate, TraversableContent, Row {
 
   use \Sphp\Html\TraversableTrait;
 
   /**
-   * Constructs a new instance
+   * @var Cell[]
+   */
+  private $cells = [];
+
+  /**
+   * Constructor
    */
   public function __construct() {
     parent::__construct('tr');
   }
 
   public function append(Cell $cell) {
-    $this->getInnerContainer()->append($cell);
+    $this->cells[] = $cell;
     return $this;
   }
 
@@ -85,27 +94,37 @@ class Tr extends AbstractContainerComponent implements IteratorAggregate, Traver
    * @return $this for a fluent interface
    */
   public function prepend(Cell $cell): Cell {
-    $this->getInnerContainer()->prepend($cell);
+    array_unshift($this->cells, $cell);
     return $cell;
   }
 
   /**
-   * Create a new iterator to iterate through cells in the row
-   *
-   * @return Traversable iterator
+   * Returns the cell at given position
+   * 
+   * **Important:** Cells are numbered sequentially starting from 0
+   * 
+   * @param  int $position
+   * @return Cell|null the cell at given position
    */
-  public function getIterator(): Traversable {
-    return $this->getInnerContainer();
+  public function getCell(int $position): ?Cell {
+    if (array_key_exists($position, $this->cells)) {
+      return $this->cells[$position];
+    } else {
+      return null;
+    }
+  }
+
+  public function contentToString(): string {
+    return implode($this->cells);
   }
 
   /**
-   * Counts of the cells in the row
+   * Returns an external iterator
    *
-   * @return int number of the cells in the row
-   * @link   http://php.net/manual/en/class.countable.php Countable
+   * @return Traversable external iterator
    */
-  public function count(): int {
-    return $this->getInnerContainer()->count();
+  public function getIterator(): Traversable {
+    return new Iterator($this->cells);
   }
 
   /**

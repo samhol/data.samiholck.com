@@ -1,14 +1,17 @@
 <?php
 
 /**
- * Orbit.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Media\Orbit;
 
+use Sphp\Html\Foundation\Sites\Core\JavaScript\AbstractJavaScriptComponent;
 use IteratorAggregate;
-use Sphp\Html\AbstractComponent;
 use Sphp\Html\TraversableContent;
 
 /**
@@ -17,22 +20,13 @@ use Sphp\Html\TraversableContent;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/orbit.html Orbit
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Orbit extends AbstractComponent implements IteratorAggregate, TraversableContent {
+class Orbit extends AbstractJavaScriptComponent implements IteratorAggregate, TraversableContent {
 
   use \Sphp\Html\TraversableTrait;
-
-  /**
-   * @var Button 
-   */
-  private $prev;
-
-  /**
-   * @var Button 
-   */
-  private $next;
 
   /**
    * @var boolean 
@@ -52,17 +46,15 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
   private $bulletsVisible = true;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $ariaLabel optional Aria label text
    */
   public function __construct(string $ariaLabel = null) {
     parent::__construct('div');
     $this->slides = new SlideContainer();
-    $this->prev = '<button class="orbit-previous"><span class="show-for-sr">Previous Slide</span>&#9664;&#xFE0E;</button>';
-    $this->next = '<button class="orbit-next"><span class="show-for-sr">Next Slide</span>&#9654;&#xFE0E;</button>';
     $this->cssClasses()
-            ->protect('orbit');
+            ->protectValue('orbit');
     $this->attributes()
             ->protect('role', 'region')
             ->setAria('label', $ariaLabel)
@@ -70,15 +62,23 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
   }
 
   public function __destruct() {
-    unset($this->slides, $this->prev, $this->next);
+    unset($this->slides, $this->options);
     parent::__destruct();
   }
 
   public function __clone() {
     $this->slides = clone $this->slides;
-    $this->prev = clone $this->prev;
-    $this->next = clone $this->next;
     parent::__clone();
+  }
+
+  public function createOrbitConrols() {
+    $controArea = new \Sphp\Html\Div();
+    $controArea->addCssClass('orbit-controls');
+    $prev = '<button class="orbit-previous"><span class="show-for-sr">Previous Slide</span>&#9664;&#xFE0E;</button>';
+    $next = '<button class="orbit-next"><span class="show-for-sr">Next Slide</span>&#9654;&#xFE0E;</button>';
+    $controArea->append($prev);
+    $controArea->append($next);
+    return $controArea;
   }
 
   /**
@@ -92,16 +92,15 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
   /**
    * Sets the amount of time, in ms, between slide transitions
    * 
-   * @precondition $value =&gt; 0
    * @param  bolean $visible true for autoplay and false otherwise
    * @return $this for a fluent interface
    */
-  public function showBullets($visible = true) {
+  public function showBullets(bool $visible = true) {
     $this->bulletsVisible = (boolean) $visible;
     if ($this->bulletsVisible) {
-      $this->attributes()->set('data-bullets', 'true');
+      $this->setOption('data-bullets', 'true');
     } else {
-      $this->attributes()->set('data-bullets', 'false');
+      $this->setOption('data-bullets', 'false');
     }
     return $this;
   }
@@ -109,16 +108,15 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
   /**
    * Sets the amount of time, in ms, between slide transitions
    * 
-   * @precondition $value =&gt; 0
    * @param  bolean $visible true for autoplay and false otherwise
    * @return $this for a fluent interface
    */
-  public function showNavigationButtons($visible = true) {
+  public function showNavigationButtons(bool $visible = true) {
     $this->navButtonsVisible = (boolean) $visible;
     if ($this->navButtonsVisible) {
-      $this->attributes()->set('data-nav-buttons', 'true');
+      $this->setOption('data-nav-buttons', 'true');
     } else {
-      $this->attributes()->set('data-nav-buttons', 'false');
+      $this->setOption('data-nav-buttons', 'false');
     }
     return $this;
   }
@@ -129,8 +127,8 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
    * @param  bolean $autoplay true for autoplay and false otherwise
    * @return $this for a fluent interface
    */
-  public function autoplay($autoplay = true) {
-    $this->attributes()->set('data-auto-play', $autoplay ? 'true' : 'false');
+  public function autoplay(bool $autoplay = true) {
+    $this->setOption('data-auto-play', $autoplay);
     return $this;
   }
 
@@ -141,8 +139,8 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
    * @param  int $value amount of time, in ms, between slide transitions
    * @return $this for a fluent interface
    */
-  public function setTimerDelay($value = 5000) {
-    $this->attributes()->set('data-timer-delay', $value);
+  public function setTimerDelay(int $value = null) {
+    $this->setOption('data-timer-delay', $value);
     return $this;
   }
 
@@ -152,8 +150,8 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
    * @param  boolean $loop true for on and false for off
    * @return $this for a fluent interface
    */
-  public function loop($loop = true) {
-    $this->attributes()->set('data-infinite-wrap', $loop ? 'true' : 'false');
+  public function loop(bool $loop = true) {
+    $this->setOption('data-infinite-wrap', $loop);
     return $this;
   }
 
@@ -163,8 +161,8 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
    * @param  boolean $accessible true for accessibility and false for not
    * @return $this for a fluent interface
    */
-  public function accessibility($accessible = true) {
-    $this->attributes()->set('data-accessible', $accessible ? 'true' : 'false');
+  public function accessibility(bool $accessible = true) {
+    $this->setOption('data-accessible', $accessible);
     return $this;
   }
 
@@ -174,34 +172,8 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
    * @param  boolean $pause true for pausing and false for not pausing
    * @return $this for a fluent interface
    */
-  public function pauseOnHover($pause = true) {
-    $this->attributes()->set('data-pause-on-hover', $pause ? 'true' : 'false');
-    return $this;
-  }
-
-  /**
-   * Sets the transition to play when a slide comes in from the left
-   * 
-   * @param  string $effect the transition to play when a slide comes in from the left
-   * @return $this for a fluent interface
-   * @link   http://foundation.zurb.com/sites/docs/orbit.html#using-animation
-   * @link   http://foundation.zurb.com/sites/docs/motion-ui.html Foundation Motion UI
-   */
-  public function setAnimInFromLeft($effect = 'fade-in') {
-    $this->attributes()->set('data-anim-in-from-left', $effect);
-    return $this;
-  }
-
-  /**
-   * Sets the transition to play when a slide comes in from the right
-   * 
-   * @param  string $effect the transition to play when a slide comes in from the right
-   * @return $this for a fluent interface
-   * @link   http://foundation.zurb.com/sites/docs/orbit.html#using-animation
-   * @link   http://foundation.zurb.com/sites/docs/motion-ui.html Foundation Motion UI
-   */
-  public function setAnimInFromRight($effect = 'fade-in') {
-    $this->attributes()->set('data-anim-in-from-right', $effect);
+  public function pauseOnHover(bool $pause = true) {
+    $this->setOption('data-pause-on-hover', $pause);
     return $this;
   }
 
@@ -213,49 +185,23 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
    * @link   http://foundation.zurb.com/sites/docs/orbit.html#using-animation
    * @link   http://foundation.zurb.com/sites/docs/motion-ui.html Foundation Motion UI
    */
-  public function setAnimIn($effect = 'fade-in') {
-    $this->setAnimInFromLeft($effect)
-            ->setAnimInFromRight($effect);
+  public function setAnimIn(string $effect = null) {
+    $this->setOption('data-anim-in-from-left', $effect);
+    $this->setOption('data-anim-in-from-right', $effect);
     return $this;
   }
 
   /**
-   * Sets the transition to play when a slide comes out from the left
+   * Sets the transition to play when a slide goes out
    * 
-   * @param  string $effect the transition to play when a slide comes out from the left
+   * @param  string $effect the transition to play when a slide goes out
    * @return $this for a fluent interface
    * @link   http://foundation.zurb.com/sites/docs/orbit.html#using-animation
    * @link   http://foundation.zurb.com/sites/docs/motion-ui.html Foundation Motion UI
    */
-  public function setAnimOutFromLeft($effect = 'fade-out') {
-    $this->attributes()->set('data-anim-out-from-left', $effect);
-    return $this;
-  }
-
-  /**
-   * Sets the transition to play when a slide comes out from the right
-   * 
-   * @param  string $effect the transition to play when a slide comes out from the right
-   * @return $this for a fluent interface
-   * @link   http://foundation.zurb.com/sites/docs/orbit.html#using-animation
-   * @link   http://foundation.zurb.com/sites/docs/motion-ui.html Foundation Motion UI
-   */
-  public function setAnimOutFromRight($effect = "fade-out") {
-    $this->attributes()->set('data-anim-out-from-right', $effect);
-    return $this;
-  }
-
-  /**
-   * Sets the transition to play when a slide comes in
-   * 
-   * @param  string $effect the transition to play when a slide comes out
-   * @return $this for a fluent interface
-   * @link   http://foundation.zurb.com/sites/docs/orbit.html#using-animation
-   * @link   http://foundation.zurb.com/sites/docs/motion-ui.html Foundation Motion UI
-   */
-  public function setAnimOut($effect = 'fade-out') {
-    $this->setAnimOutFromLeft($effect)
-            ->setAnimOutFromRight($effect);
+  public function setAnimOut(string $effect = null) {
+    $this->setOption('data-anim-out-to-left', $effect);
+    $this->setOption('data-anim-out-to-right', $effect);
     return $this;
   }
 
@@ -265,7 +211,7 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
    * @param  int $index
    * @return $this for a fluent interface
    */
-  public function setActive($index) {
+  public function setActive(int $index) {
     $this->slides()->setActive($index);
     return $this;
   }
@@ -285,7 +231,7 @@ class Orbit extends AbstractComponent implements IteratorAggregate, TraversableC
 
   public function contentToString(): string {
     $output = '<div class="orbit-wrapper">';
-    $output .= $this->prev . $this->next . $this->slides;
+    $output .= $this->createOrbitConrols() . $this->slides;
     $output .= '</div>';
     if ($this->bulletsVisible) {
       $output .= $this->slides()->generateBullets();

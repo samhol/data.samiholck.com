@@ -1,13 +1,16 @@
 <?php
 
 /**
- * ContainerCell.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Tables;
 
-use Sphp\Html\ContainerInterface;
+use Sphp\Html\Container;
 
 /**
  * Interface is the base definition for all {@link Tr} content (table cells)
@@ -25,9 +28,9 @@ use Sphp\Html\ContainerInterface;
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-td-element W3C API
  * @link    http://www.w3schools.com/tags/tag_th.asp w3schools API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-th-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-interface ContainerCell extends Cell, ContainerInterface {
+interface ContainerCell extends Cell, Container {
   
 }

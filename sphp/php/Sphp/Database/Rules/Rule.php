@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Rule.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database\Rules;
@@ -15,7 +18,8 @@ use Sphp\Database\Utils;
  * Implements a single rule for comparison operations in SQL queries
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class Rule implements RuleInterface {
@@ -41,7 +45,7 @@ class Rule implements RuleInterface {
   private $paramType;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param string $columnName
    * @param string $op
@@ -115,6 +119,7 @@ class Rule implements RuleInterface {
    * 
    * @param  string $column
    * @param  Traversable|array $group
+   * @param  int $paramType
    * @return Rule new instance
    */
   public static function isIn(string $column, $group, int $paramType = PDO::PARAM_STR): Rule {
@@ -128,6 +133,7 @@ class Rule implements RuleInterface {
    *
    * @param  string $column the column
    * @param  mixed[]|Query|Traversable $group value(s) of the group
+   * @param  int $paramType
    * @return Rule new instance
    */
   public static function isNotIn($column, $group, int $paramType = PDO::PARAM_STR): Rule {
@@ -193,6 +199,7 @@ class Rule implements RuleInterface {
    *
    * @param  string $column the column
    * @param  mixed $value the value of the expression
+   * @param  int $paramType
    * @return Rule new instance
    */
   public static function is(string $column, $value, int $paramType = PDO::PARAM_STR): Rule {
@@ -204,6 +211,7 @@ class Rule implements RuleInterface {
    *
    * @param  string $column the column name
    * @param  mixed $value the value of the expression
+   * @param  int $paramType
    * @return Rule new instance
    */
   public static function isNot(string $column, $value, int $paramType = PDO::PARAM_STR): Rule {

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * EmailInput.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -12,13 +15,13 @@ namespace Sphp\Html\Forms\Inputs;
  *
  * @author Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_input.asp w3schools HTML
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class EmailInput extends TextualInput {
+class EmailInput extends AbstractTextualInput {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $name the value of the  name attribute
    * @param  string|null $value the value of the  value attribute
@@ -37,7 +40,7 @@ class EmailInput extends TextualInput {
    * @link   http://www.w3schools.com/tags/att_input_multiple.asp multiple attribute
    */
   public function multiple(bool $multiple = true) {
-    $this->attributes()->setBoolean('multiple', $multiple);
+    $this->attributes()->multiple($multiple);
     return $this;
   }
 

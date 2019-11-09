@@ -1,12 +1,16 @@
 <?php
 
 /**
- * AbstractLayoutManager.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Core;
 
+use Sphp\Html\AbstractContent;
 use Sphp\Html\Attributes\ClassAttribute;
 use Sphp\Html\CssClassifiableContent;
 
@@ -17,12 +21,11 @@ use Sphp\Html\CssClassifiableContent;
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/grid.html Foundation grid
  * @link    http://foundation.zurb.com/grid.html Foundation grid
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-abstract class AbstractLayoutManager implements LayoutManager {
-
-  use \Sphp\Html\ContentTrait;
+abstract class AbstractLayoutManager extends AbstractContent implements LayoutManager {
 
   /**
    * @var CssClassifiableContent
@@ -30,7 +33,7 @@ abstract class AbstractLayoutManager implements LayoutManager {
   private $component;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param CssClassifiableContent $component
    */
@@ -39,10 +42,7 @@ abstract class AbstractLayoutManager implements LayoutManager {
   }
 
   /**
-   * Destroys the instance
-   * 
-   * The destructor method will be called as soon as there are no other references 
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->component);

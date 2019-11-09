@@ -1,8 +1,11 @@
 <?php
 
 /**
- * DateTimeInput.php
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -15,13 +18,13 @@ namespace Sphp\Html\Forms\Inputs;
  *
  * @author Sami Holck <sami.holck@gmail.com>
  * @link    http://www.ama3.com/anytime/ Any+Time Calendar Widget
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class AnyTimeInput extends InputTag {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $name name attribute
    * @param  string $value the value of the attribute
@@ -31,13 +34,14 @@ class AnyTimeInput extends InputTag {
    */
   public function __construct(string $name = null, $value = null, string $format = '%Y-%m-%d %H:%i') {
     parent::__construct('text', $name, $value);
-    $this->attributes()->demand('data-anytime');
+    $this->attributes()->protect('data-anytime', true);
+    $this->cssClasses()->protectValue('sphp','AnyTimeInput');
     $this->identify();
     $this->setDateTimeFormat($format);
   }
 
   public function setPlaceholder(string $placeholder = null) {
-    $this->attributes()->set('placeholder', $placeholder);
+    $this->attributes()->setAttribute('placeholder', $placeholder);
     return $this;
   }
 

@@ -1,13 +1,16 @@
 <?php
 
 /**
- * Title.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Head;
 
-use Sphp\Html\SimpleContainerTag;
+use Sphp\Html\SimpleTag;
 use Sphp\Html\NonVisualContent;
 
 /**
@@ -15,19 +18,24 @@ use Sphp\Html\NonVisualContent;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_title.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Title extends SimpleContainerTag implements HeadContent, NonVisualContent {
+class Title extends SimpleTag implements OverlappingHeadContent, NonVisualContent {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $content tag's content
    */
   public function __construct(string $content = null) {
     parent::__construct('title');
     $this->setContent($content);
+  }
+
+  public function overlapsWith(HeadContent $other): bool {
+    return $other instanceof Title;
   }
 
 }

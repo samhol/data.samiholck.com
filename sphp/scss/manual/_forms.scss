@@ -1,3 +1,11 @@
+/**
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
+ */
+
 @charset "UTF-8";
 
 $input-bg: #eee;
@@ -5,17 +13,6 @@ $focused-input-bg: #fcfcfc;
 $input-border: #cacaca;
 $focused-input-border: #ddd;
 
-form.freefind-form {
-  input[type=search] {
-    @include transition-property(all);
-    @include transition-duration(0.3s);
-    @include transition-timing-function(ease-in-out);
-    background-color: #e3e3e3;
-    &:focus {
-      background-color: #fafafa;
-    }
-  }
-}
 .form-example {
   textarea, 
   input[type=text], 
@@ -23,9 +20,7 @@ form.freefind-form {
   input[type=number], 
   input[type=search], 
   input[type=password] {
-    @include transition-property(all);
-    @include transition-duration(0.3s);
-    @include transition-timing-function(ease-in-out);
+    @include transition(all, 0.3s, ease-in-out);
     background-color: $input-bg;
     border-color: $input-border;
     @include border-radius(2px);
@@ -35,3 +30,4 @@ form.freefind-form {
     }
   }
 }
+

@@ -1,13 +1,17 @@
 <?php
 
 /**
- * MenuLinkBuilder.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Navigation;
 
-use Sphp\Stdlib\Path;
+use Sphp\Html\Adapters\TipsoAdapter;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Description of MenuLinkBuilder
@@ -15,18 +19,19 @@ use Sphp\Stdlib\Path;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/menu.html Foundation Menu
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class MenuLinkBuilder {
 
   /**
-   * @var type 
+   * @var string 
    */
   private $defaultTarget = null;
 
   /**
-   * @var type 
+   * @var string 
    */
   private $currentPage;
 
@@ -36,25 +41,7 @@ class MenuLinkBuilder {
    */
   private $activator;
 
-  /**
-   *
-   * @var string 
-   */
-  private $menuType = Menu::class;
-
-  public function __construct() {
-    ;
-  }
-
-  /**
-   * 
-   * @param  string $target
-   * @return $this for a fluent interface
-   */
-  public function setMenuType(string $target) {
-    $this->menuType = $target;
-    return $this;
-  }
+  //public function set
 
   /**
    * 
@@ -98,24 +85,26 @@ class MenuLinkBuilder {
 
   /**
    * 
-   * @param type $activator
+   * @param  callable $activator
    * @return $this
    */
-  public function setActivator($activator) {
+  public function setActivator(callable $activator) {
     $this->activator = $activator;
     return $this;
   }
 
   /**
    * 
-   * @param  array $linkData
+   * 
+   * @param array $linkData
    * @return string
+   * @throws InvalidArgumentException
    */
   protected function parseHref(array $linkData): string {
     if (array_key_exists('href', $linkData)) {
       $href = $linkData['href'];
     } else {
-      $href = Path::get()->http();
+      throw new InvalidArgumentException('href is missing');
     }
     return $href;
   }
@@ -123,26 +112,57 @@ class MenuLinkBuilder {
   /**
    * 
    * @param  array $linkData
-   * @return string
+   * @return string|null
    */
-  protected function parseTarget(array $linkData) {
-    return array_key_exists('target', $linkData) ? $linkData['target'] : $this->getDefaultTarget();
+  protected function parseTarget(array $linkData): ?string {
+    return array_key_exists('target', $linkData) ? $linkData['target'] : null;
   }
 
   /**
    * 
+   * 
    * @param  array $linkData
-   * @return MenuLink
+   * @return string
+   * @throws InvalidArgumentException
+   */
+  public function pareLinkText(array $linkData): string {
+    if (!array_key_exists('link', $linkData)) {
+      throw new InvalidArgumentException("Malformed link data given");
+    }
+    $text = '';
+    if (array_key_exists('icon', $linkData)) {
+      $text .= $linkData['icon'] . ' ';
+    }
+    $text .= $linkData['link'];
+    return $text;
+  }
+
+  public function setTipso() {
+    
+  }
+
+  /**
+   * Creates a new menu link object from data
+   * 
+   * @param  array $linkData
+   * @return MenuLink parsed menu link object
    */
   public function parseLink(array $linkData): MenuLink {
     $href = $this->parseHref($linkData);
     $target = $this->parseTarget($linkData);
-    $link = new MenuLink($href, $linkData['link'], $target);
-    if (is_callable($this->activator)) {
-      $t = $this->getActivator();
-      $link->setActive($t($linkData));
+    $linkText = $this->pareLinkText($linkData);
+    $link = new MenuLink($href, $linkText, $target);
+    if ($this->currentPage === $href) {
+      $link->setActive(true);
+    }
+    if (array_key_exists('tipso', $linkData)) {
+      new TipsoAdapter($link, $linkData['tipso']);
     }
     return $link;
+  }
+
+  public function adapters(MenuLink $link, $linkData) {
+    
   }
 
 }

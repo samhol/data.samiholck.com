@@ -1,13 +1,15 @@
 <?php
 
 /**
- * Checkboxes.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Forms\Inputs;
 
-use Sphp\Html\Forms\Inputs\Checkbox;
 use Sphp\Stdlib\Strings;
 
 /**
@@ -15,12 +17,19 @@ use Sphp\Stdlib\Strings;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Checkboxes extends Choiceboxes {
 
-  public function __construct(string $name = null, $values = array(), $legend = null) {
+  /**
+   * Constructor
+   *
+   * @param string $name
+   * @param array $values
+   * @param mixed $legend
+   */
+  public function __construct(string $name = null, array $values = [], $legend = null) {
     parent::__construct('checkbox', $name, $values, $legend);
   }
 
@@ -31,7 +40,7 @@ class Checkboxes extends Choiceboxes {
    * @return $this for a fluent interface
    * @link   http://www.w3schools.com/tags/att_input_name.asp name attribute
    */
-  public function setName(string $name) {
+  public function setName(string $name = null) {
     if (!Strings::endsWith($name, '[]')) {
       $name .= '[]';
     }
@@ -45,7 +54,7 @@ class Checkboxes extends Choiceboxes {
    * @return string the value of the name attribute
    * @link   http://www.w3schools.com/tags/att_input_name.asp name attribute
    */
-  public function getName() {
+  public function getName(): ?string {
     $name = parent::getName();
     return str_replace('[]', '', $name);
   }

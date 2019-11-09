@@ -1,13 +1,17 @@
 <?php
 
 /**
- * AbstractContainerTag.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
 
 use IteratorAggregate;
+use Traversable;
 
 /**
  * Class is the base class for all HTML tag components acting as HTML component containers
@@ -25,15 +29,73 @@ use IteratorAggregate;
  *    notation.
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class AbstractContainerTag extends AbstractContainerComponent implements IteratorAggregate, ContainerComponentInterface, ContentParser {
+class AbstractContainerTag extends AbstractComponent implements IteratorAggregate, ContainerComponent, ContentParser {
 
-  use ContentParsingTrait,
+  use ContentParserTrait,
       TraversableTrait;
 
-  public function append(...$content) {
+  /**
+   * the inner content container
+   *
+   * @var Container
+   */
+  private $content;
+
+  /**
+   * Constructor
+   *
+   * @param  string $tagname the name of the tag
+   * @param  HtmlAttributeManager|null $attrManager the attribute manager of the component
+   * @param  Container|null $contentContainer the inner content container of the component
+   */
+  public function __construct(string $tagname, HtmlAttributeManager $attrManager = null, Container $contentContainer = null) {
+    parent::__construct($tagname, $attrManager);
+    $this->setInnerContainer($contentContainer);
+  }
+
+  public function __destruct() {
+    unset($this->content);
+    parent::__destruct();
+  }
+
+  public function __clone() {
+    $this->content = clone $this->content;
+    parent::__clone();
+  }
+
+  /**
+   * Sets the inner content container of the component
+   *
+   * @param  Container $contentContainer the inner content container of the component
+   * @return $this for a fluent interface
+   */
+  protected function setInnerContainer(Container $contentContainer = null) {
+    if (!$contentContainer instanceof Container) {
+      $this->content = new PlainContainer();
+    } else {
+      $this->content = $contentContainer;
+    }
+    return $this;
+  }
+
+  /**
+   * Returns the content container or an element pointed by an optional index
+   *
+   * @return Container the content container
+   */
+  protected function getInnerContainer(): Container {
+    return $this->content;
+  }
+
+  public function contentToString(): string {
+    return $this->content->getHtml();
+  }
+
+  public function append($content) {
     $this->getInnerContainer()->append($content);
     return $this;
   }
@@ -43,19 +105,9 @@ class AbstractContainerTag extends AbstractContainerComponent implements Iterato
     return $this;
   }
 
-  public function setContent($content) {
-    $this->getInnerContainer()->setContent($content);
+  public function resetContent($content) {
+    $this->getInnerContainer()->resetContent($content);
     return $this;
-  }
-
-  /**
-   * Counts the number of elements in the container
-   *
-   * @return int the number of elements in the container
-   * @link   http://php.net/manual/en/class.countable.php Countable
-   */
-  public function count(): int {
-    return $this->getInnerContainer()->count();
   }
 
   /**
@@ -63,7 +115,7 @@ class AbstractContainerTag extends AbstractContainerComponent implements Iterato
    *
    * @return Traversable iterator
    */
-  public function getIterator() {
+  public function getIterator(): Traversable {
     return $this->getInnerContainer();
   }
 
@@ -94,7 +146,7 @@ class AbstractContainerTag extends AbstractContainerComponent implements Iterato
    * @param  mixed $value the value to set
    * @return void
    */
-  public function offsetSet($offset, $value) {
+  public function offsetSet($offset, $value): void {
     $this->getInnerContainer()->offsetSet($offset, $value);
   }
 
@@ -104,29 +156,8 @@ class AbstractContainerTag extends AbstractContainerComponent implements Iterato
    * @param  mixed $offset offset to unset
    * @return void
    */
-  public function offsetUnset($offset) {
+  public function offsetUnset($offset): void {
     $this->getInnerContainer()->offsetUnset($offset);
-  }
-
-  /**
-   * Replaces the content of the component
-   *
-   * **Important!**
-   *
-   * Parameter `$content` can be of any type that converts to a string or an array of strings.
-   * So also an object of any class that implements magic method `__toString()` is allowed.
-   *
-   * @param  mixed $content new content
-   * @return $this for a fluent interface
-   * @link   http://www.php.net/manual/en/language.oop5.magic.php#object.tostring __toString() method
-   */
-  public function replaceContent($content) {
-    $this->getInnerContainer()->replaceContent($content);
-    return $this;
-  }
-
-  public function toArray(): array {
-    return $this->getInnerContainer()->toArray();
   }
 
   public function clear() {

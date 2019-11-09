@@ -1,26 +1,30 @@
 <?php
 
 /**
- * AbstractPane.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers\Accordions;
 
-use Sphp\Html\AbstractContainerComponent;
+use Sphp\Html\AbstractComponent;
 use Sphp\Html\ContainerTag;
 use Sphp\Html\Div;
+use Sphp\Html\ContainerComponent;
 
 /**
- * Class AbstractPane
+ * Abstract implementation of an Accordion Pane
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @link    http://foundation.zurb.com/ Foundation 6
- * @link    http://foundation.zurb.com/sites/docs/accordion.html Foundation 6 Accordion
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @link    http://foundation.zurb.com/ Foundation
+ * @link    http://foundation.zurb.com/sites/docs/accordion.html Foundation Accordion
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-abstract class AbstractPane extends AbstractContainerComponent implements PaneInterface {
+abstract class AbstractPane extends AbstractComponent implements Pane {
 
   /**
    * The bar component of the pane
@@ -28,43 +32,62 @@ abstract class AbstractPane extends AbstractContainerComponent implements PaneIn
    * @var ContainerTag
    */
   private $bar;
-  
+
   /**
-   * Constructs a new instance
-   *
-   * **Important!**
-   *
-   * Parameters `$barContent` and `$content` can be of any type that converts to a PHP
-   * string. So also an object of any class that implements magic method
-   * `__toString()` is allowed.
-   *
-   * @param null|mixed $barContent the content of the accordion bar
-   * @param null|mixed $content the content of the accordion container
+   * @var Div 
    */
-  public function __construct($barContent = null, $content = null) {
-    $div = new Div($content);
-    $div->attributes()->demand('data-tab-content');
-    $div->cssClasses()->protect('accordion-content');
-    parent::__construct('li', null, $div);
-    $this->bar = (new ContainerTag('a', $barContent));
-    $this->bar->cssClasses()->protect("accordion-title");
-    $this->bar->attributes()->protect('href', '#');
-    $this->cssClasses()->protect('accordion-item');
+  private $content;
+
+  /**
+   * Constructor
+   * 
+   * @param mixed $bar
+   * @param mixed $content
+   */
+  public function __construct($bar = null, $content = null) {
+    parent::__construct('li');
+    $this->cssClasses()->protectValue('accordion-item');
     $this->attributes()->demand('data-accordion-item');
+    $this->bar = new ContainerTag('a', $bar);
+    $this->bar->cssClasses()->protectValue('accordion-title');
+    //$this->bar->attributes()->protect('href', '#');
+    $this->content = new Div($content);
+    $this->content->attributes()->demand('data-tab-content');
+    $this->content->cssClasses()->protectValue('accordion-content');
+    $this->setDeepLinking();
+  }
+
+  public function __destruct() {
+    unset($this->bar, $this->content);
+    parent::__destruct();
+  }
+
+  protected function setDeepLinking() {
+    $id = $this->content->identify();
+    $this->bar->attributes()->protect('href', "#$id");
   }
 
   /**
-   * Returns the inner heading component
+   * Returns the inner title area of the accordion pane
    *
-   * @return ContainerTag the inner heading component
+   * @return ContainerComponent the inner title area of the accordion pane
    */
-  public function getBar() {
+  public function getBar(): ContainerComponent {
     return $this->bar;
   }
 
   public function setPaneTitle($title) {
-    $this->bar->replaceContent($title);
+    $this->bar->resetContent($title);
     return $this;
+  }
+
+  /**
+   * Returns the inner content area of the accordion pane
+   *
+   * @return ContainerComponent the inner title area of the accordion pane
+   */
+  public function getContent(): ContainerComponent {
+    return $this->content;
   }
 
   public function contentVisible(bool $visibility = true) {
@@ -75,9 +98,9 @@ abstract class AbstractPane extends AbstractContainerComponent implements PaneIn
     }
     return $this;
   }
-  
+
   public function contentToString(): string {
-    return $this->bar->getHtml() . $this->getInnerContainer()->getHtml();
+    return $this->bar->getHtml() . $this->content->getHtml();
   }
 
 }

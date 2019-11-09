@@ -1,24 +1,29 @@
 <?php
 
 /**
- * AbstractAttribute.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
 
 use Sphp\Stdlib\Strings;
 use Sphp\Html\Attributes\Exceptions\ImmutableAttributeException;
-use Sphp\Html\Attributes\Exceptions\InvalidAttributeException;
+use Sphp\Exceptions\InvalidArgumentException;
+use Sphp\Exceptions\BadMethodCallException;
 
 /**
  * An abstract implementation of an HTML attribute object
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-abstract class AbstractAttribute implements MutableAttributeInterface {
+abstract class AbstractAttribute implements Attribute {
 
   /**
    * the name of the attribute
@@ -40,46 +45,29 @@ abstract class AbstractAttribute implements MutableAttributeInterface {
   private $protected = false;
 
   /**
-   * Constructs a new instance
-   *
-   * @param  string $name the name of the attribute
-   * @throws InvalidAttributeException
+   * @var boolean 
    */
-  public function __construct(string $name) {
-    if (!Strings::match($name, '/^[a-zA-Z][\w:.-]*$/')) {
-      throw new InvalidAttributeException("Malformed Attribute name '$name'");
-    }
-    $this->name = $name;
-  }
+  private $mutable = true;
 
   /**
-   * Destroys the instance
-   * 
-   * The destructor method will be called as soon as there are no other references 
-   * to a particular object, or in any order during the shutdown sequence.
+   * Constructor
+   *
+   * @param  string $name the name of the attribute
+   * @throws BadMethodCallException if the constructor is recalled
+   * @throws InvalidArgumentException
    */
-  public function __destruct() {
-    unset($this->name, $this->required);
+  public function __construct(string $name) {
+    if (false === $this->mutable) {
+      throw new BadMethodCallException('Constructor called twice.');
+    }
+    if (!Strings::match($name, '/^[a-zA-Z][\w:.-]*$/')) {
+      throw new InvalidArgumentException("Malformed Attribute name '$name'");
+    }
+    $this->name = $name;
+    $this->mutable = false;
   }
 
   public function __toString(): string {
-    return $this->getHtml();
-  }
-
-  public function isProtected(): bool {
-    return $this->protected;
-  }
-
-  public function protect($value) {
-    if ($this->isProtected()) {
-      throw new ImmutableAttributeException("Attribute '{$this->getName()}' is immutable");
-    }
-    $this->set($value);
-    $this->protected = true;
-    return $this;
-  }
-
-  public function getHtml(): string {
     $output = '';
     if ($this->isVisible()) {
       $output .= $this->getName();
@@ -96,11 +84,24 @@ abstract class AbstractAttribute implements MutableAttributeInterface {
     return $output;
   }
 
+  public function isProtected(): bool {
+    return $this->protected;
+  }
+
+  public function protectValue($value) {
+    if ($this->isProtected()) {
+      throw new ImmutableAttributeException("Attribute '{$this->getName()}' is immutable");
+    }
+    $this->setValue($value);
+    $this->protected = true;
+    return $this;
+  }
+
   public function getName(): string {
     return $this->name;
   }
 
-  public function demand() {
+  public function forceVisibility() {
     $this->required = true;
     return $this;
   }

@@ -1,17 +1,20 @@
 <?php
 
 /**
- * AbstractAttributeManager.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
 
 use Countable;
-use Iterator;
+use Sphp\Stdlib\Datastructures\Arrayable;
 use Sphp\Stdlib\Arrays;
-use Sphp\Html\Attributes\Exceptions\InvalidAttributeException;
-use Sphp\Html\Attributes\Exceptions\AttributeException;
+use Sphp\Exceptions\InvalidArgumentException;
+use Sphp\Exceptions\IllegalStateException;
 use Sphp\Html\Attributes\Exceptions\ImmutableAttributeException;
 
 /**
@@ -21,15 +24,16 @@ use Sphp\Html\Attributes\Exceptions\ImmutableAttributeException;
  * object
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class AttributeManager implements Countable, Iterator {
+class AttributeManager implements Countable, Arrayable {
 
   /**
    * attributes as a (name -> value) map
    *
-   * @var MutableAttributeInterface[]
+   * @var Attribute[]
    */
   private $attrs = [];
 
@@ -39,7 +43,7 @@ class AttributeManager implements Countable, Iterator {
   private $gen;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param AttributeGenerator $gen
    */
@@ -51,10 +55,7 @@ class AttributeManager implements Countable, Iterator {
   }
 
   /**
-   * Destroys the instance
-   *
-   * The destructor method will be called as soon as there are no other references
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->attrs, $this->gen);
@@ -81,12 +82,25 @@ class AttributeManager implements Countable, Iterator {
     return implode(' ', $this->attrs);
   }
 
+  public function __call($name, $arguments) {
+    $obj = $this->getObject($name)->setValue($arguments[0]);
+    return $obj;
+  }
+
+  public function __get($name) {
+    return $this->getObject($name);
+  }
+
+  public function __set($name, $value) {
+    $this->getObject($name)->setValue($value);
+  }
+
   /**
    * Return the attribute generator instance used
    * 
    * @return AttributeGenerator the attribute generator instance used
    */
-  public function getGenerator(): AttributeGenerator {
+  public function getObjectMap(): AttributeGenerator {
     return $this->gen;
   }
 
@@ -97,10 +111,10 @@ class AttributeManager implements Countable, Iterator {
    * attaches a new object
    *
    * @param  string $name the name of the attribute
-   * @return MutableAttributeInterface the mapped attribute object or null
+   * @return Attribute the mapped attribute object or null
    */
-  public function getObject(string $name): MutableAttributeInterface {
-    if (!$this->exists($name)) {
+  public function getObject(string $name): Attribute {
+    if (!$this->isInstantiated($name)) {
       $this->attrs[$name] = $this->gen->createObject($name);
     }
     return $this->attrs[$name];
@@ -108,61 +122,25 @@ class AttributeManager implements Countable, Iterator {
 
   /**
    * 
-   * @param  MutableAttributeInterface $attr
+   * @param  Attribute $attr
    * @return $this for a fluent interface
-   * @throws InvalidAttributeException
-   * @throws ImmutableAttributeException
+   * @throws InvalidArgumentException
+   * @throws IllegalStateException if the attribute is immutable
    */
-  public function setInstance(MutableAttributeInterface $attr) {
+  public function setInstance(Attribute $attr) {
     $name = $attr->getName();
-    if (!$this->gen->isValidType($name, $attr)) {
-      throw new InvalidAttributeException('Invalid attributetype (' . get_class($attr) . ') for ' . $name . ' attribute.' . $this->gen->getValidType($name) . " expected");
+    if (!$this->getObjectMap()->isValidType($name, $attr)) {
+      throw new InvalidArgumentException('Invalid attributetype (' . get_class($attr) . ') for ' . $name . ' attribute.' . $this->gen->getValidType($name) . " expected");
     }
     if (!$this->isProtected($name)) {
       if ($this->isDemanded($name)) {
-        $attr->demand();
+        $attr->forceVisibility();
       }
       $this->attrs[$name] = $attr;
     } else {
-      throw new ImmutableAttributeException("Attribute '$name' is immutable");
+      throw new IllegalStateException("Attribute '$name' is immutable");
     }
     return $this;
-  }
-
-  /**
-   * 
-   * @param  string $name
-   * @return bool
-   */
-  public function supportsTypeChange(string $name, string $type): bool {
-    if (!$this->isProtected($name)) {
-      return $this->gen->isValidType($name, $type);
-    }
-    return false;
-  }
-
-  /**
-   * 
-   * @param  string $name
-   * @return bool
-   */
-  public function isIntegerAttribute(string $name): bool {
-    if ($this->isInstatiated($name)) {
-      return $this->attrs[$name] instanceof IntegerAttribute;
-    }
-    return $this->gen->isOfType($name, IntegerAttribute::class);
-  }
-
-  /**
-   * 
-   * @param  string $name
-   * @return bool
-   */
-  public function isBooleanAttribute(string $name): bool {
-    if ($this->isInstatiated($name)) {
-      return $this->attrs[$name] instanceof BooleanAttribute;
-    }
-    return $this->gen->isOfType($name, BooleanAttribute::class);
   }
 
   /**
@@ -171,7 +149,7 @@ class AttributeManager implements Countable, Iterator {
    * @return bool
    */
   public function isIdentifier(string $name): bool {
-    if ($this->isInstatiated($name)) {
+    if ($this->isInstantiated($name)) {
       return $this->attrs[$name] instanceof IdAttribute;
     }
     return $this->gen->isOfType($name, IdAttribute::class);
@@ -179,46 +157,13 @@ class AttributeManager implements Countable, Iterator {
 
   /**
    * 
-   * @param  MutableAttributeInterface $attr
-   * @return $this for a fluent interface
-   * @throws InvalidAttributeException
-   */
-  public function setBoolean(string $name, bool $value = true) {
-    if ($this->isBooleanAttribute($name)) {
-      $this->attrs[$name]->set($value);
-    } else {
-      $attr = new BooleanAttribute($name, $value);
-      $this->setInstance($attr);
-    }
-    return $this;
-  }
-
-  /**
-   * 
-   * @param  MutableAttributeInterface $attr
-   * @return $this for a fluent interface
-   * @throws InvalidAttributeException
-   */
-  public function setInteger(string $name, int $value = null) {
-    if ($this->isIntegerAttribute($name)) {
-      $this->attrs[$name]->set($value);
-    } else {
-      $attr = new IntegerAttribute($name);
-      $attr->set($value);
-      $this->setInstance($attr);
-    }
-    return $this;
-  }
-
-  /**
-   * 
-   * @param  MutableAttributeInterface $attr
-   * @return $this for a fluent interface
-   * @throws InvalidAttributeException
+   * @param string $name
+   * @param string $value
+   * @return \Sphp\Html\Attributes\IdAttribute
    */
   public function setIdentifier(string $name, string $value = null): IdAttribute {
     if ($this->isIdentifier($name)) {
-      $this->attrs[$name]->set($value);
+      $this->attrs[$name]->setValue($value);
     } else {
       $attr = new IdAttribute($name, $value);
       $this->setInstance($attr);
@@ -248,11 +193,11 @@ class AttributeManager implements Countable, Iterator {
    * @param  string $name the name of the attribute
    * @param  scalar $value the value of the attribute
    * @return $this for a fluent interface
-   * @throws InvalidAttributeException if the attribute name or value is invalid
+   * @throws InvalidArgumentException if the attribute name or value is invalid
    * @throws ImmutableAttributeException if the attribute value is unmodifiable
    */
-  public function set(string $name, $value = true) {
-    $this->getObject($name)->set($value);
+  public function setAttribute(string $name, $value) {
+    $this->getObject($name)->setValue($value);
     return $this;
   }
 
@@ -263,12 +208,12 @@ class AttributeManager implements Countable, Iterator {
    *
    * @param  mixed[] $attrs an array of attribute name value pairs
    * @return $this for a fluent interface
-   * @throws InvalidAttributeException if any of the attributes is invalid
+   * @throws InvalidArgumentException if any of the attributes is invalid
    * @throws ImmutableAttributeException if the value of the attribute is already locked
    */
   public function merge(array $attrs = []) {
     foreach ($attrs as $name => $value) {
-      $this->set($name, $value);
+      $this->setAttribute($name, $value);
     }
     return $this;
   }
@@ -284,9 +229,9 @@ class AttributeManager implements Countable, Iterator {
   public function demand(string $name) {
     $obj = $this->getObject($name);
     if (!$obj instanceof Immutable) {
-      $obj->demand();
+      $obj->forceVisibility();
     }
-    $this->getObject($name)->demand();
+    $this->getObject($name)->forceVisibility();
     return $this;
   }
 
@@ -300,7 +245,7 @@ class AttributeManager implements Countable, Iterator {
    * @return boolean true if the attribute is required and false otherwise
    */
   public function isDemanded(string $name): bool {
-    if (!$this->exists($name)) {
+    if (!$this->isInstantiated($name)) {
       return false;
     } else {
       return $this->getObject($name)->isDemanded();
@@ -316,7 +261,7 @@ class AttributeManager implements Countable, Iterator {
    * @return boolean true if the attribute has a locked value on it and false otherwise
    */
   public function isProtected(string $name): bool {
-    if (!$this->exists($name)) {
+    if (!$this->isInstantiated($name)) {
       return false;
     } else {
       return $this->getObject($name)->isProtected();
@@ -335,11 +280,11 @@ class AttributeManager implements Countable, Iterator {
    * @param  string $name the name of the attribute
    * @param  scalar $value the new locked value of the attribute
    * @return $this for a fluent interface
-   * @throws AttributeException if either the name or the value is invalid for the type of the attribute
+   * @throws InvalidArgumentException if either the name or the value is invalid for the type of the attribute
    * @throws ImmutableAttributeException if the attribute is unmodifiable
    */
   public function protect(string $name, $value) {
-    $this->getObject($name)->protect($value);
+    $this->getObject($name)->protectValue($value);
     return $this;
   }
 
@@ -359,21 +304,7 @@ class AttributeManager implements Countable, Iterator {
    * @return boolean true if the attribute is empty and false otherwise
    */
   public function isEmpty(string $name): bool {
-    return $this->exists($name) && $this->getObject($name)->isEmpty();
-  }
-
-  /**
-   * 
-   * @param  string $name
-   * @param  mixed $candidate
-   * @return boolean true if the value of the attribute matches the given candidate
-   */
-  public function valueIs(string $name, $candidate): bool {
-    if (!$this->isInstatiated($name)) {
-      return false;
-    } else {
-      return $this->getObject($name)->getValue() == $candidate;
-    }
+    return $this->isInstantiated($name) && $this->getObject($name)->isEmpty();
   }
 
   /**
@@ -384,7 +315,7 @@ class AttributeManager implements Countable, Iterator {
    * @throws ImmutableAttributeException if the attribute value is protected
    */
   public function remove(string $name) {
-    if ($this->exists($name)) {
+    if ($this->isInstantiated($name)) {
       $this->getObject($name)->clear();
     }
     return $this;
@@ -395,31 +326,15 @@ class AttributeManager implements Countable, Iterator {
    *
    * **IMPORTANT:**
    *
-   * * Returns `boolean false` if attribute is not present.
-   * * returns `true` or an empty string for empty attributes.
+   *  Returns `null` if attribute is not present. However some attributes might 
+   *  also return `null` values
    *
    * @param  string $name the name of the attribute
-   * @return scalar the value of the attribute
-   * @deprecated
-   */
-  public function get(string $name) {
-    return $this->getValue($name);
-  }
-
-  /**
-   * Returns the value of a given attribute name
-   *
-   * **IMPORTANT:**
-   *
-   * * Returns `boolean false` if attribute is not present.
-   * * returns `true` or an empty string for empty attributes.
-   *
-   * @param  string $name the name of the attribute
-   * @return scalar the value of the attribute
+   * @return scalar|null the value of the attribute
    */
   public function getValue(string $name) {
-    $value = false;
-    if ($this->exists($name)) {
+    $value = null;
+    if ($this->isInstantiated($name)) {
       $value = $this->getObject($name)->getValue();
     }
     return $value;
@@ -431,7 +346,7 @@ class AttributeManager implements Countable, Iterator {
    * @param  string $name the name of the attribute
    * @return boolean true if the attribute instance exists and false otherwise
    */
-  public function isInstatiated(string $name): bool {
+  public function isInstantiated(string $name): bool {
     return isset($this->attrs[$name]);
   }
 
@@ -441,8 +356,12 @@ class AttributeManager implements Countable, Iterator {
    * @param  string $name the name of the attribute
    * @return boolean true if the attribute instance exists and false otherwise
    */
-  public function exists(string $name): bool {
-    return isset($this->attrs[$name]);
+  public function isVisible(string $name): bool {
+    if (!$this->isInstantiated($name)) {
+      return false;
+    } else {
+      return $this->getObject($name)->isVisible();
+    }
   }
 
   /**
@@ -454,54 +373,9 @@ class AttributeManager implements Countable, Iterator {
     return count($this->attrs);
   }
 
-  /**
-   * Returns the current element
-   * 
-   * @return mixed the current element
-   */
-  public function current() {
-    return current($this->attrs);
-  }
-
-  /**
-   * Advance the internal pointer of the collection
-   * 
-   * @return void
-   */
-  public function next() {
-    next($this->attrs);
-  }
-
-  /**
-   * Return the key of the current element
-   * 
-   * @return mixed the key of the current element
-   */
-  public function key() {
-    return key($this->attrs);
-  }
-
-  /**
-   * Rewinds the Iterator to the first element
-   * 
-   * @return void
-   */
-  public function rewind() {
-    reset($this->attrs);
-  }
-
-  /**
-   * Checks if current iterator position is valid
-   * 
-   * @return boolean current iterator position is valid
-   */
-  public function valid(): bool {
-    return false !== current($this->attrs);
-  }
-
   public function toArray(): array {
     $arr = [];
-    foreach ($this as $name => $attr) {
+    foreach ($this->attrs as $name => $attr) {
       if ($attr->isVisible()) {
         $arr[$name] = $attr->getValue();
       }

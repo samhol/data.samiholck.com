@@ -1,27 +1,30 @@
 <?php
 
 /**
- * ComponentTrait.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
 
 use Sphp\Html\Attributes\HtmlAttributeManager;
 use Sphp\Html\Attributes\ClassAttribute;
-use Sphp\Html\Attributes\PropertyAttribute;
+use Sphp\Html\Attributes\PropertyCollectionAttribute;
 
 /**
- * Trait implements functionality of {@link ComponentInterface}
+ * Trait implements functionality of a Component Interface
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 trait ComponentTrait {
 
-  use IdentifiableTrait,
-      CssClassifiableTrait;
+  use CssClassifiableTrait;
 
   /**
    * Returns the attribute manager attached to the component
@@ -29,6 +32,21 @@ trait ComponentTrait {
    * @return HtmlAttributeManager the attribute manager
    */
   abstract public function attributes(): HtmlAttributeManager;
+
+  /**
+   * Identifies the element with an unique id attribute.
+   *
+   * **Notes:**
+   *
+   * HTML id attribute is unique to every HTML-element. Therefore given id is checked for its uniqueness.
+   * 
+   * @param  int $length the length of the identity value
+   * @return string 
+   * @link   http://www.w3schools.com/tags/att_global_id.asp default id attribute
+   */
+  public function identify(int $length = 16): string {
+    return $this->attributes()->identify($length);
+  }
 
   /**
    * Returns the class attribute object
@@ -42,9 +60,9 @@ trait ComponentTrait {
   /**
    * Returns the attribute object containing inline styles
    *
-   * @return PropertyAttribute the attribute object containing inline styles
+   * @return PropertyCollectionAttribute the attribute object containing inline styles
    */
-  public function inlineStyles(): PropertyAttribute {
+  public function inlineStyles(): PropertyCollectionAttribute {
     return $this->attributes()->styles();
   }
 
@@ -70,8 +88,8 @@ trait ComponentTrait {
    * @throws InvalidAttributeException if the attribute name or value is invalid
    * @throws UnmodifiableAttributeException if the attribute value is unmodifiable
    */
-  public function setAttribute(string $name, $value = null) {
-    $this->attributes()->set($name, $value);
+  public function setAttribute(string $name, $value = true) {
+    $this->attributes()->setAttribute($name, $value);
     return $this;
   }
 
@@ -108,7 +126,7 @@ trait ComponentTrait {
    * @return boolean (attribute exists)
    */
   public function attributeExists(string $name): bool {
-    return $this->attributes()->exists($name);
+    return $this->attributes()->isVisible($name);
   }
 
 }

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Button.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Buttons;
@@ -12,8 +15,9 @@ use Sphp\Html\CssClassifiableContent;
 use Sphp\Html\Forms\Buttons\Submitter;
 use Sphp\Html\Forms\Buttons\Resetter;
 use Sphp\Html\Forms\Buttons\Button as PushButton;
-use Sphp\Html\Navigation\Hyperlink;
+use Sphp\Html\Navigation\A;
 use Sphp\Html\Span;
+use ReflectionClass;
 
 /**
  * Implements button styling adapter for Foundation Sites
@@ -21,16 +25,21 @@ use Sphp\Html\Span;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/buttons.html Foundation Buttons
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-Class Button extends AbstractLayoutManager implements \Sphp\Html\ComponentInterface, ButtonInterface {
+Class Button extends AbstractLayoutManager implements \Sphp\Html\Component, ButtonInterface {
 
   use ButtonTrait,
       \Sphp\Html\ComponentTrait;
 
   /**
-   * Constructs a new instance
+   * @var ReflectionClass
+   */
+  private $reflector;
+
+  /**
+   * Constructor
    * 
    * @param CssClassifiableContent|scalar $component
    */
@@ -38,8 +47,30 @@ Class Button extends AbstractLayoutManager implements \Sphp\Html\ComponentInterf
     if (!$component instanceof CssClassifiableContent) {
       $component = new Span($component);
     }
+    $this->reflector = new ReflectionClass($component);
     parent::__construct($component);
     $this->cssClasses()->add('button');
+  }
+
+  /**
+   * Invokes the given public inner object method
+   * 
+   * @param  string $name the name of the called method
+   * @param  array $arguments
+   * @return mixed
+   * @throws BadMethodCallException if the public method does not exixt
+   */
+  public function __call(string $name, array $arguments) {
+    if (!$this->reflector->hasMethod($name)) {
+      $inputType = get_class($this->getComponent());
+      throw new BadMethodCallException("Method $name is not defined in '$inputType' component");
+    }
+    $result = \call_user_func_array(array($this->getComponent(), $name), $arguments);
+    if ($result === $this->getComponent()) {
+      return $this;
+    } else {
+      return $result;
+    }
   }
 
   public function setLayouts(...$layouts) {
@@ -65,7 +96,7 @@ Class Button extends AbstractLayoutManager implements \Sphp\Html\ComponentInterf
    * @link   http://www.w3schools.com/tags/att_a_target.asp target attribute
    */
   public static function hyperlink($href = null, $content = null, $target = null): Button {
-    return new static(new Hyperlink($href, $content, $target));
+    return new static(new A($href, $content, $target));
   }
 
   /**

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * SwitchBox.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Forms\Inputs;
@@ -14,13 +17,13 @@ use Sphp\Html\Forms\Inputs\Checkbox;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class SwitchBox extends AbstractSwitch {
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param  string|null $name the value of the name attribute
    * @param  string|null $value the value of the value attribute

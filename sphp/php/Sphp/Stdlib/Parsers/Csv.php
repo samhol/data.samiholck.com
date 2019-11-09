@@ -1,29 +1,76 @@
 <?php
 
 /**
- * Csv.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Parsers;
 
-use Exception;
-use Sphp\Exceptions\RuntimeException;
+use Sphp\Stdlib\Filesystem;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * Implements a CSV data reader
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Csv extends AbstractReader {
+class Csv implements ArrayParser {
 
-  public function fromString(string $string) {
+  /**
+   * 
+   * @param  string $string
+   * @param  string $delimiter
+   * @param  string $enclosure
+   * @param  string $escape
+   * @return array
+   */
+  public function stringToArray(string $string, string $delimiter = ',', string $enclosure = '"', string $escape = "\\"): array {
+    $Data = explode(PHP_EOL, trim($string)); //parse the rows 
+    $output = [];
+    foreach ($Data as $row) {
+      $output[] = str_getcsv($row, $delimiter, $enclosure, $escape);
+    }
+    return $output;
+  }
+
+  /**
+   * 
+   * @param  string $filename
+   * @param  string $delimiter
+   * @param  string $enclosure
+   * @param  string $escape
+   * @return array
+   * @throws InvalidArgumentException if CSV parsing fails
+   */
+  public function fileToArray(string $filename, string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): array {
+    if (!Filesystem::isAsciiFile($filename)) {
+      throw new InvalidArgumentException(sprintf("File '%s' doesn't exist or is not an Ascii file", $filename));
+    }
+    $csv = new CsvFile($filename, $delimiter, $enclosure, $escape);
+    return $csv->toArray();
+  }
+
+  public function toString(array $data, string $delimiter = ',', string $enclosure = '"'): string {
     try {
-      return str_getcsv($string, $delimiter = ",", $enclosure = '"', $escape = "\\");
-    } catch (Exception $ex) {
-      throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
+      $handle = fopen('php://temp', 'r+');
+      foreach ($data as $line) {
+        fputcsv($handle, $line, $delimiter, $enclosure);
+      }
+      rewind($handle);
+      $contents = '';
+      while (!feof($handle)) {
+        $contents .= fread($handle, 8192);
+      }
+      fclose($handle);
+      return $contents;
+    } catch (\Throwable $ex) {
+      throw new InvalidArgumentException($ex->getMessage());
     }
   }
 

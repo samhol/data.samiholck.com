@@ -1,8 +1,11 @@
 <?php
 
 /**
- * LazyLoaderTrait.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media;
@@ -10,7 +13,7 @@ namespace Sphp\Html\Media;
 use Sphp\Html\Attributes\HtmlAttributeManager;
 
 /**
- * Trait implements the {@link LazyLoaderInterface} interface
+ * Trait implements the LazyMedia interface
  * 
  * Mobile-oriented, fast and extensible jQuery plugin for lazy loading of 
  * images/videos with build-in support of jQueryMobile framework.
@@ -19,7 +22,7 @@ use Sphp\Html\Attributes\HtmlAttributeManager;
  * @link    http://www.w3schools.com/tags/tag_img.asp w3schools API
  * @link    http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#the-img-element W3C API
  * @link    https://github.com/ressio/lazy-load-xt Lazy Load XT jQuery plugin
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 trait LazyMediaSourceTrait {
@@ -34,22 +37,18 @@ trait LazyMediaSourceTrait {
   /**
    * Sets or unsets the media source loading as lazy
    * 
-   * **Important:** if the `$lazy = true` the actual media source path is stored into the  
-   * `data-src` attribute instead of the `src` attribute
-   * 
    * @param  boolean $lazy true if the loading is lazy, false otherwise
    * @return $this for a fluent interface
    */
   public function setLazy(bool $lazy = true) {
     $classes = ['lazy-hidden', 'lazy-loaded'];
     if ($lazy && !$this->isLazy()) {
-      $src = $this->getSrc();
-      $this->setSrc(false);
       $this->attributes()->classes()->add($classes);
-      $this->attributes()->set('data-src', $src);
-    } else if ($this->isLazy()) {
+      $this->attributes()->setAttribute('data-src', $this->attributes()->getValue('src'));
+      $this->attributes()->remove('src');
+    } else if (!$lazy && $this->isLazy()) {
       $this->attributes()->classes()->remove($classes);
-      $this->setSrc($this->attributes()->getValue('data-src'));
+      $this->attributes()->setAttribute('src', $this->attributes()->getValue('data-src'));
       $this->attributes()->remove('data-src');
     }
     return $this;
@@ -61,24 +60,23 @@ trait LazyMediaSourceTrait {
    * @return boolean true if the loading is lazy, false otherwise
    */
   public function isLazy(): bool {
-    return $this->attributes()->exists('data-src') &&
+    return $this->attributes()->isVisible('data-src') &&
             $this->attributes()->classes()->contains(['lazy-hidden', 'lazy-loaded']);
   }
 
   /**
    * Sets the path to the image source (The URL of the image file)
    * 
-   * **Important:** if {@link LazyLoaderInterface::isLazy()} this method sets the value of the 
-   * `data-src` attribute instead of the `src` attribute
-   *
    * @param  string $src the path to the image source (The URL of the image file)
-   * @return LazyLoaderInterface for PHP Method Chaining
+   * @return $this for a fluent interface
    */
-  public function setSrc(string $src) {
+  public function setSrc(string $src = null) {
     if ($this->isLazy()) {
-      $this->attributes()->set('data-src', $src);
+      $this->attributes()->setAttribute('data-src', $src);
+      $this->attributes()->remove('src');
     } else {
-      $this->attributes()->set('src', $src);
+      $this->attributes()->setAttribute('src', $src);
+      $this->attributes()->remove('data-src');
     }
     return $this;
   }
@@ -86,16 +84,13 @@ trait LazyMediaSourceTrait {
   /**
    * Returns the path to the image source (The URL of the image file)
    *
-   * **Important:** if {@link LazyLoaderInterface::isLazy()} this method returns the value of the 
-   * `data-src` attribute instead of the `src` attribute
-   * 
    * @return string the path to the image source (The URL of the image file)
    */
   public function getSrc(): string {
     if ($this->isLazy()) {
-      return $this->attributes()->getValue('data-src');
+      return (string) $this->attributes()->getValue('data-src');
     } else {
-      return $this->attributes()->getValue('src');
+      return (string) $this->attributes()->getValue('src');
     }
   }
 

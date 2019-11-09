@@ -1,35 +1,38 @@
 <?php
 
 /**
- * VideoJs.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
 
 use Sphp\Html\Media\SizeableMedia;
-use Sphp\Html\Media\SizeableTrait;
+use Sphp\Html\Media\SizeableMediaTrait;
 
 /**
  * Implements an VideoJs component
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://videojs.com/ VIDEOJS
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class VideoJs extends AbstractMultimediaTag implements SizeableMedia {
 
-  use SizeableTrait;
+  use SizeableMediaTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  Source|Source[] $sources defines a table caption
    */
   public function __construct($sources = null) {
     parent::__construct('video', null, $sources);
-    $this->cssClasses()->protect(['video-js']);
+    $this->cssClasses()->protectValue(['video-js']);
     $this->identify();
     $this->attributes()->demand('data-setup');
   }
@@ -46,7 +49,7 @@ class VideoJs extends AbstractMultimediaTag implements SizeableMedia {
    * @link   http://www.w3schools.com/tags/att_video_poster.asp poster attribute
    */
   public function setPoster(string $poster = null) {
-    $this->attributes()->set('poster', $poster);
+    $this->attributes()->setAttribute('poster', $poster);
     return $this;
   }
 
@@ -57,7 +60,7 @@ class VideoJs extends AbstractMultimediaTag implements SizeableMedia {
    * @param  string $ratio the ratio of the video
    * @return $this for a fluent interface
    */
-  public function setRatio($ratio) {
+  public function setRatio(string $ratio) {
     $this->cssClasses()->remove(['vjs-16-9', 'vjs-4-3']);
     if ($ratio === '16-9' || $ratio === '4-3') {
       $this->cssClasses()->add("vjs-$ratio");

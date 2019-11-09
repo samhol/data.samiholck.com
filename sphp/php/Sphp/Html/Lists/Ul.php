@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Ul.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Lists;
@@ -12,19 +15,14 @@ namespace Sphp\Html\Lists;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_ul.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class Ul extends StandardList {
 
   /**
-   * Constructs a new instance
-   *
-   * **Notes:**
-   *
-   * 1. Any `mixed $content` not implementing {@link LiInterface} is wrapped 
-   *    within {@link Li} component
-   * 2. All items of an array are treated according to note (1)
+   * Constructor
    *
    * @param  mixed|null $items the content of the component
    */

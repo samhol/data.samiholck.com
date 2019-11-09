@@ -1,26 +1,33 @@
 <?php
 
 /**
- * Html.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
 
 use IteratorAggregate;
 use Sphp\Html\Head\Head;
-use Sphp\Html\Programming\ScriptsContainer;
+use Sphp\Html\Scripts\ScriptsContainer;
+use Sphp\Html\Scripts\ScriptSrc;
 use Sphp\Html\Head\Meta;
+use Sphp\Html\Head\Link;
+use Traversable;
 
 /**
  * Implements an HTML &lt;html&gt; tag
  *
  * @author Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_html.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Html extends AbstractComponent implements IteratorAggregate, TraversableContent, ContentParser {
+class Html extends AbstractComponent implements IteratorAggregate, TraversableContent {
 
   use TraversableTrait;
 
@@ -35,7 +42,7 @@ class Html extends AbstractComponent implements IteratorAggregate, TraversableCo
   private $body;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Common `$charset` values:**
    *
@@ -50,7 +57,7 @@ class Html extends AbstractComponent implements IteratorAggregate, TraversableCo
    * @param string|null $charset optional character encoding of the document (defaults to: "UTF-8")
    * @param string|null $lang optional body content
    */
-  public function __construct(string $title = null, string $charset = 'UTF-8', string $lang = null) {
+  public function __construct(string $title = null, string $charset = null, string $lang = null) {
     parent::__construct('html');
     $this->head = new Head($title, $charset);
     $this->body = new Body();
@@ -89,17 +96,6 @@ class Html extends AbstractComponent implements IteratorAggregate, TraversableCo
   }
 
   /**
-   * Sets the title of the html page
-   *
-   * @param  string|Title $title the title of the html page
-   * @return $this for a fluent interface
-   */
-  public function setDocumentTitle($title) {
-    $this->head->setDocumentTitle($title);
-    return $this;
-  }
-
-  /**
    * Sets the language of the document 
    * 
    * **NOTE:** Sets the value of the `lang` attribute
@@ -111,62 +107,8 @@ class Html extends AbstractComponent implements IteratorAggregate, TraversableCo
    * @link   http://www.w3schools.com/tags/att_lang.asp lang attribute
    */
   public function setLanguage(string $language = null) {
-    $this->attributes()->set('lang', $language);
+    $this->attributes()->setAttribute('lang', $language);
     return $this;
-  }
-
-  /**
-   * 
-   * @param  string $viewport
-   * @return $this
-   */
-  public function setViewport(string $viewport = 'width=device-width, initial-scale=1.0') {
-    $this->head()->addMeta(Meta::viewport($viewport));
-    return $this;
-  }
-
-  /**
-   * Sets up the Font Awesome icons
-   *
-   * @return $this for a fluent interface
-   * @link   http://fontawesome.io/icons/?utm_source=www.qipaotu.com Font Awesome icons
-   */
-  public function useFontAwesome(string $path = '') {
-    $this->head()->appendScriptSrc("https://use.fontawesome.com/releases/v5.0.7/js/all.js")->setDefer(true);
-    return $this;
-  }
-
-  /**
-   * Sets the required CSS and JavaScript files for Video.js
-   *
-   * @return $this for a fluent interface
-   * @link   http://www.videojs.com/ Video.js
-   */
-  public function useVideoJS() {
-    $this->head()->addCssSrc('http://vjs.zencdn.net/6.6.3/video-js.css');
-    $this->body()->scripts()->appendSrc('http://vjs.zencdn.net/6.6.3/video.js');
-    return $this;
-  }
-
-  /**
-   * Sets up the SPHP framework related JavaScript files to the end of the body
-   *
-   * @return $this for a fluent interface
-   */
-  public function enableSPHP() {
-    $this->body()->scripts()->appendSrc('sphp/javascript/dist/all.js');
-    //$this->body()->scripts()->appendCode('sphp.initialize();');
-    return $this;
-  }
-
-  /**
-   * Returns and optionally sets the inner script container
-   * 
-   * @param  ScriptsContainer|null $c optional new script container to set
-   * @return ScriptsContainer the script container
-   */
-  public function scripts(ScriptsContainer $c = null): ScriptsContainer {
-    return $this->body->scripts($c);
   }
 
   public function getOpeningTag(): string {
@@ -217,41 +159,13 @@ class Html extends AbstractComponent implements IteratorAggregate, TraversableCo
    *
    * @return Traversable iterator
    */
-  public function getIterator() {
-    return $this->body->getIterator();
-  }
-
-  public function count(): int {
-    return $this->body->count();
+  public function getIterator(): Traversable {
+    $it = new Iterator([$this->head(), $this->body()]);
+    return $it;
   }
 
   public function contentToString(): string {
-    return $this->head . $this->body;
-  }
-
-  public function append(...$content) {
-    $this->body->append($content);
-    return $this;
-  }
-
-  public function appendMd(string $md) {
-    $this->body->appendMd($md);
-    return $this;
-  }
-
-  public function appendMdFile(string $path) {
-    $this->body->appendMdFile($path);
-    return $this;
-  }
-
-  public function appendPhpFile(string $path) {
-    $this->body->appendPhpFile($path);
-    return $this;
-  }
-
-  public function appendRawFile(string $path) {
-    $this->body->appendRawFile($path);
-    return $this;
+    return $this->head() . $this->body();
   }
 
 }

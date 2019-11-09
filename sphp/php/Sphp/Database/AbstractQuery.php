@@ -1,8 +1,11 @@
 <?php
 
 /**
- * AbstractQuery.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Database;
@@ -17,7 +20,7 @@ use Sphp\Database\Rules\Clause;
  * An abstract implementation of a `SELECT` statement
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 abstract class AbstractQuery extends AbstractConditionalStatement implements IteratorAggregate, Query {
@@ -169,7 +172,7 @@ abstract class AbstractQuery extends AbstractConditionalStatement implements Ite
    * * **ALWAYS SANITIZE ALL USER INPUTS!**
    * * **If you are using multiple arguments; None of the arguments should be an array**
    *
-   * @param  string|string[] $cond condition(s) (accepts multiple arguments)
+   * @param  ... string|string[] $cond condition(s) (accepts multiple arguments)
    * @return $this for a fluent interface
    */
   public function having(... $rules) {

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ResponsiveEmbedSlide.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Apps\Slick;
@@ -16,42 +19,45 @@ use Sphp\Html\Media\LazyMedia;
  * Implements a Responsive Embed slide for a Orbit component
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @link    http://foundation.zurb.com/ Foundation
- * @link    http://foundation.zurb.com/sites/docs/orbit.html Orbit
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class ResponsiveEmbedSlide extends AbstractComponent implements Slide, ResponsiveEmbedInterface, LazyMedia {
 
   use \Sphp\Html\Media\LazyMediaSourceTrait;
+
   /**
    * the flex component instance
    *
    * @var ResponsiveEmbed
    */
-  private $flex;
+  private $embed;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param ResponsiveEmbedInterface $embed the inner component
    */
   public function __construct(ResponsiveEmbedInterface $embed = null) {
     parent::__construct('li');
-    $this->cssClasses()->protect('orbit-slide');
+    $this->cssClasses()->protectValue('orbit-slide');
     if (!($embed instanceof ResponsiveEmbed)) {
       $embed = new ResponsiveEmbed($embed);
     }
-    $this->flex = $embed;
+    $this->embed = $embed;
   }
 
+  /**
+   * Destructor
+   */
   public function __destruct() {
-    unset($this->flex);
+    unset($this->embed);
     parent::__destruct();
   }
 
   public function __clone() {
-    $this->flex = clone $this->flex;
+    $this->embed = clone $this->embed;
     parent::__clone();
   }
 
@@ -61,7 +67,7 @@ class ResponsiveEmbedSlide extends AbstractComponent implements Slide, Responsiv
    * @return ResponsiveEmbed the inner component
    */
   public function getFlex(): ResponsiveEmbed {
-    return $this->flex;
+    return $this->embed;
   }
 
   public function setAspectRatio(string $ratio) {
@@ -70,7 +76,7 @@ class ResponsiveEmbedSlide extends AbstractComponent implements Slide, Responsiv
   }
 
   public function contentToString(): string {
-    return $this->flex->getHtml();
+    return $this->embed->getHtml();
   }
 
   /**

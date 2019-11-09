@@ -1,19 +1,21 @@
 <?php
 
 /**
- * AbstractLimitValidator.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Validators;
-
-use Sphp\I18n\Messages\Message;
 
 /**
  * Validates data against certain limit
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 abstract class AbstractLimitValidator extends AbstractValidator {
@@ -21,12 +23,12 @@ abstract class AbstractLimitValidator extends AbstractValidator {
   /**
    * `ID` for error message describing values not matching an inclusive limit
    */
-  const INCLUSIVE_ERROR = '_inclusive_';
+  const INCLUSIVE_ERROR = 'INCLUSIVE_ERROR';
 
   /**
    * `ID` for error message describing values not matching an exclusive limit
    */
-  const EXCLUSIVE_ERROR = '_exclusive_';
+  const EXCLUSIVE_ERROR = 'EXCLUSIVE_ERROR';
 
   /**
    * Whether to do inclusive comparisons, allowing equivalence to max
@@ -39,15 +41,13 @@ abstract class AbstractLimitValidator extends AbstractValidator {
   private $inclusive;
 
   /**
-   * Constructs a new validator
+   * Constructor
    * 
    * @param boolean $inclusive true for inclusive limit and false for exclusive
    */
-  public function __construct(bool $inclusive = true) {
+  public function __construct(bool $inclusive) {
     parent::__construct();
     $this->setInclusive($inclusive);
-    $this->setMessageTemplate(static::EXCLUSIVE_ERROR, Message::singular('Not in range (%s-%s)'));
-    $this->setMessageTemplate(static::INCLUSIVE_ERROR, Message::singular('Not in inclusive range (%s-%s)'));
   }
 
   /**
@@ -62,7 +62,7 @@ abstract class AbstractLimitValidator extends AbstractValidator {
   /**
    * Sets whether the the limit is inclusive or not
    * 
-   * @param boolean $inclusive true for inclusive limit and false for exclusive
+   * @param  boolean $inclusive true for inclusive limit and false for exclusive
    * @return $this for a fluent interface
    */
   public function setInclusive(bool $inclusive) {

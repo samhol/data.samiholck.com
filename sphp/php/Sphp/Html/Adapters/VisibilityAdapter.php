@@ -1,30 +1,25 @@
 <?php
 
 /**
- * VisibilityAdapter.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Adapters;
 
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Component;
 
 /**
- * Description of VisibilityAdapter
- *
- * @author Sami Holck
+ * Implements a Visibility Adapter
+
+ * @author  Sami Holck <sami.holck@gmail.com>
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @filesource
  */
 class VisibilityAdapter extends AbstractComponentAdapter {
-
-  /**
-   * Constructs a new instance
-   * 
-   * @param ComponentInterface $component
-   */
-  public function __construct(ComponentInterface $component) {
-    parent::__construct($component);
-    $this->component = $component;
-  }
 
   /**
    * Sets whether the component is in use or not
@@ -52,7 +47,7 @@ class VisibilityAdapter extends AbstractComponentAdapter {
    * @return $this for a fluent interface
    */
   public function hide() {
-    $this->component->inlineStyles()->setProperty('display', 'none');
+    $this->getComponent()->inlineStyles()->setProperty('display', 'none');
     return $this;
   }
 

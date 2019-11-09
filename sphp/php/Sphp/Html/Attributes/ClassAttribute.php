@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ClassAttribute.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
@@ -12,6 +15,7 @@ use Sphp\Stdlib\Strings;
 use Sphp\Stdlib\Arrays;
 use Sphp\Stdlib\Datastructures\Collection;
 use Sphp\Html\Attributes\Exceptions\ImmutableAttributeException;
+use Sphp\Exceptions\InvalidArgumentException;
 
 /**
  * An implementation of CSS class attribute
@@ -19,10 +23,11 @@ use Sphp\Html\Attributes\Exceptions\ImmutableAttributeException;
  * The class attribute specifies one or more class names for an HTML element
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class ClassAttribute extends AbstractMutableAttribute implements IteratorAggregate, CollectionAttributeInterface {
+class ClassAttribute extends AbstractAttribute implements IteratorAggregate, CollectionAttribute {
 
   /**
    * stored individual classes
@@ -32,7 +37,7 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
   private $values = [];
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param string $name the name of the attribute
    */
@@ -41,14 +46,21 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
   }
 
   /**
-   * Destroys the instance
-   * 
-   * The destructor method will be called as soon as there are no other references 
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
     unset($this->values);
-    parent::__destruct();
+  }
+
+  public function __toString(): string {
+    $output = '';
+    if ($this->isVisible()) {
+      $output .= $this->getName();
+      if (!$this->isEmpty()) {
+        $output .= '="' . implode(' ', array_keys($this->values)) . '"';
+      }
+    }
+    return $output;
   }
 
   /**
@@ -70,6 +82,9 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
     if (is_array($raw)) {
       $flat = Arrays::flatten($raw);
       foreach ($flat as $item) {
+        if (!is_string($item)) {
+          throw new InvalidArgumentException('Invalid attribute value given');
+        }
         $parsed = array_merge($parsed, $this->parseStringToArray($item));
       }
       //$vals = array_filter($parsed, 'is_string');
@@ -79,7 +94,7 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
     if ($validate) {
       foreach ($parsed as $value) {
         if (!$this->isValidAtomicValue($value)) {
-          throw new InvalidAttributeException("Invalid attribute value '$value'");
+          throw new InvalidArgumentException("Invalid attribute value '$value'");
         }
       }
     }
@@ -101,17 +116,6 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
     return preg_match("/^[_a-zA-Z]+[_a-zA-Z0-9-]*/", $value) === 1;
   }
 
-  public function getHtml(): string {
-    $output = '';
-    if ($this->isVisible()) {
-      $output .= $this->getName();
-      if (!$this->isEmpty()) {
-        $output .= '="' . implode(' ', array_keys($this->values)) . '"';
-      }
-    }
-    return $output;
-  }
-
   public function isVisible(): bool {
     return $this->isDemanded() || !empty($this->values);
   }
@@ -123,7 +127,7 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
   /**
    * Sets new atomic values to the attribute removing old non locked ones
    *
-   * **Important:** Parameter <var>$values</var> restrictions and rules
+   * **Important:** Parameter `$values` restrictions and rules
    * 
    * 1. A string parameter can contain a single atomic value
    * 2. An array can be be multidimensional
@@ -132,7 +136,7 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
    * @param  string|string[] $values the values to set
    * @return $this for a fluent interface
    */
-  public function set($values) {
+  public function setValue($values) {
     $this->clear();
     $this->add(func_get_args());
     return $this;
@@ -141,7 +145,7 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
   /**
    * Adds new atomic values to the attribute
    *
-   * **Important:** Parameter <var>$values</var> restrictions and rules
+   * **Important:** Parameter ´$values´ restrictions and rules
    * 
    * 1. A string parameter can contain a single atomic value (a class)
    * 2. An array can be be multidimensional array of atomic string values
@@ -200,7 +204,7 @@ class ClassAttribute extends AbstractMutableAttribute implements IteratorAggrega
    * @param  scalar|scalar[] $content the atomic values to lock
    * @return $this for a fluent interface
    */
-  public function protect($content) {
+  public function protectValue($content) {
     foreach ($this->parse(func_get_args()) as $class) {
       $this->values[$class] = true;
     }

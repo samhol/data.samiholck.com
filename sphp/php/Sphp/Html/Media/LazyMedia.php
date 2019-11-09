@@ -1,8 +1,11 @@
 <?php
 
 /**
- * LazyLoaderInterface.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media;
@@ -17,16 +20,13 @@ use Sphp\Html\Content;
 
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    https://github.com/ressio/lazy-load-xt Lazy Load XT jQuery plugin
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface LazyMedia extends Content {
 
   /**
    * Sets or unsets the media source loading as lazy
-   * 
-   * **Important:** if the `$lazy = true` the actual media source path is stored into the  
-   * `data-src` attribute instead of the `src` attribute
    * 
    * @param  boolean $lazy true for lazy loading, false otherwise
    * @return $this for a fluent interface

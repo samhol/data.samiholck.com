@@ -1,26 +1,29 @@
 <?php
 
 /**
- * RangeSlider.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs\Ion;
 
-use Sphp\Html\Exceptions\InvalidStateException;
+use Sphp\Exceptions\InvalidStateException;
 
 /**
  * Implements jQuery range slider with skin support
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://ionden.com/a/plugins/ion.rangeSlider/en.html ion range slider
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class RangeSlider extends AbstractSlider {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $name name attribute
    * @param  int $start the start value of the slider
@@ -41,7 +44,7 @@ class RangeSlider extends AbstractSlider {
    */
   public function getInputValuesSeparator(): string {
     $separator = ';';
-    if ($this->attributes()->exists('data-input-values-separator')) {
+    if ($this->attributes()->isVisible('data-input-values-separator')) {
       $separator = $this->attributes()->getValue('data-input-values-separator');
     }
     return $separator;
@@ -54,7 +57,7 @@ class RangeSlider extends AbstractSlider {
    * @return $this for a fluent interface
    */
   public function setInputValuesSeparator(string $separator) {
-    $this->attributes()->set('data-input-values-separator', $separator);
+    $this->attributes()->setAttribute('data-input-values-separator', $separator);
     return $this;
   }
 
@@ -76,8 +79,8 @@ class RangeSlider extends AbstractSlider {
     if ($this->getMin() > $stop || $this->getMax() < $stop) {
       throw new InvalidStateException("Stop value: '$stop' is not in valid range ({$this->getMin()}-{$this->getMax()})");
     }
-    $this->attributes()->set('data-from', $start);
-    $this->attributes()->set('data-to', $stop);
+    $this->attributes()->setAttribute('data-from', $start);
+    $this->attributes()->setAttribute('data-to', $stop);
     return $this;
   }
 

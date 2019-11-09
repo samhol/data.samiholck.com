@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Paragraph.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Flow;
@@ -18,7 +21,8 @@ use Sphp\Html\AjaxLoader;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_p.asp w3schools HTML API
  * @link    http://dev.w3.org/html5/spec/Overview.html#the-p-element W3C HTML API link
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class Paragraph extends ContainerTag implements AjaxLoader {
@@ -26,7 +30,7 @@ class Paragraph extends ContainerTag implements AjaxLoader {
   use \Sphp\Html\AjaxLoaderTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  mixed $content optional content of the component
    * @link   http://www.php.net/manual/en/language.oop5.magic.php#object.tostring __toString() method
@@ -35,12 +39,7 @@ class Paragraph extends ContainerTag implements AjaxLoader {
     parent::__construct('p', $content);
   }
 
-  public function __invoke($content = null) {
-    $this->replaceContent($content);
-    return $this;
-  }
-  
-  public function appendMd(string $md) {
+  public function appendMd(string $md, bool $inlineOnly = false) {
     $parsed = \ParsedownExtraPlugin::instance()->line($md);
     $this->append($parsed);
     return $this;

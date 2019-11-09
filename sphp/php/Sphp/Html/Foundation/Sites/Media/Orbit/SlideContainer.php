@@ -1,15 +1,19 @@
 <?php
 
 /**
- * SlideContainer.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Media\Orbit;
 
 use Sphp\Html\AbstractComponent;
-use Sphp\Html\Media\VideoPlayerInterface;
+use Sphp\Html\Media\Multimedia\VideoPlayer;
 use Sphp\Html\Foundation\Sites\Media\ResponsiveEmbed;
+use Traversable;
 
 /**
  * Implements a slide container for Foundation Orbit
@@ -17,12 +21,11 @@ use Sphp\Html\Foundation\Sites\Media\ResponsiveEmbed;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/orbit.html Foundation Orbit slider
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class SlideContainer extends AbstractComponent implements \IteratorAggregate, \Countable {
-
-  use \Sphp\Html\ContentParsingTrait;
 
   private $active = 0;
 
@@ -30,19 +33,20 @@ class SlideContainer extends AbstractComponent implements \IteratorAggregate, \C
    * @var Slide[]
    */
   private $slides = [];
+  private $bullets;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    */
   public function __construct() {
     parent::__construct('ul');
     $this->cssClasses()
-            ->protect('orbit-container');
+            ->protectValue('orbit-container');
   }
 
   /**
-   * Appends slide(s) to the orbit
+   * Appends a slide to the orbit
    *
    * **Notes:**
    *
@@ -50,17 +54,15 @@ class SlideContainer extends AbstractComponent implements \IteratorAggregate, \C
    * 2. Any `mixed $slides` not extending {@link Slide} is wrapped within {@link Slide} component
    * 3. All items of an array are treated according to note (2)
    *
-   * @param  mixed|Slide,... $slide
-   * @return $this for a fluent interface
+   * @param  mixed|Slide $slide
+   * @return Slide appended instance
    */
-  public function append(...$slide) {
-    foreach ($slide as $item) {
-      if (!($item instanceof Slide)) {
-        $item = new HtmlSlide($item);
-      }
-      $this->slides[] = $item;
+  public function append($slide): Slide {
+    if (!($slide instanceof Slide)) {
+      $slide = new HtmlSlide($slide);
     }
-    return $this;
+    $this->slides[] = $slide;
+    return $slide;
   }
 
   /**
@@ -71,7 +73,7 @@ class SlideContainer extends AbstractComponent implements \IteratorAggregate, \C
    * @return FigureSlide appended instance
    */
   public function appendFigure($img, $caption = null): FigureSlide {
-    $slide = new FigureSlide($img, $caption);
+    $slide = FigureSlide::create($img, $caption);
     $this->append($slide);
     return $slide;
   }
@@ -79,7 +81,7 @@ class SlideContainer extends AbstractComponent implements \IteratorAggregate, \C
   /**
    * Appends a new embed slide
    *
-   * @param  VideoPlayerInterface|FlexVideo $player the image path or the image component
+   * @param  VideoPlayer|FlexVideo $player the image path or the image component
    * @return ResponsiveEmbedSlide appended embeddable slide instance
    */
   public function appendEmbeddable($player): ResponsiveEmbedSlide {
@@ -128,7 +130,7 @@ class SlideContainer extends AbstractComponent implements \IteratorAggregate, \C
     return count($this->slides);
   }
 
-  public function getIterator() {
+  public function getIterator(): Traversable {
     return new \Sphp\Html\Iterator($this->slides);
   }
 

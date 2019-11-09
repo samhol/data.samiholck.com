@@ -1,22 +1,25 @@
 <?php
 
 /**
- * Area.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\ImageMap;
 
-use Sphp\Html\Navigation\HyperlinkInterface;
+use Sphp\Html\Navigation\Hyperlink;
 
 /**
  * Defines the basic properties of an HTML &lt;area&gt; tag
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-interface Area extends HyperlinkInterface {
+interface Area extends Hyperlink {
 
   /**
    * Returns the shape of the area
@@ -25,23 +28,6 @@ interface Area extends HyperlinkInterface {
    * @link   http://www.w3schools.com/TAGS/att_area_shape.asp shape attribute
    */
   public function getShape(): string;
-
-  /**
-   * Sets the relationship between the current document and the linked document
-   * 
-   * @param  string $rel the value of the rel attribute
-   * @return Area for PHP Method Chaining
-   * @link   http://www.w3schools.com/TAGS/att_area_rel.asp rel attribute
-   */
-  public function setRelationship($rel);
-
-  /**
-   * Returns the shape of the area
-   * 
-   * @return string the shape of the area
-   * @link   http://www.w3schools.com/TAGS/att_area_rel.asp rel attribute
-   */
-  public function getRelationship();
 
   /**
    * Specifies the alternate text for the area, if the image cannot be displayed
@@ -56,11 +42,11 @@ interface Area extends HyperlinkInterface {
    * 
    * The `alt` attribute is required if the `href` attribute is present.
    *
-   * @param  string $alt the alternate text for an image
+   * @param  string|null $alt the alternate text for an image
    * @return $this for a fluent interface
    * @link   http://www.w3schools.com/tags/att_area_alt.asp alt attribute
    */
-  public function setAlt($alt);
+  public function setAlt(string $alt = null);
 
   /**
    * Returns the alternate text for the area, if the image cannot be displayed
@@ -75,8 +61,8 @@ interface Area extends HyperlinkInterface {
    * 
    * The `alt` attribute is required if the `href` attribute is present.
    *
-   * @return string the value of the alt attribute
+   * @return string|null the value of the alt attribute
    * @link  http://www.w3schools.com/tags/att_area_alt.asp alt attribute
    */
-  public function getAlt();
+  public function getAlt(): ?string;
 }

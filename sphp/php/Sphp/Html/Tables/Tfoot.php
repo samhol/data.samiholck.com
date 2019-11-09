@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Tfoot.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Tables;
@@ -14,25 +17,16 @@ namespace Sphp\Html\Tables;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_tfoot.asp w3schools API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Tfoot extends TableRowContainer {
+class Tfoot extends RowContainer {
 
   /**
-   * Constructs a new instance
+   * Constructor
    */
   public function __construct() {
     parent::__construct('tfoot');
-  }
-
-  public function fromArray(array $arr) {
-    foreach ($arr as $tr) {
-      if (!($tr instanceof RowInterface)) {
-        $this->append(Tr::fromThs($tr));
-      }
-    }
-    return $this;
   }
 
 }

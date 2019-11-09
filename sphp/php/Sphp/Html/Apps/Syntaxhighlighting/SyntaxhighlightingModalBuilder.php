@@ -1,32 +1,35 @@
 <?php
 
 /**
- * SyntaxHighlightingModalBuilder.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Apps\Syntaxhighlighting;
-
+use Sphp\Html\AbstractContent;
 use Sphp\Html\Div;
 use Sphp\Html\Foundation\Sites\Containers\Modal;
 use Sphp\Html\Foundation\Sites\Containers\Popup;
 
 /**
- * Implements Modal builder for PHP Example presentation
+ * Implements Modal builder for program code Example presentation
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/accordion.html Foundation Accordion
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class SyntaxHighlightingModalBuilder implements SyntaxHighlighterInterface {
+class SyntaxHighlightingModalBuilder extends AbstractContent implements SyntaxHighlighter {
 
-  use \Sphp\Html\ContentTrait,
-      SyntaxhighlighterContainerTrait;
+  use SyntaxhighlighterContainerTrait;
 
   /**
-   * @var SyntaxHighlighterInterface
+   * @var SyntaxHighlighter
    */
   private $hl;
 
@@ -41,24 +44,27 @@ class SyntaxHighlightingModalBuilder implements SyntaxHighlighterInterface {
   private $trigger;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
-   * @param type $trigger
+   * @param string|component $trigger
    * @param type $title
    */
   public function __construct($trigger, $title = null) {
     $this->trigger = $trigger;
-    $this->hl = new SyntaxHighlighter();
+    $this->hl = new GeSHiSyntaxHighlighter();
     $this->title = $title;
     $this->title = new Div($title);
     $this->title->addCssClass('title');
   }
 
+  /**
+   * Destructor
+   */
   public function __destruct() {
     unset($this->hl);
   }
 
-  public function getSyntaxHighlighter(): SyntaxHighlighterInterface {
+  public function getSyntaxHighlighter(): SyntaxHighlighter {
     return $this->hl;
   }
 
@@ -69,8 +75,9 @@ class SyntaxHighlightingModalBuilder implements SyntaxHighlighterInterface {
    */
   public function buildModal(): Modal {
     $popup = new Popup();
-    $popup->addCssClass('sphp-syntax-highlighting-modal')->append($this->title);
-    $popup->append($this->hl);
+    $popup->addCssClass('sphp-syntax-highlighting-modal');
+    $popup->getContent()->append($this->title);
+    $popup->getContent()->append($this->hl);
     $modal = new Modal($this->trigger, $popup);
     return $modal;
   }

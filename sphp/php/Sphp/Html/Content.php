@@ -1,11 +1,16 @@
 <?php
 
 /**
- * Content.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
+
+use Sphp\Exceptions\SphpExceptionInterface;
 
 /**
  * Defines basic features for all HTML structures
@@ -19,7 +24,8 @@ namespace Sphp\Html;
  * * <a href="http://validator.w3.org/">W3C Markup Validation Service</a>
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 interface Content {
@@ -28,7 +34,7 @@ interface Content {
    * Returns the component as HTML markup string
    *
    * @return string HTML markup of the component
-   * @throws \Sphp\Exceptions\RuntimeException if HTML parsing fails
+   * @throws SphpExceptionInterface if HTML parsing fails
    */
   public function getHtml(): string;
 

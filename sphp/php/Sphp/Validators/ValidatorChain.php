@@ -1,58 +1,80 @@
 <?php
 
 /**
- * ValidatorChain.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Validators;
 
+use Sphp\Exceptions\BadMethodCallException;
 use Countable;
-use Sphp\I18n\Collections\TranslatableCollection;
+use Sphp\Stdlib\Arrays;
 
 /**
- * A validator container for validating a value against multiple validators
+ * A container for validating a value against multiple validators
+ * 
+ * @method \Sphp\Validators\Regexp regexp(mixed $content = null, $for = null) inserts a new Regexp validator
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class ValidatorChain implements ValidatorInterface, Countable {
-
-  /**
-   *
-   * @var array 
-   */
-  private $skippedValues = [];
+class ValidatorChain extends AbstractValidator implements Countable {
 
   /**
    * used validators
    *
-   * @var mixed[]
+   * @var Validator[]
    */
   private $validators;
 
   /**
-   * @var TranslatableCollection
+   * @var bool
    */
-  private $errors;
+  private $breaksOnFailure;
 
   /**
-   * Constructs a new validator
+   * Constructor
+   * 
+   * @param bool $breaksOnFailure
+   * @param string $error
    */
-  public function __construct() {
+  public function __construct(bool $breaksOnFailure = true, string $error = 'Invalid value') {
+    parent::__construct($error);
     $this->validators = [];
-    $this->errors = new TranslatableCollection();
+    $this->breaksOnFailure = $breaksOnFailure;
   }
 
   /**
-   * Destroys the instance
-   *
-   * The destructor method will be called as soon as there are no other references
-   * to a particular object, or in any order during the shutdown sequence.
+   * Destructor
    */
   public function __destruct() {
-    unset($this->validators, $this->errors);
+    unset($this->validators);
+    parent::__destruct();
+  }
+
+  /**
+   * Magic call method
+   * 
+   * @param  string $name
+   * @param  array $arguments
+   * @return Validator
+   * @throws BadMethodCallException
+   */
+  public function __call(string $name, array $arguments): Validator {
+    $validatorClass = '\\Sphp\\Validators\\' . ucfirst($name);
+    if (!is_a($validatorClass, Validator::class, true)) {
+      throw new BadMethodCallException(sprintf('%s in not a validator', $validatorClass));
+    }
+    $reflectionClass = new \ReflectionClass($validatorClass);
+    $v = $reflectionClass->newInstanceArgs($arguments);
+    $this->appendValidators($v);
+    return $v;
   }
 
   /**
@@ -63,78 +85,19 @@ class ValidatorChain implements ValidatorInterface, Countable {
    * @link http://www.php.net/manual/en/language.oop5.cloning.php#object.clone PHP Object Cloning
    */
   public function __clone() {
-    $this->errors = clone $this->errors;
-  }
-
-  /**
-   * Invoke validator as command
-   *
-   * @param  mixed $value
-   * @return bool
-   */
-  public function __invoke($value) {
-    return $this->isValid($value);
-  }
-
-  /**
-   * 
-   * @return array
-   */
-  public function getSkippedValues() {
-    return $this->skippedValues;
-  }
-
-  /**
-   * 
-   * @param  mixed|mixed[] $skippedValues
-   * @return $this for a fluent interface
-   */
-  public function setSkippedValues($skippedValues) {
-    if (!is_array($skippedValues)) {
-      $skippedValues = [$skippedValues];
-    }
-    $this->skippedValues = $skippedValues;
-    return $this;
-  }
-
-  /**
-   * 
-   * @param  mixed|mixed[] $skippedValues
-   * @return $this for a fluent interface
-   */
-  public function addSkippedValue($skippedValues) {
-    if (!in_array($skippedValues, $this->skippedValues, true)) {
-      $this->skippedValues[] = $skippedValues;
-    }
-    return $this;
-  }
-
-  /**
-   * 
-   * @return $this for a fluent interface
-   */
-  public function removeSkippedValues() {
-    $this->skippedValues = [];
-    return $this;
-  }
-  
-  public function getErrors(): TranslatableCollection {
-    return $this->errors;
+    $this->validators = Arrays::copy($this->validators);
+    parent::__clone();
   }
 
   public function isValid($value): bool {
-    $this->errors->clearContent();
+    $this->setValue($value);
     $valid = true;
-    if (in_array($value, $this->skippedValues, true)) {
-      return true;
-    }
     foreach ($this->validators as $validator) {
-      $v = $validator['validator'];
-      $break = $validator['break'];
-      if (!$v->isValid($value)) {
+      //var_dump($validator);
+      if (!$validator->isValid($value)) {
         $valid = false;
-        $this->getErrors()->merge($v->getErrors());
-        if ($break) {
+        $this->errors()->mergeCollection($validator->errors());
+        if ($this->breaksOnFailure) {
           break;
         }
       }
@@ -143,25 +106,22 @@ class ValidatorChain implements ValidatorInterface, Countable {
   }
 
   /**
-   * Appends a new validator to the chain
+   * Appends a new validator(s) to the chain
    * 
-   * @param  ValidatorInterface $v new validator object
-   * @param  boolean $break
+   * @param  Validator... $validator new validator(s)
    * @return $this for a fluent interface
    */
-  public function appendValidator(ValidatorInterface $v, bool $break = false) {
-    $data = [
-        'validator' => $v,
-        'break' => (bool) $break,
-    ];
-    $this->validators[] = $data;
+  public function appendValidators(Validator... $validator) {
+    foreach ($validator as $v) {
+      $this->validators[] = $v;
+    }
     return $this;
   }
 
   /**
-   * Counts the number of the {@link ValidatorInterface} objects in the chain
+   * Counts the number of the Validator objects in the chain
    *
-   * @return int the number of the {@link ValidatorInterface} objects
+   * @return int the number of the Validator objects in the chain
    */
   public function count(): int {
     return count($this->validators);

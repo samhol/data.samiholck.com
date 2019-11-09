@@ -1,17 +1,20 @@
 <?php
 
 /**
- * Config.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Config;
 
 use Sphp\Stdlib\Datastructures\Arrayable;
 use ArrayAccess;
-use Iterator;
+use IteratorAggregate;
 use Countable;
-use Sphp\Config\Exceptions\ConfigurationException;
+use Sphp\Config\Exception\ConfigurationException;
 
 /**
  * Application Configuration class for storing common application data
@@ -23,10 +26,10 @@ use Sphp\Config\Exceptions\ConfigurationException;
  * PHP array key casting. The <var>$value</var> can be of any type.
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Config implements Arrayable, Iterator, ArrayAccess, Countable {
+class Config implements Arrayable, IteratorAggregate, ArrayAccess, Countable {
 
   /**
    * the singleton instances for defined domains
@@ -50,7 +53,7 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
   private $readonly = false;
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * @param array[] $config configuration data
    * @param boolean $readOnly configuration data is read-only unless this is set to false
@@ -70,23 +73,6 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
    */
   public function __destruct() {
     unset($this->data);
-  }
-
-  /**
-   * Returns named singleton instance of the configuration object
-   *
-   * @param  string $name name of the singleton instance
-   * @param  array $data the configuration data
-   * @return Config singleton instance
-   */
-  public static function instance(string $name = null, array $data = []): Config {
-    if ($name === null) {
-      $name = 0;
-    }
-    if (!isset(self::$instances[$name])) {
-      self::$instances[$name] = new static($data, false);
-    }
-    return self::$instances[$name];
   }
 
   /**
@@ -123,11 +109,18 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
     return $this->contains($varname);
   }
 
-  public function get(string $varName, $default = null) {
-    if (array_key_exists($varName, $this->data)) {
-      return $this->data[$varName];
+  /**
+   * Returns the configuration variable value
+   *
+   * @param  string $varname the name of the variable
+   * @return mixed content
+   * @throws ConfigurationException if the Configuration does not contain variable
+   */
+  public function get(string $varname) {
+    if (!array_key_exists($varname, $this->data)) {
+      throw new ConfigurationException('Configuration does not contain ' . $varname);
     }
-    return $default;
+    return $this->data[$varname];
   }
 
   /**
@@ -144,7 +137,8 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
    * Returns the configuration variable value
    *
    * @param  string $varname the name of the variable
-   * @return mixed content or `null`
+   * @return mixed content
+   * @throws ConfigurationException if the Configuration does not contain variable
    */
   public function __get(string $varname) {
     return $this->get($varname, null);
@@ -156,7 +150,7 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
    * @param  string $varname the name of the variable
    * @param  mixed $value the value to set
    * @return $this for a fluent interface
-   * @throws ConfigurationException if the object is read only
+   * @throws ConfigurationException if the Configuration is read only
    */
   public function set(string $varname, $value) {
     if (!$this->isReadOnly()) {
@@ -204,11 +198,10 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
    * @throws ConfigurationException if the object is read only
    */
   public function remove(string $varname) {
-    if (!$this->isReadOnly()) {
+    if ($this->isReadOnly()) {
       throw new ConfigurationException('Configuration object is read only');
     } else if (isset($this->data[$varname])) {
       unset($this->data[$varname]);
-      $this->skipNextIteration = true;
     }
     return $this;
   }
@@ -246,51 +239,8 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
     return count($this->data);
   }
 
-  /**
-   * Returns the current element
-   * 
-   * @return mixed the current element
-   */
-  public function current() {
-    $this->skipNextIteration = false;
-    return current($this->data);
-  }
-
-  /**
-   * Return the key of the current element
-   * 
-   * @return mixed the key of the current element
-   */
-  public function key() {
-    return key($this->data);
-  }
-
-  /**
-   * Advance the internal pointer of the collection
-   */
-  public function next() {
-    if ($this->skipNextIteration) {
-      $this->skipNextIteration = false;
-      return;
-    }
-    next($this->data);
-  }
-
-  /**
-   * Rewinds the Iterator to the first element
-   */
-  public function rewind() {
-    $this->skipNextIteration = false;
-    reset($this->data);
-  }
-
-  /**
-   * Checks if current iterator position is valid
-   * 
-   * @return boolean current iterator position is valid
-   */
-  public function valid(): bool {
-    return $this->key() !== null;
+  public function getIterator(): \Traversable {
+    return new \ArrayIterator($this->data);
   }
 
   /**
@@ -307,7 +257,8 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
    * Assigns a value to the specified  configuration variable
    * 
    * @param  string $varname the name of the variable
-   * @return mixed the value at the 
+   * @return mixed the value of the given offset
+   * @throws ConfigurationException if the Configuration does not contain variable
    */
   public function offsetGet($varname) {
     return $this->get($varname);
@@ -318,9 +269,10 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
    * 
    * @param  string $varname the name of the variable
    * @param  mixed $value the value to set
-   * @throws ConfigurationException if the configuration object is read only
+   * @return void
+   * @throws ConfigurationException if the object is read only
    */
-  public function offsetSet($varname, $value) {
+  public function offsetSet($varname, $value): void {
     $this->set($varname, $value);
   }
 
@@ -328,10 +280,27 @@ class Config implements Arrayable, Iterator, ArrayAccess, Countable {
    * Unsets the specified variable
    * 
    * @param  string $varname the name of the variable
+   * @return void
    * @throws ConfigurationException if the configuration object is read only
    */
-  public function offsetUnset($varname) {
+  public function offsetUnset($varname): void {
     $this->remove($varname);
+  }
+
+  /**
+   * Returns named singleton instance of the configuration object
+   *
+   * @param  string $name name of the singleton instance
+   * @return Config singleton instance
+   */
+  public static function instance(string $name = null): Config {
+    if ($name === null) {
+      $name = '';
+    }
+    if (!isset(self::$instances[$name])) {
+      self::$instances[$name] = new static([], false);
+    }
+    return self::$instances[$name];
   }
 
 }

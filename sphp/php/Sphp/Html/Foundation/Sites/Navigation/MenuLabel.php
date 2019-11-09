@@ -1,13 +1,16 @@
 <?php
 
 /**
- * MenuLabel.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Navigation;
 
-use Sphp\Html\AbstractContainerComponent;
+use Sphp\Html\ContainerTag;
 
 /**
  * Implements a simple section separator line for Foundation menu structures
@@ -16,13 +19,14 @@ use Sphp\Html\AbstractContainerComponent;
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/topbar.html Foundation Top Bar
  * @link    http://foundation.zurb.com/docs/components/sidenav.html Foundation Side Nav
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class MenuLabel extends AbstractContainerComponent implements MenuItemInterface {
+class MenuLabel extends ContainerTag implements MenuItem {
 
   /**
-   * Constructs a new instance
+   * Constructor
    * 
    * **Important!**
    *
@@ -30,29 +34,12 @@ class MenuLabel extends AbstractContainerComponent implements MenuItemInterface 
    * PHP string or to an array of PHP strings. So also an object of any class 
    * that implements magic method `__toString()` is allowed.
    * 
-   * @param  mixed $content the content of the component
+   * @param  mixed $content the content of the label
    */
   public function __construct($content = null) {
     parent::__construct('li');
-    $this->cssClasses()->protect('menu-text');
-    $this->setContent($content);
-  }
-
-  /**
-   * Sets the content of the component of the component
-   * 
-   * **Important!**
-   *
-   * Parameter `$content` can be of any type that converts to a
-   * PHP string or to an array of PHP strings. So also an object of any class 
-   * that implements magic method `__toString()` is allowed.
-   *
-   * @param  mixed $content the content of the component
-   * @return $this for a fluent interface
-   */
-  public function setContent($content) {
-    $this->getInnerContainer()->replaceContent($content);
-    return $this;
+    $this->cssClasses()->protectValue('menu-text');
+    $this->append($content);
   }
 
 }

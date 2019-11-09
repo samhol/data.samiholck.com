@@ -1,21 +1,25 @@
 <?php
 
 /**
- * Closable.php (UTF-8)
- * Copyright (c) 2017 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers;
 
 use Sphp\Html\Div;
 use Sphp\Html\Foundation\Sites\Core\ClosableInterface;
-use Sphp\Html\Foundation\Sites\Buttons\CloseButton;
+use Sphp\Html\Foundation\Sites\Controllers\CloseButton;
 
 /**
- * Implements a Foundation Closable.
+ * Implements a Foundation Closable
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class ClosableContainer extends Div implements ClosableInterface {
@@ -26,7 +30,7 @@ class ClosableContainer extends Div implements ClosableInterface {
   private $closeButton;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  mixed|null $content added content
    */
@@ -55,12 +59,12 @@ class ClosableContainer extends Div implements ClosableInterface {
   }
 
   public function setClosable($closable = true) {
-    $this->attributes()->set('data-closable', $closable);
+    $this->attributes()->setAttribute('data-closable', $closable);
     return $this;
   }
 
   public function isClosable(): bool {
-    return $this->attributes()->exists('data-closable');
+    return $this->attributes()->isVisible('data-closable');
   }
 
   public function contentToString(): string {

@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Li.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Lists;
@@ -15,15 +18,16 @@ use Sphp\Html\AjaxLoader;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_li.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Li extends ContainerTag implements LiInterface, AjaxLoader {
+class Li extends ContainerTag implements StandardListItem, AjaxLoader {
 
   use \Sphp\Html\AjaxLoaderTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Important!**
    *

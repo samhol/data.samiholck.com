@@ -1,28 +1,29 @@
 <?php
 
 /**
- * AbstractVideoPlayer.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
 
 use Sphp\Html\AbstractComponent;
-use Sphp\Html\Media\SizeableTrait;
-use Sphp\Html\Media\LazyMediaSourceTrait;
-use Sphp\Stdlib\Networks\URL;
+use Sphp\Network\URL;
 
 /**
  * Implements an abstract iframe based Video component
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-abstract class AbstractVideoPlayer extends AbstractComponent implements VideoPlayerInterface {
+abstract class AbstractVideoPlayer extends AbstractComponent implements VideoPlayer {
 
-  use SizeableTrait,
-      LazyMediaSourceTrait;
+  use \Sphp\Html\Media\SizeableMediaTrait,
+      \Sphp\Html\Media\LazyMediaSourceTrait;
 
   /**
    * the url of the player
@@ -39,9 +40,9 @@ abstract class AbstractVideoPlayer extends AbstractComponent implements VideoPla
   private $videoId;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param  string|URL $url the id of the Vimeo video
+   * @param  string|URL $url the URL of the video
    * @param  string $videoId the id of the embedded video
    * @link   http://www.w3schools.com/tags/att_global_id.asp id attribute
    */
@@ -92,7 +93,7 @@ abstract class AbstractVideoPlayer extends AbstractComponent implements VideoPla
    */
   public function setVideoId($videoId) {
     $this->videoId = $videoId;
-    $this->url->setPath($this->url->getPath() . $videoId);
+    $this->url->setPart(PHP_URL_PATH, $this->url->getPath() . $videoId);
     $this->setAttribute('src', $this->url->getHtml());
     return $this;
   }
@@ -101,7 +102,7 @@ abstract class AbstractVideoPlayer extends AbstractComponent implements VideoPla
     $this->attributes()
             //->set('webkitallowfullscreen', $allow)
             //->set('mozallowfullscreen', $allow)
-            ->set('allowfullscreen', $allow);
+            ->setAttribute('allowfullscreen', $allow);
     return $this;
   }
 
@@ -155,7 +156,7 @@ abstract class AbstractVideoPlayer extends AbstractComponent implements VideoPla
    * @link   https://www.w3schools.com/tags/att_global_title.asp title attribute
    */
   public function setTitle(string $title = null) {
-    $this->attributes()->set('title', $title);
+    $this->attributes()->setAttribute('title', $title);
     return $this;
   }
 

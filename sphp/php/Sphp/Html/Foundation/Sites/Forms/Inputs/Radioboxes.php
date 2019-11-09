@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Radioboxes.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Forms\Inputs;
@@ -14,25 +17,29 @@ use Sphp\Html\Forms\Inputs\ValidableInput;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Radioboxes extends Choiceboxes implements ValidableInput {
 
-  public function __construct(string $name = null, $values = array(), $legend = null) {
+  /**
+   * Constructor
+   *
+   * @param string $name
+   * @param array $values
+   * @param mixed $legend
+   */
+  public function __construct(string $name = null, array $values = [], $legend = null) {
     parent::__construct('radio', $name, $values, $legend);
   }
 
   /**
    * Sets the current submission set of the input component
    *
-   * @param string|string[] $value the current submission set of the input component
+   * @param  mixed $value the current submission set of the input component
    * @return $this for a fluent interface
    */
-  public function setSubmitValue($value) {
-    if (!is_array($value)) {
-      $value = array_pop($value);
-    }
+  public function setInitialValue($value) {
     foreach ($this->getOptionFields() as $opt) {
       if ($opt->getAttribute('value') == $value) {
         $opt->setChecked(true);

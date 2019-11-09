@@ -1,8 +1,11 @@
 <?php
 
 /**
- * AjaxLoaderInterface.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html;
@@ -20,7 +23,8 @@ namespace Sphp\Html;
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://api.jquery.com/load/ jQuery load()
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 interface AjaxLoader {
@@ -29,7 +33,7 @@ interface AjaxLoader {
    * Prepends the remote content into the component using jQuery Ajax
    * 
    * **Important note:** 
-   * This method overrides all previous calls of {@link AjaxLoaderInterface} methods.
+   * This method overrides all previous AJAX calls.
    *
    * @param  string $url the URL to which the request is sent
    * @return $this for a fluent interface

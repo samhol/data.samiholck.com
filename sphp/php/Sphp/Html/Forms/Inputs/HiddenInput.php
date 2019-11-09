@@ -1,8 +1,11 @@
 <?php
 
 /**
- * HiddenInput.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -13,13 +16,13 @@ use Sphp\Html\NonVisualContent;
  * Implements an HTML &lt;input type="hidden"&gt; tag
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class HiddenInput extends AbstractInputTag implements InputField, NonVisualContent {
+class HiddenInput extends AbstractInputTag implements NonVisualContent {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string|null $name name attribute
    * @param  scalar|null $value value attribute

@@ -1,19 +1,22 @@
 <?php
 
 /**
- * SliderInterface.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
 
-use Sphp\Html\Exceptions\InvalidStateException;
+use Sphp\Exceptions\InvalidStateException;
 
 /**
  * Defines a range input for HTML forms
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface RangeInput extends Input {
@@ -30,24 +33,24 @@ interface RangeInput extends Input {
   /**
    * Sets the minimum and maximum values
    *
-   * @param  float $min the start point
-   * @param  float $max the end point
+   * @param  float|null $min the start point
+   * @param  float|null $max the end point
    * @return $this for a fluent interface
    * @throws InvalidStateException if the range is not valid
    */
-  public function setRange(float $min, float $max);
+  public function setRange(float $min = null, float $max = null);
 
   /**
    * Returns the minimum value of the slider
    *
-   * @return float the minimum value of the slider
+   * @return float|null the minimum value of the slider
    */
-  public function getMin(): float;
+  public function getMin(): ?float;
 
   /**
    * Returns the maximum value of the slider
    *
-   * @return float the maximum value of the slider
+   * @return float|null the maximum value of the slider
    */
-  public function getMax(): float;
+  public function getMax(): ?float;
 }

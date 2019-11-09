@@ -1,14 +1,21 @@
 <?php
 
 /**
- * Dropdown.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers;
 
+use Sphp\Html\AbstractContent;
 use Sphp\Html\Content;
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Component;
+use Sphp\Html\Span;
+use Sphp\Html\Div;
+use Sphp\Html\Attributes\PropertyCollectionAttribute;
 
 /**
  * Implements Dropdown HTML component
@@ -19,40 +26,47 @@ use Sphp\Html\ComponentInterface;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/dropdown.html Foundation Dropdown
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Dropdown implements Content {
+class Dropdown extends AbstractContent implements Component {
 
-  use \Sphp\Html\ContentTrait;
+  use \Sphp\Html\ComponentTrait;
 
   private static $sizes = [
       'tiny', 'small', 'large', 'xlarge', 'xxlarge'
   ];
 
   /**
-   * @var ComponentInterface
+   * @var Component
    */
   private $trigger;
 
   /**
-   * @var ComponentInterface
+   * @var Component
    */
   private $dropdown;
 
   /**
-   * Constructs a new instance
+   * @var PropertyCollectionAttribute 
+   */
+  private $options;
+
+  /**
+   * Constructor
    *
    * @param  Content|mixed $trigger the target component for the dropdown functionality
    * @param  mixed $dropdown the dropdown or the content of the dropdown
    */
   public function __construct($trigger, $dropdown) {
-    if (!$dropdown instanceof ComponentInterface) {
-      $dropdown = new \Sphp\Html\Div($dropdown);
+    if (!$dropdown instanceof Component) {
+      $dropdown = new Div($dropdown);
     }
     $this->dropdown = $dropdown;
+    $this->dropdown->attributes()->setInstance($this->options = new PropertyCollectionAttribute('data-options'));
     $this->dropdown->identify();
-    $this->dropdown->cssClasses()->protect('dropdown-pane');
+    $this->dropdown->cssClasses()->protectValue('dropdown-pane');
     $this->dropdown->attributes()->demand('data-dropdown');
     $this->setTrigger($trigger);
   }
@@ -64,11 +78,20 @@ class Dropdown implements Content {
     $this->setTrigger($this->trigger);
   }
 
+  public function setOption(string $name, $value) {
+    if (is_bool($value)) {
+      $value = $value ? 'true' : 'false';
+    }
+    $correctName = lcfirst(str_replace('-', '', ucwords(str_replace('data-', '', $name), '-')));
+    $this->options->setProperty($correctName, $value);
+    return $this;
+  }
+
   public function getDropdown() {
     return $this->dropdown;
   }
 
-  public function setDropdown(ComponentInterface $dropdown) {
+  public function setDropdown(Component $dropdown) {
     $this->dropdown = $dropdown;
     return $this;
   }
@@ -140,7 +163,7 @@ class Dropdown implements Content {
    * @return $this for a fluent interface
    */
   public function setFloat($float = false) {
-    $this->trigger->cssClasses()->remove('float-left float-right');
+    $this->trigger->cssClasses()->remove('float-left', 'float-right');
     if ($float !== false) {
       $this->trigger->cssClasses()->add("float-$float");
     }
@@ -154,8 +177,8 @@ class Dropdown implements Content {
    * @return $this for a fluent interface
    */
   public function setTrigger($trigger) {
-    if (!($trigger instanceof ComponentInterface)) {
-      $trigger = new \Sphp\Html\Span($trigger);
+    if (!($trigger instanceof Component)) {
+      $trigger = new Span($trigger);
     }
     $this->trigger = $trigger
             ->setAttribute('data-toggle', $this->dropdown->identify());
@@ -165,9 +188,9 @@ class Dropdown implements Content {
   /**
    * Returns the trigger component controlling this dropdown
    *
-   * @return ComponentInterface the trigger component controlling this dropdown
+   * @return Component the trigger component controlling this dropdown
    */
-  public function getTrigger() {
+  public function getTrigger(): Component {
     return $this->trigger;
   }
 
@@ -181,11 +204,7 @@ class Dropdown implements Content {
    * @return $this for a fluent interface
    */
   public function closeOnBodyClick(bool $flag = true) {
-    if ($flag) {
-      $this->dropdown->attributes()->set('data-close-on-click', 'true');
-    } else {
-      $this->dropdown->attributes()->set('data-close-on-click', 'false');
-    }
+    $this->setOption('data-close-on-click', $flag);
     return $this;
   }
 
@@ -195,12 +214,12 @@ class Dropdown implements Content {
    * @return $this for a fluent interface
    */
   public function autoFocus(bool $flag = true) {
-    if ($flag) {
-      $this->dropdown->attributes()->set('data-auto-focus', 'true');
-    } else {
-      $this->dropdown->attributes()->set('data-auto-focus', 'false');
-    }
+    $this->setOption('data-auto-focus', $flag);
     return $this;
+  }
+
+  public function attributes(): \Sphp\Html\Attributes\HtmlAttributeManager {
+    return $this->trigger->attributes();
   }
 
 }

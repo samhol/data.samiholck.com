@@ -1,8 +1,11 @@
 <?php
 
 /**
- * PluralTemplate.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\I18n\Messages;
@@ -13,10 +16,10 @@ use Sphp\I18n\TranslatorInterface;
  * Implements a plural translatable message object
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class PluralMessage extends Message {
+class PluralMessage extends AbstractMessage {
 
   /**
    * original raw singular message
@@ -40,10 +43,11 @@ class PluralMessage extends Message {
   private $n;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $singular the singular message text
    * @param  string $plural the plural message text
+   * @param array $args
    * @param  TranslatorInterface|null $translator the translator component
    * @param  null|mixed|mixed[] $isPlural the arguments or null for no arguments
    */
@@ -64,8 +68,8 @@ class PluralMessage extends Message {
   }
 
   /**
-   * @param  boolean $plural the number (e.g. item count) to determine the translation for the respective grammatical number
-   * @return $this for a fluent interface
+   * 
+   * @return boolean
    */
   public function isPlural(): bool {
     return $this->n > 1;

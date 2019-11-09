@@ -1,109 +1,96 @@
 <?php
 
 /**
- * Accordion.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Containers\Accordions;
 
 use IteratorAggregate;
-use Sphp\Html\AbstractContainerComponent;
+use Sphp\Html\Foundation\Sites\Core\JavaScript\AbstractJavaScriptComponent;
 use Sphp\Html\TraversableContent;
-use ArrayIterator;
+use Traversable;
+use Sphp\Html\Iterator;
 
 /**
- * Implements an Foundation 6 Accordion
+ * Implements an Foundation Accordion
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/accordion.html Foundation Accordion
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class Accordion extends AbstractContainerComponent implements IteratorAggregate, TraversableContent {
+class Accordion extends AbstractJavaScriptComponent implements IteratorAggregate, TraversableContent {
 
   use \Sphp\Html\TraversableTrait;
 
   /**
-   * Constructs a new instance
-   *
-   * @param null|Pane|Pane[] $content the value of the target attribute
+   * @var Pane[] 
    */
-  public function __construct($content = null) {
+  private $panels;
+
+  /**
+   * Constructor
+   */
+  public function __construct() {
     parent::__construct('ul');
-    $this->cssClasses()->protect('accordion');
+    $this->cssClasses()->protectValue('accordion');
     $this->attributes()->demand('data-accordion');
-    if ($content !== null) {
-      foreach (is_array($content) ? $content : [$content] as $c) {
-        $this->append($c);
-      }
-    }
+    $this->panels = [];
+  }
+
+  public function __destruct() {
+    parent::__destruct();
+    unset($this->panels);
   }
 
   /**
-   * Prepends a pane component into the accordion
+   * Prepends a pane component
    * 
-   * @param  PaneInterface $pane added component
+   * @param  Pane $pane added component
    * @return $this for a fluent interface
    */
-  public function prepend(PaneInterface $pane) {
-    $this->getInnerContainer()->prepend($pane);
+  public function prepend(Pane $pane) {
+    array_unshift($this->panels, $pane);
     return $this;
   }
 
   /**
-   * Creates and prepends a new pane component into the accordion
+   * Appends a pane component
    * 
-   * @param  mixed $title the content of the pane title
-   * @param  mixed $content the content of the actual pane
+   * @param  Pane $pane added pane component
    * @return $this for a fluent interface
    */
-  public function prependPane($title, $content) {
-    $this->getInnerContainer()->prepend(new Pane($title, $content));
+  public function append(Pane $pane) {
+    $this->panels[] = $pane;
     return $this;
   }
 
   /**
-   * Appends a pane component into the accordion
-   * 
-   * @param  PaneInterface $pane added pane component
-   * @return $this for a fluent interface
-   */
-  public function append(PaneInterface $pane) {
-    $this->getInnerContainer()->append($pane);
-    return $this;
-  }
-
-  /**
-   * Creates and appends a new {@link Pane} component into the accordion
+   * Creates and appends a new HTML pane component
    * 
    * @param  mixed $title the content of the pane title
    * @param  mixed $content the content of the actual pane
-   * @return $this for a fluent interface
+   * @return ContentPane appended instance
    */
-  public function appendPane($title, $content) {
-    $this->getInnerContainer()->append(new Pane($title, $content));
-    return $this;
+  public function appendPane($title, $content = null): ContentPane {
+    $pane = new ContentPane($title, $content);
+    $this->append($pane);
+    return $pane;
   }
 
   /**
    * Returns a new iterator to iterate through inserted components 
    *
-   * @return ArrayIterator iterator
+   * @return Traversable iterator
    */
-  public function getIterator() {
-    return $this->getInnerContainer()->getIterator();
-  }
-
-  /**
-   * Count the number of inserted components in the container
-   *
-   * @return int number of components in the html component
-   * @link   http://php.net/manual/en/class.countable.php Countable
-   */
-  public function count(): int {
-    return $this->getInnerContainer()->count();
+  public function getIterator(): Traversable {
+    return new Iterator($this->panels);
   }
 
   /**
@@ -113,7 +100,7 @@ class Accordion extends AbstractContainerComponent implements IteratorAggregate,
    * @return $this for a fluent interface
    */
   public function setSliderSpeed(int $speed) {
-    $this->attributes()->set('data-slide-speed', $speed);
+    $this->setOption('data-slide-speed', $speed);
     return $this;
   }
 
@@ -124,8 +111,7 @@ class Accordion extends AbstractContainerComponent implements IteratorAggregate,
    * @return $this for a fluent interface
    */
   public function allowMultiExpand(bool $allow = true) {
-    $value = $allow ? 'true' : 'false';
-    $this->attributes()->set('data-multi-expand', $value);
+    $this->setOption('data-multi-expand', $allow);
     return $this;
   }
 
@@ -136,9 +122,26 @@ class Accordion extends AbstractContainerComponent implements IteratorAggregate,
    * @return $this for a fluent interface
    */
   public function allowAllClosed(bool $allow = true) {
-    $value = $allow ? 'true' : 'false';
-    $this->attributes()->set('data-allow-all-closed', $value);
+    $this->setOption('data-allow-all-closed', $allow);
     return $this;
+  }
+
+  /**
+   * Sets whether to allow the accordion to close all panes
+   * 
+   * @param  boolean $deepLinking true for allowing and false otherwise
+   * @return $this for a fluent interface
+   */
+  public function useDeepLinking(bool $deepLinking = true) {
+    $this->setOption('data-deep-link', $deepLinking);
+    $this->setOption('data-update-history', $deepLinking);
+    $this->setOption('data-deep-link-smudge', $deepLinking);
+    $this->setOption('data-deep-link-smudge-delay', 500);
+    return $this;
+  }
+
+  public function contentToString(): string {
+    return implode($this->panels);
   }
 
 }

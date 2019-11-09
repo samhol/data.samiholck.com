@@ -1,18 +1,24 @@
 <?php
 
 /**
- * CodeExampleBuider.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Apps\Syntaxhighlighting;
 
-use Sphp\Html\Content;
+use Sphp\Html\AbstractContent;
 use Sphp\Html\Foundation\Sites\Containers\Accordions\Accordion;
 use Sphp\Html\Foundation\Sites\Containers\Accordions\SyntaxHighlightingPane;
-use Sphp\Html\Foundation\Sites\Containers\Accordions\Pane;
+use Sphp\Html\Foundation\Sites\Containers\Accordions\ContentPane;
 use Sphp\Stdlib\Filesystem;
 use Sphp\Exceptions\RuntimeException;
+use Sphp\Html\Media\Icons\FileIcons;
+use Sphp\Html\Media\Icons\FontAwesome;
+use Sphp\Html\Span;
 
 /**
  * Implements an accordion builder for PHP Example presentation
@@ -20,17 +26,19 @@ use Sphp\Exceptions\RuntimeException;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/accordion.html Foundation Accordion
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class CodeExampleAccordionBuilder implements Content {
-
-  use \Sphp\Html\ContentTrait;
+class CodeExampleAccordionBuilder extends AbstractContent {
 
   const HTMLFLOW = 'html';
   const OUTPUT_TEXT = 'text';
   const EXAMPLECODE = 'code';
 
+  /**
+   * @var atring[] 
+   */
   private $titles = [];
 
   /**
@@ -54,7 +62,7 @@ class CodeExampleAccordionBuilder implements Content {
   private $outputHl = null;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $path the file path of the presented example PHP code
    * @param  string|null $highlightOutput the language name of the output code 
@@ -67,10 +75,6 @@ class CodeExampleAccordionBuilder implements Content {
     $this->useDefaultTitles();
     $this->setOutpputHighlighting($highlightOutput);
     $this->setHtmlFlowVisibility($outputAsHtmlFlow);
-  }
-
-  public function __destruct() {
-    // unset($this->codePane, $this->outputSyntaxPane, $this->outputPane);
   }
 
   /**
@@ -133,9 +137,10 @@ class CodeExampleAccordionBuilder implements Content {
   public function buildAccordion(): Accordion {
     $accordion = new Accordion();
     $accordion->allowAllClosed()
-            ->allowMultiExpand();
-    $accordion->cssClasses()->protect('manual');
-    $accordion->append($this->getCodePane());
+            ->allowMultiExpand()
+            ->useDeepLinking();
+    $accordion->cssClasses()->protectValue('sphp', 'code-example');
+    $accordion->append($this->buildCodePane());
     if ($this->outputHl !== null) {
       $accordion->append($this->buildHighlightedOutput());
     }
@@ -147,8 +152,32 @@ class CodeExampleAccordionBuilder implements Content {
 
   /**
    * 
-   * @return SyntaxHighlightingPane
-   * @throws \Sphp\Exceptions\RuntimeException
+   * @param  string $lang
+   * @param  bool $code
+   * @return Span
+   */
+  public function buildIcons(string $lang, bool $code = false): Span {
+    $span = new Span();
+    $fa = new FontAwesome();
+    $fa->fixedWidth(true);
+    $span->addCssClass('icons');
+    if ($lang === 'text') {
+      $langIcon = $fa->i('fas fa-terminal');
+    } else {
+      $langIcon = $fa->i($lang);
+    }
+    $span->append($langIcon);
+    if ($code) {
+      $tag = $fa->i('fas fa-code');
+      $span->append($tag);
+    }
+    return $span;
+  }
+
+  /**
+   * Builds and returns the highlighted output panel
+   * 
+   * @return SyntaxHighlightingPane new instance of the highlighted output panel
    */
   public function buildHighlightedOutput(): SyntaxHighlightingPane {
     if ($this->outputHl === null) {
@@ -157,35 +186,41 @@ class CodeExampleAccordionBuilder implements Content {
     $outputSyntaxPane = new SyntaxHighlightingPane();
     if ($this->outputHl === 'text') {
       $outputSyntaxPane->useDefaultContentCopyController(false);
+      $icon = FontAwesome::i('fas fa-terminal')->fixedWidth(true);
     } else {
       $outputSyntaxPane->useDefaultContentCopyController(true);
+      $icon = FileIcons::instance()->iconFor($this->outputHl)->addCssClass('fa-fw');
     }
-    $outputSyntaxPane->setPaneTitle($this->titles[self::OUTPUT_TEXT]);
+    $outputSyntaxPane->setPaneTitle($this->buildIcons($this->outputHl, true) . ' ' . $this->titles[self::OUTPUT_TEXT]);
     //$outputSyntaxPane->executeFromFile($this->path, $this->outputHl);
     $outputSyntaxPane->setSource($this->data, $this->outputHl, true);
     return $outputSyntaxPane;
   }
 
   /**
+   * Builds the HTML flow panel
    * 
-   * @return Pane
+   * @return ContentPane new instance of the HTML flow panel
    */
-  public function buildHtmlFlow(): Pane {
-    $outputPane = (new Pane())->addCssClass('html-output');
-    $outputPane->setPaneTitle($this->titles[self::HTMLFLOW]);
+  public function buildHtmlFlow(): ContentPane {
+    $outputPane = (new ContentPane())->addCssClass('html-output');
+    $icon = \Sphp\Html\Media\Icons\FontAwesome::i('fab fa-html5')->fixedWidth(true);
+    $outputPane->setPaneTitle($icon . ' ' . $this->titles[self::HTMLFLOW]);
     $outputPane->append($this->data);
     return $outputPane;
   }
 
   /**
-   * Returns the code panel
+   * Builds and returns the code panel
    *
-   * @return SyntaxHighlightingPane
+   * @return SyntaxHighlightingPane new instance of the code panel
    */
-  public function getCodePane(): SyntaxHighlightingPane {
-    $codePane = (new SyntaxHighlightingPane());
-    $codePane->setPaneTitle($this->titles[self::EXAMPLECODE]);
+  public function buildCodePane(): SyntaxHighlightingPane {
+    $codePane = new SyntaxHighlightingPane();
+    $icon = FileIcons::instance()->iconFor('php')->addCssClass('fa-fw');
+    $codePane->setPaneTitle($icon . ' ' . $this->titles[self::EXAMPLECODE]);
     $codePane->loadFromFile($this->path);
+    $codePane->addCssClass('code');
     return $codePane;
   }
 
@@ -207,7 +242,7 @@ class CodeExampleAccordionBuilder implements Content {
    * @param  string $heading the heading of the example PHP code
    * @return $this for a fluent interface
    */
-  public function setExamplePaneTitle($heading) {
+  public function setExamplePaneTitle(string $heading) {
     $this->titles[self::EXAMPLECODE] = $heading;
     return $this;
   }
@@ -218,7 +253,7 @@ class CodeExampleAccordionBuilder implements Content {
    * @param  string $title the heading of the output component
    * @return $this for a fluent interface
    */
-  public function setOutputSyntaxPaneTitle($title) {
+  public function setOutputSyntaxPaneTitle(string $title) {
     $this->titles[self::OUTPUT_TEXT] = $title;
     return $this;
   }
@@ -229,7 +264,7 @@ class CodeExampleAccordionBuilder implements Content {
    * @param  string $title the heading of the output component
    * @return $this for a fluent interface
    */
-  public function setOutputPaneTitle($title) {
+  public function setOutputPaneTitle(string $title) {
     $this->titles[self::HTMLFLOW] = $title;
     return $this;
   }
@@ -245,7 +280,7 @@ class CodeExampleAccordionBuilder implements Content {
    * @param  string|null $highlightOutput the language name of the output code 
    *         or `null` if highlighted output code should not be visible
    * @param  boolean $outputAsHtmlFlow true for executed HTML result or false for no execution
-   * @throws \Sphp\Exceptions\RuntimeException if the code example path is given and contains no file
+   * @throws RuntimeException if the code example path is given and contains no file
    * @return CodeExampleAccordionBuilder
    */
   public static function build(string $path, string $highlightOutput = null, bool $outputAsHtmlFlow = true): CodeExampleAccordionBuilder {
@@ -259,8 +294,8 @@ class CodeExampleAccordionBuilder implements Content {
    * @param  string|null $highlightOutput the language name of the output code 
    *         or `null` if highlighted output code should not be visible
    * @param  boolean $outputAsHtmlFlow true for executed HTML result or false for no execution
-   * @throws \Sphp\Exceptions\RuntimeException if the code example path is given and contains no file
-   * @return Accordion
+   * @throws RuntimeException if the code example path is given and contains no file
+   * @return void
    */
   public static function visualize(string $path, string $highlightOutput = null, bool $outputAsHtmlFlow = true) {
     (new static($path, $highlightOutput, $outputAsHtmlFlow))->buildAccordion()->printHtml();

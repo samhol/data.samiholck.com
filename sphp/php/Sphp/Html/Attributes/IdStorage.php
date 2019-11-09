@@ -1,8 +1,11 @@
 <?php
 
 /**
- * IdStorage.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
@@ -13,7 +16,8 @@ use Sphp\Stdlib\Strings;
  * Implements a storage for HTML id attribute values
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class IdStorage {
@@ -29,7 +33,7 @@ class IdStorage {
   private $ids = [];
 
   /**
-   * Constructs a new instance
+   * Constructor
    */
   private function __construct() {
     
@@ -65,6 +69,7 @@ class IdStorage {
    * Checks whether the storage contains identifier value
    *
    * @param  string $value the value of the identifier
+   * @param string $for
    * @return boolean true on success or false on failure
    */
   public function contains(string $value, $for = null): bool {
@@ -78,6 +83,7 @@ class IdStorage {
    * Tries to store a new identifier value
    * 
    * @param  string $value the value of the identifier
+   * @param  string $for
    * @return boolean true if stored and `false` otherwise
    */
   public function store(string $value, $for = null): bool {
@@ -88,7 +94,7 @@ class IdStorage {
       $this->ids[$value] = $for;
       return true;
     }
-    print_r($this->ids);
+    //print_r($this->ids);
     return false;
   }
 

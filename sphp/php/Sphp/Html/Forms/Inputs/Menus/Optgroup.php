@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Optgroup.php (UTF-8)
- * Copyright (c) 2012 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs\Menus;
@@ -29,7 +32,7 @@ namespace Sphp\Html\Forms\Inputs\Menus;
 class Optgroup extends AbstractOptionsContainer implements MenuComponent {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **`$opt` types:**
    * 
@@ -57,17 +60,17 @@ class Optgroup extends AbstractOptionsContainer implements MenuComponent {
    * @link   http://www.w3schools.com/tags/att_optgroup_label.asp label attribute
    */
   public function setLabel(string $label) {
-    $this->attributes()->set('label', $label);
+    $this->attributes()->setAttribute('label', $label);
     return $this;
   }
 
   public function disable(bool $disabled = true) {
-    $this->attributes()->set('disabled', $disabled);
+    $this->attributes()->setAttribute('disabled', $disabled);
     return $this;
   }
 
   public function isEnabled(): bool {
-    return !$this->attributes()->exists('disabled');
+    return !$this->attributes()->isVisible('disabled');
   }
 
 }

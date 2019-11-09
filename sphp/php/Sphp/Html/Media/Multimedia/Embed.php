@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Embed.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
@@ -21,16 +24,16 @@ use Sphp\Html\Media\SizeableMedia;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_embed.asp w3schools API
  * @link    http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#the-img-element W3C API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Embed extends EmptyTag implements Embeddable, LazyMedia, SizeableMedia {
 
-  use \Sphp\Html\Media\SizeableTrait,
+  use \Sphp\Html\Media\SizeableMediaTrait,
       \Sphp\Html\Media\LazyMediaSourceTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $src specifies the address of the external file to embed
    * @param string $type specifies the MIME type of the embedded content
@@ -58,7 +61,7 @@ class Embed extends EmptyTag implements Embeddable, LazyMedia, SizeableMedia {
    * @link   http://www.w3schools.com/tags/att_embed_type.asp type attribute
    */
   public function setType(string $type) {
-    $this->attributes()->set('type', $type);
+    $this->attributes()->setAttribute('type', $type);
     return $this;
   }
 

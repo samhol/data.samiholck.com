@@ -1,15 +1,17 @@
 <?php
 
 /**
- * AbstractAttributeManager.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Attributes;
 
 use Sphp\Stdlib\Arrays;
-use Sphp\Html\Attributes\Exceptions\InvalidAttributeException;
-
+use Sphp\Exceptions\InvalidArgumentException;
 /**
  * Abstract implementation of attribute manager for HTML components
  * 
@@ -17,7 +19,8 @@ use Sphp\Html\Attributes\Exceptions\InvalidAttributeException;
  * object
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class AttributeGenerator {
@@ -37,11 +40,11 @@ class AttributeGenerator {
   // private static $c = 0;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param string $defaultType
    */
-  public function __construct(string $defaultType = MutableAttributeInterface::class) {
+  public function __construct(string $defaultType = Attribute::class) {
     $this->defaultType = $defaultType;
     // self::$c++;
     // var_dump(self::$c);
@@ -80,27 +83,14 @@ class AttributeGenerator {
    * @param  string $type the object type of the attribute
    * @param  mixed $param optional parameters injected to the generated object
    * @return $this for a fluent interface
-   * @throws InvalidAttributeException if the requested attribute type is invalid
+   * @throws InvalidArgumentException if the requested attribute type is invalid
    */
   public function mapType(string $name, string $type, ...$param) {
     if (!$this->isValidType($name, $type)) {
-      throw new InvalidAttributeException("Attribute '$name' must extend type : '{$this->getActualType($name)}'");
+      throw new InvalidArgumentException("Attribute '$name' must extend type : '{$this->getValidType($name)}', $type given");
     }
     array_unshift($param, $name);
     $this->map[$name] = ['type' => $type, 'params' => $param];
-    return $this;
-  }
-
-  /**
-   * Maps a pattern object type with an attribute name
-   * 
-   * @param  string $name
-   * @param  string $pattern
-   * @return $this for a fluent interface
-   * @throws InvalidAttributeException
-   */
-  public function mapPatternAttribute(string $name, string $pattern) {
-    $this->mapType($name, PatternAttribute::class, $pattern);
     return $this;
   }
 
@@ -111,8 +101,8 @@ class AttributeGenerator {
    */
   public function getActualType(string $name): string {
     $type = $this->getValidType($name);
-    if ($type === MutableAttributeInterface::class) {
-      $type = Attribute::class;
+    if ($type === Attribute::class) {
+      $type = GeneralAttribute::class;
     }
     return $type;
   }
@@ -178,13 +168,11 @@ class AttributeGenerator {
    * Returns a new instance of the attribute object
    *
    * @param  string $name the name of the attribute
-   * @return MutableAttributeInterface the mapped attribute object or null
+   * @return Attribute the mapped attribute object or null
    */
-  public function createObject(string $name): MutableAttributeInterface {
+  public function createObject(string $name): Attribute {
     $type = $this->getActualType($name);
     $params = $this->getParametersFor($name);
-
-    //print_r($params);
     $class = new \ReflectionClass($type);
     $instance = $class->newInstanceArgs($params);
     return $instance;

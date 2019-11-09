@@ -1,17 +1,20 @@
 <?php
 
 /**
- * Dl.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Lists;
 
-use Sphp\Html\AbstractContainerComponent;
+use Sphp\Html\AbstractComponent;
 use Sphp\Html\TraversableContent;
 use IteratorAggregate;
 use Sphp\Html\Attributes\HtmlAttributeManager;
-use Sphp\Html\ContainerInterface;
+use Sphp\Html\Iterator;
 use Traversable;
 
 /**
@@ -22,21 +25,26 @@ use Traversable;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_dl.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Dl extends AbstractContainerComponent implements IteratorAggregate, TraversableContent {
+class Dl extends AbstractComponent implements IteratorAggregate, TraversableContent {
 
   use \Sphp\Html\TraversableTrait;
 
   /**
-   * Constructs a new instance
+   * @var DlContent[] 
+   */
+  private $items = [];
+
+  /**
+   * Constructor
    *
    * @param  HtmlAttributeManager|null $attrManager the attribute manager of the component
-   * @param  ContainerInterface|null $contentContainer the inner content container of the component
    */
-  public function __construct(HtmlAttributeManager $attrManager = null, ContainerInterface $contentContainer = null) {
-    parent::__construct('dl', $attrManager, $contentContainer);
+  public function __construct(HtmlAttributeManager $attrManager = null) {
+    parent::__construct('dl', $attrManager);
   }
 
   /**
@@ -46,7 +54,7 @@ class Dl extends AbstractContainerComponent implements IteratorAggregate, Traver
    * @return $this for a fluent interface
    */
   public function append(DlContent $it) {
-    $this->getInnerContainer()->append($it);
+    $this->items[] = $it;
     return $this;
   }
 
@@ -63,22 +71,6 @@ class Dl extends AbstractContainerComponent implements IteratorAggregate, Traver
   }
 
   /**
-   * Appends {@link Dt} term component to the list
-   *
-   * @param  mixed $terms the term component or its content
-   * @return $this for a fluent interface
-   */
-  public function appendTerms($terms) {
-    foreach ((is_array($terms)) ? $terms : [$terms] as $term) {
-      if (!($term instanceof DlContentInterface)) {
-        $term = new Dt($term);
-      }
-      $this->append($term);
-    }
-    return $this;
-  }
-
-  /**
    * Creates and appends a description to the list
    *
    * @param  mixed $content the description content
@@ -91,17 +83,14 @@ class Dl extends AbstractContainerComponent implements IteratorAggregate, Traver
   }
 
   /**
-   * Appends {@link Dd} description component to the list
+   * Creates and appends a description to the list
    *
-   * @param  mixed $descriptions the description components or their content
-   * @return $this for a fluent interface
+   * @param  iterable $content the description content
+   * @return Dt appended instance
    */
-  public function appendDescriptions($descriptions) {
-    foreach ((is_array($descriptions)) ? $descriptions : [$descriptions] as $description) {
-      if (!($description instanceof DlContentInterface)) {
-        $description = new Dd($description);
-      }
-      $this->append($description);
+  public function appendDescriptions(iterable $content) {
+    foreach ($content as $dd) {
+      $this->appendDescription($dd);
     }
     return $this;
   }
@@ -113,16 +102,30 @@ class Dl extends AbstractContainerComponent implements IteratorAggregate, Traver
    * @return $this for a fluent interface
    */
   public function prepend(DlContent $it) {
-    $this->getInnerContainer()->prepend($it);
+    array_unshift($this->items, $it);
     return $this;
   }
 
+  /**
+   * Checks whether an item exists in the list
+   * 
+   * @param  DlContent $item
+   * @return bool true if exists and false otherwise
+   */
+  public function contains(DlContent $item): bool {
+    return in_array($item, $this->items, true);
+  }
+
   public function count(): int {
-    return $this->getInnerContainer()->count();
+    return count($this->items);
   }
 
   public function getIterator(): Traversable {
-    return $this->getInnerContainer();
+    return new Iterator($this->items);
+  }
+
+  public function contentToString(): string {
+    return implode($this->items);
   }
 
 }

@@ -1,14 +1,16 @@
 <?php
 
 /**
- * SyntaxhighlighterContainerTrait.php (UTF-8)
- * Copyright (c) 2016 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Apps\Syntaxhighlighting;
 
-use Sphp\Html\Apps\SyntaxHighlighterInterface;
-use Sphp\Html\ComponentInterface;
+use Sphp\Html\Component;
 use Sphp\Html\Apps\ContentCopyController;
 
 /**
@@ -17,7 +19,8 @@ use Sphp\Html\Apps\ContentCopyController;
  * The sum of the column widths in a row should never exceed 12.
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 trait SyntaxhighlighterContainerTrait {
@@ -25,17 +28,17 @@ trait SyntaxhighlighterContainerTrait {
   /**
    * Returns the syntax highlighting object
    * 
-   * @return SyntaxHighlighterInterface the syntax highlighting object
+   * @return SyntaxHighlighter the syntax highlighting object
    */
-  abstract public function getSyntaxHighlighter(): SyntaxHighlighterInterface;
+  abstract public function getSyntaxHighlighter(): SyntaxHighlighter;
 
   /**
    * Attaches a new copy controller
    *
-   * @param  ComponentInterface|null $button button or button content
+   * @param  Component $button button or button content
    * @return ContentCopyController the attached controller
    */
-  public function attachContentCopyController(ComponentInterface $button = null) {
+  public function attachContentCopyController(Component $button): ContentCopyController {
     return $this->getSyntaxHighlighter()->attachContentCopyController($button);
   }
 
@@ -55,10 +58,10 @@ trait SyntaxhighlighterContainerTrait {
    * Sets the copier button
    *
    * @param  mixed $content the actual controller or the content of the controller
-   * @return $this for a fluent interface
+   * @return ContentCopyController the controller set
    */
-  public function setDefaultContentCopyController($content = 'Copy') {
-    $this->getSyntaxHighlighter()->loadFromFile($content);
+  public function setContentCopyController($content = 'Copy'): ContentCopyController {
+    $this->getSyntaxHighlighter()->setContentCopyController($content);
     return $this;
   }
 

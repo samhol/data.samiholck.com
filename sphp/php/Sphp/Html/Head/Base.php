@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Base.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Head;
@@ -19,12 +22,13 @@ use Sphp\Html\NonVisualContent;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_base.asp w3schools HTML API
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class Base extends EmptyTag implements HeadContent, NonVisualContent {
+class Base extends EmptyTag implements OverlappingHeadContent, NonVisualContent {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  string $href an absolute URL that acts as the base URL
    * @param  string $target specifies the default target for all hyperlinks and forms in the page
@@ -66,6 +70,10 @@ class Base extends EmptyTag implements HeadContent, NonVisualContent {
    */
   public function setTarget(string $target) {
     return $this->setAttribute('target', $target);
+  }
+
+  public function overlapsWith(HeadContent $other): bool {
+    return $other instanceof Base;
   }
 
 }

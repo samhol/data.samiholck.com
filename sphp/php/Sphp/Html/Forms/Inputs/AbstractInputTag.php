@@ -1,8 +1,11 @@
 <?php
 
 /**
- * AbstractInputTag.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs;
@@ -19,32 +22,28 @@ use Sphp\Html\EmptyTag;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_input.asp w3schools HTML
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-abstract class AbstractInputTag extends EmptyTag implements IdentifiableInput {
+abstract class AbstractInputTag extends EmptyTag implements Input {
 
   use InputTagTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
-   * @param  string $type the value of the type attribute
+   * @param  string|null $type the value of the type attribute
    * @param  string|null $name the value of the name attribute
    * @param  string|null $value the value of the value attribute
    * @link   http://www.w3schools.com/tags/att_input_type.asp type attribute
    * @link   http://www.w3schools.com/tags/att_input_name.asp name attribute
    * @link   http://www.w3schools.com/tags/att_input_value.asp value attribute
    */
-  public function __construct(string $type, string $name = null, $value = null) {
+  public function __construct(string $type = null, string $name = null, $value = null) {
     parent::__construct('input');
     $this->attributes()->protect('type', $type);
-    if ($name !== null) {
-      $this->setName($name);
-    }
-    if ($value !== null) {
-      $this->setSubmitValue($value);
-    }
+    $this->setName($name);
+    $this->setInitialValue($value);
   }
 
 }

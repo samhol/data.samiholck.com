@@ -1,8 +1,11 @@
 <?php
 
 /**
- * SelectMenuInterface.php (UTF-8)
- * Copyright (c) 2011 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Forms\Inputs\Menus;
@@ -30,7 +33,7 @@ use Sphp\Html\TraversableContent;
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_select.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 interface SelectMenuInterface extends ValidableInput, TraversableContent {
@@ -72,7 +75,7 @@ interface SelectMenuInterface extends ValidableInput, TraversableContent {
    * **Note:** In Chrome and Safari, this attribute may not work as 
    *  expected for size="2" and size="3".
    * 
-   * @param  int|null $size optional number of visible &lt;option&gt; components
+   * @param  int $size optional number of visible &lt;option&gt; components
    * @return $this for a fluent interface
    */
   public function setSize(int $size = null);

@@ -1,18 +1,20 @@
 <?php
 
 /**
- * UniquePriorityQueue.php (UTF-8)
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Stdlib\Datastructures;
 
 use IteratorAggregate;
 use Countable;
-use Sphp\Stdlib\Arrays;
 use Traversable;
 use ArrayIterator;
-use UnderflowException;
+use Sphp\Exceptions\UnderflowException;
 
 /**
  * Implements an unique priority queue
@@ -21,10 +23,10 @@ use UnderflowException;
  * 
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://php.net/manual/en/class.splpriorityqueue.php the SplPriorityQueue class
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
-class UniquePriorityQueue implements IteratorAggregate, Countable, QueueInterface, Arrayable {
+class UniquePriorityQueue implements IteratorAggregate, Countable, Queue, Arrayable {
 
   /**
    * the inner container
@@ -34,7 +36,7 @@ class UniquePriorityQueue implements IteratorAggregate, Countable, QueueInterfac
   private $queue;
 
   /**
-   * Constructs a new instance
+   * Constructor
    */
   public function __construct() {
     $this->queue = [];
@@ -51,17 +53,6 @@ class UniquePriorityQueue implements IteratorAggregate, Countable, QueueInterfac
   }
 
   /**
-   * Clones the object
-   *
-   * **Note:** Method cannot be called directly!
-   *
-   * @link http://www.php.net/manual/en/language.oop5.cloning.php#object.clone PHP Object Cloning
-   */
-  public function __clone() {
-    $this->queue = Arrays::copy($this->queue);
-  }
-
-  /**
    * Attempts to add a value to the queue
    * 
    * 1. A Value will not be inserted if it already exists in the queue with higher priority
@@ -74,67 +65,45 @@ class UniquePriorityQueue implements IteratorAggregate, Countable, QueueInterfac
    * @return $this for a fluent interface
    */
   public function enqueue($value, int $priority = 0) {
-    $oldPriority = $this->getPriority($value);
-    //echo "enqueue:$value\n";
-    if ($oldPriority === false) {
-      //echo "enqueueing1:$value\n";
-      $this->queue[(int) $priority][] = $value;
-      ksort($this->queue);
-      // print_r($this->queue);
-    } else if ($priority < $oldPriority) {
-      $this->remove($value);
-      $this->queue[(int) $priority][] = $value;
-      ksort($this->queue);
-      //echo "enqueueing2:$value\n";
-    }
-    //print_r($this->queue);
-    //reset($this->queue);
+    $this->queue[$priority][] = $value;
+    krsort($this->queue);
     return $this;
   }
 
   /**
-   * Removes the given value from the queue
+   * Removes all instances of the given value from the queue
    * 
-   * @param  mixed $value the value to delete
+   * @param  mixed $value the value to remove
    * @return $this for a fluent interface
    */
   public function remove($value) {
     $f = function($val) use($value) {
-      if (is_array($val)) {
-        return !empty($val);
-      } else {
-        return $value !== $val;
-      }
+      return $value !== $val;
     };
-    $this->queue = Arrays::filterRecursive($this->queue, $f);
+    foreach ($this->queue as $priority => $bucket) {
+      $this->queue[$priority] = array_filter($bucket, $f);
+      if (empty($this->queue[$priority])) {
+        unset($this->queue[$priority]);
+      }
+    }
     return $this;
   }
 
   /**
-   * Returns the priority of the given value
-   * 
-   * @param  mixed $value the value to check for
-   * @return int|boolean the priority of the value or false if value is not in the queue
-   */
-  public function getPriority($value): int {
-    $result = -1;
-    foreach ($this->queue as $priority => $values) {
-      if (in_array($value, $values, true)) {
-        $result = $priority;
-        break;
-      }
-    }
-    return $result;
-  }
-
-  /**
-   * Checks if the queue already contains a specific value
+   * Checks if the queue contains a specific value
    * 
    * @param  mixed $value
    * @return boolean true if the value is in the queue, false otherwise
    */
-  public function contains($value) {
-    return Arrays::inArray($value, $this->queue);
+  public function contains($value): bool {
+    $result = false;
+    foreach ($this->queue as $bucket) {
+      $result = in_array($value, $bucket);
+      if ($result) {
+        break;
+      }
+    }
+    return $result;
   }
 
   /**
@@ -143,16 +112,24 @@ class UniquePriorityQueue implements IteratorAggregate, Countable, QueueInterfac
    */
   public function dequeue() {
     //var_dump($this->queue);
-    $values = reset($this->queue);
+    reset($this->queue);
+    $priority = key($this->queue);
+    if ($priority === null) {
+      throw new UnderflowException('Cannot dequeue from an empty queue');
+    }
     // var_dump($values);
     //var_dump($this->queue);
-    if (is_array($values) && count($values) > 0) {
-      $value = array_shift($values);
-      if (empty($values)) {
-        array_shift($this->queue);
+    //echo "priority: $priority\n";
+    if (is_array($this->queue[$priority])) {
+      if (!empty($this->queue[$priority])) {
+
+        $value = array_shift($this->queue[$priority]);
+        //echo "\n$value";
       }
-    } else {
-      throw new UnderflowException('Cannot dequeue from an empty queue');
+      if (empty($this->queue[$priority])) {
+        //echo "emprty";
+        unset($this->queue[$priority]);
+      }
     }
     return $value;
   }
@@ -162,7 +139,12 @@ class UniquePriorityQueue implements IteratorAggregate, Countable, QueueInterfac
   }
 
   public function peek() {
-    return 'a';
+    reset($this->queue);
+    $priority = key($this->queue);
+    if ($priority === null) {
+      throw new UnderflowException('Cannot peek from an empty queue');
+    }
+    return reset($this->queue[$priority]);
   }
 
   /**
@@ -183,7 +165,7 @@ class UniquePriorityQueue implements IteratorAggregate, Countable, QueueInterfac
    * 
    * @return Traversable external iterator
    */
-  public function getIterator() {
+  public function getIterator(): Traversable {
     return new ArrayIterator($this->toArray());
   }
 

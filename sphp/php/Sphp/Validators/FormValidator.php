@@ -1,35 +1,34 @@
 <?php
 
 /**
- * FormValidator.php (UTF-8)
- * Copyright (c) 2013 Sami Holck <sami.holck@gmail.com>.
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Validators;
-
-use Sphp\I18n\Collections\TranslatableCollection;
-use Sphp\Stdlib\Arrays;
-use Sphp\Stdlib\Datastructures\Collection;
-use Traversable;
 
 /**
  * Validates given form data
  *
  * @author  Sami Holck <sami.holck@gmail.com>
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class FormValidator extends AbstractValidator implements \Countable, \IteratorAggregate {
+class FormValidator extends AbstractValidator {
 
   /**
-   * @var TranslatableCollection 
+   * `ID` for invalid form data error message
    */
-  private $inputErrors;
+  const INVALID_FORM_DATA = '_invalid.form.data_';
 
   /**
    * inner validators
    * 
-   * @var ValidatorInterface[]
+   * @var Validator[]
    */
   private $validators;
 
@@ -37,72 +36,46 @@ class FormValidator extends AbstractValidator implements \Countable, \IteratorAg
    * Constructs a new validator
    */
   public function __construct() {
-    parent::__construct('The form has errors');
-    $this->setMessageTemplate(self::INVALID, 'The form has errors');
+    parent::__construct('Invalid form data');
+    $this->errors()->setTemplate(self::INVALID_FORM_DATA, 'Value of %s type given. An array expected');
     $this->validators = [];
-    $this->inputErrors = new TranslatableCollection();
+  }
+
+  public function __destruct() {
+    unset($this->validators);
+    parent::__destruct();
   }
 
   /**
-   * Returns error concerning each input messages
-   * 
-   * @return TranslatableCollection
+   * Clones the object
+   *
+   * **Note:** Method cannot be called directly!
+   *
+   * @link http://www.php.net/manual/en/language.oop5.cloning.php#object.clone PHP Object Cloning
    */
-  public function getInputErrors(): TranslatableCollection {
-    return $this->inputErrors;
-  }
-
-  /**
-   * Resets the validator to for revalidation
-   * 
-   * @return $this for a fluent interface
-   */
-  public function reset() {
-    foreach ($this->validators as $validator) {
-      $validator->reset();
-    }
-    $this->inputErrors->clearContent();
-    parent::reset();
-    return $this;
+  public function __clone() {
+    $this->validators = Arrays::copy($this->validators);
+    parent::__clone();
   }
 
   public function isValid($value): bool {
-    $this->reset();
-    $valid = true;
+    $this->setValue($value);
     if (!is_array($value)) {
-      //echo 'Invalid type given. String, integer or float expected';
-      $this->error(self::INVALID);
+      $this->errors()->appendErrorFromTemplate(self::INVALID_FORM_DATA, [gettype($value)]);
       return false;
     }
+    $valid = true;
     foreach ($this->validators as $inputName => $validator) {
-      if (!$validator->isValid(Arrays::getValue($value, $inputName))) {
+      $inputValue = $value[$inputName] ?? null;
+      if (!$validator->isValid($inputValue)) {
         $valid = false;
-        //var_dump($validator->getErrors());
-        $this->inputErrors->offsetSet($inputName, $validator->getErrors());
+        $this->errors()[$inputName] = $validator->errorsToArray();
       }
     }
     if (!$valid) {
-      $this->error(self::INVALID);
+     // $this->errors()->appendErrorFromTemplate(self::INVALID);
     }
     return $valid;
-  }
-
-  /**
-   * Returns the number of the validable input names
-   *
-   * @return int the number of the validable input names
-   */
-  public function count(): int {
-    return $this->validators->count();
-  }
-
-  /**
-   * Create a new iterator to iterate through the validators
-   *
-   * @return Traversable iterator
-   */
-  public function getIterator(): Traversable {
-    return new Collection($this->validators);
   }
 
   /**
@@ -111,7 +84,7 @@ class FormValidator extends AbstractValidator implements \Countable, \IteratorAg
    * @param  string $inputName the name of the validable input
    * @return boolean true if the input name has validators attached to it, false if not
    */
-  public function exists(string $inputName) {
+  public function hasValidator(string $inputName): bool {
     return isset($this->validators[$inputName]);
   }
 
@@ -119,25 +92,47 @@ class FormValidator extends AbstractValidator implements \Countable, \IteratorAg
    * Returns the validator object of the named input value
    * 
    * @param  string $inputName the name of the validable input
-   * @return ValidatorInterface|null the validator object or null
+   * @return Validator|null the validator object or null
    */
-  public function get(string $inputName) {
-    if ($this->exists($inputName)) {
+  public function getValidator(string $inputName): ?Validator {
+    if ($this->hasValidator($inputName)) {
       return $this->validators[$inputName];
     }
-    return null;
+    throw new \Sphp\Exceptions\OutOfBoundsException;
   }
 
   /**
    * Sets a validator object for the named input value
    * 
    * @param  string $inputName the name of the validable input
-   * @param  ValidatorInterface $validator the validator object
+   * @param  Validator $validator the validator object
    * @return $this for a fluent interface
    */
-  public function set(string $inputName, ValidatorInterface $validator) {
+  public function setValidator(string $inputName, Validator $validator) {
     $this->validators[$inputName] = $validator;
     return $this;
+  }
+
+  /**
+   * Sets a validator object for the named input value
+   * 
+   * @param  string $inputName the name of the validable input
+   * @param  Validator $validator the validator object
+   * @return ValidatorChain for a fluent interface
+   */
+  public function setValidatorChain(string $inputName, Validator ...$validator): ValidatorChain {
+    $chain = new ValidatorChain();
+    $chain->appendValidator($validator);
+    $this->validators[$inputName] = $chain;
+    return $chain;
+  }
+
+  public function getInputErrors(): array {
+    $output = [];
+    foreach ($this->validators as $inputName => $validator) {
+      $output[$inputName] = $validator->errorsToArray();
+    }
+    return $output;
   }
 
 }

@@ -1,14 +1,17 @@
 <?php
 
 /**
- * Video.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Media\Multimedia;
 
 use Sphp\Html\Media\SizeableMedia;
-use Sphp\Html\Media\SizeableTrait;
+use Sphp\Html\Media\SizeableMediaTrait;
 use Sphp\Html\Media\LazyMedia;
 
 /**
@@ -16,15 +19,15 @@ use Sphp\Html\Media\LazyMedia;
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://www.w3schools.com/tags/tag_video.asp w3schools HTML API
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
  * @filesource
  */
 class Video extends AbstractMultimediaTag implements SizeableMedia, LazyMedia {
 
-  use SizeableTrait;
+  use SizeableMediaTrait;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param mixed $sources optional sources
    */
@@ -60,7 +63,7 @@ class Video extends AbstractMultimediaTag implements SizeableMedia, LazyMedia {
    * @link   http://www.w3schools.com/tags/att_video_poster.asp poster attribute
    */
   public function setPoster(string $poster = null) {
-    $this->attributes()->set('poster', $poster);
+    $this->attributes()->setAttribute('poster', $poster);
     return $this;
   }
 

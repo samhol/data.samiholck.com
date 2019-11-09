@@ -1,33 +1,38 @@
 <?php
 
 /**
- * MenuLink.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Navigation;
 
-use Sphp\Html\Lists\HyperlinkListItem;
+use Sphp\Html\Navigation\HyperlinkContainer;
+use Sphp\Html\Navigation\A;
 
 /**
- * Implements a hyperlink component for the Dropown menu component
+ * Implements a hyperlink component for the menu component
  *
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/docs/components/subnav.html Foundation Sub Nav
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
-class MenuLink extends HyperlinkListItem implements MenuItemInterface {
+class MenuLink extends HyperlinkContainer implements MenuItem {
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * **Notes:**
    *
-   * * The href attribute specifies the URL of the page the link goes to.
-   * * If the href attribute is not present, the &lt;a&gt; tag is not a hyperlink.
-   * * If the $content is empty, the $href is also the content of the object.
+   * * The `href` attribute specifies the URL of the page the link goes to.
+   * * If the `href` attribute is not present, the &lt;a&gt; tag is not a hyperlink.
+   * * If the $content is empty, the `$href` is also the content of the object.
    *
    * @param  string $href the URL of the link
    * @param  string $content link tag's content
@@ -36,7 +41,7 @@ class MenuLink extends HyperlinkListItem implements MenuItemInterface {
    * @link   http://www.w3schools.com/tags/att_a_target.asp target attribute
    */
   public function __construct(string $href = '', $content = null, string $target = null) {
-    parent::__construct($href, $content, $target);
+    parent::__construct('li', new A($href, $content, $target));
   }
 
   /**

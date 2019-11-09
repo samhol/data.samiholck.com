@@ -1,8 +1,11 @@
 <?php
 
 /**
- * ResponsiveEmbed.php (UTF-8)
- * Copyright (c) 2014 Sami Holck <sami.holck@gmail.com>
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
+ *
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 namespace Sphp\Html\Foundation\Sites\Media;
@@ -27,7 +30,8 @@ use Sphp\Html\Media\Multimedia\YoutubePlayer;
  * @author  Sami Holck <sami.holck@gmail.com>
  * @link    http://foundation.zurb.com/ Foundation
  * @link    http://foundation.zurb.com/sites/docs/responsive-embed.html Responsive Embed
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPLv3
+ * @license https://opensource.org/licenses/MIT The MIT License
+ * @link    https://github.com/samhol/SPHP-framework GitHub repository
  * @filesource
  */
 class ResponsiveEmbed extends AbstractComponent implements ResponsiveEmbedInterface, LazyMedia {
@@ -35,26 +39,26 @@ class ResponsiveEmbed extends AbstractComponent implements ResponsiveEmbedInterf
   /**
    * @var Embeddable
    */
-  private $iframe;
+  private $embed;
 
   /**
-   * Constructs a new instance
+   * Constructor
    *
    * @param  Embeddable $media the embeddable component
    */
   public function __construct(Embeddable $media) {
     parent::__construct('div');
-    $this->cssClasses()->protect('responsive-embed');
-    $this->iframe = $media;
+    $this->cssClasses()->protectValue('responsive-embed');
+    $this->setEmbeddable($media);
   }
 
   public function __destruct() {
-    unset($this->iframe);
+    unset($this->embed);
     parent::__destruct();
   }
 
   public function __clone() {
-    $this->iframe = clone $this->iframe;
+    $this->embed = clone $this->embed;
     parent::__clone();
   }
 
@@ -65,7 +69,7 @@ class ResponsiveEmbed extends AbstractComponent implements ResponsiveEmbedInterf
    * @return $this for a fluent interface
    */
   protected function setEmbeddable(Embeddable $media) {
-    $this->iframe = $media;
+    $this->embed = $media;
     return $this;
   }
 
@@ -75,7 +79,7 @@ class ResponsiveEmbed extends AbstractComponent implements ResponsiveEmbedInterf
    * @return Embeddable the actual embeddable component
    */
   public function getEmbeddable(): Embeddable {
-    return $this->iframe;
+    return $this->embed;
   }
 
   public function setAspectRatio(string $ratio) {
@@ -97,11 +101,11 @@ class ResponsiveEmbed extends AbstractComponent implements ResponsiveEmbedInterf
   }
 
   public function contentToString(): string {
-    return $this->iframe->getHtml();
+    return $this->getEmbeddable()->getHtml();
   }
 
   /**
-   * Returns a new instance containing an {@link Iframe} instance
+   * Returns a new instance containing an Iframe instance
    * 
    * @param  string $src the path to the presented file
    * @return ResponsiveEmbed new instance containing a {@link Iframe} instance
@@ -111,7 +115,7 @@ class ResponsiveEmbed extends AbstractComponent implements ResponsiveEmbedInterf
   }
 
   /**
-   * Returns a new instance containing a {@link ViewerJS} instance
+   * Returns a new instance containing a ViewerJS instance
    * 
    * @param  string $src the path to the presented file
    * @return ResponsiveEmbed new instance containing a {@link ViewerJS} instance
@@ -139,7 +143,7 @@ class ResponsiveEmbed extends AbstractComponent implements ResponsiveEmbedInterf
    */
   public static function vimeo(string $videoId): ResponsiveEmbed {
     $player = new static(new VimeoPlayer($videoId));
-    $player->cssClasses()->protect('vimeo');
+    $player->cssClasses()->protectValue('vimeo');
     return $player;
   }
 

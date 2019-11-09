@@ -1,29 +1,30 @@
 /**
- * _sphp-back-to-top-button.scss (UTF-8)
+ * SPHPlayground Framework (http://playgound.samiholck.com/)
  *
- * Copyright (c) 2015 Sami Holck <sami.holck@gmail.com>
+ * @link      https://github.com/samhol/SPHP-framework for the source repository
+ * @copyright Copyright (c) 2007-2018 Sami Holck <sami.holck@gmail.com>
+ * @license   https://opensource.org/licenses/MIT The MIT License
  */
 
 @charset "UTF-8";
-
-div.sphp-back-to-top-button {
-  cursor: pointer;
-  position: fixed;
-  bottom: rem-calc(15);
-  right: rem-calc(45);
-  text-decoration: none;
-  padding: 0;
-  display: none;
-  font-size: rem-calc(80);
-  color: #555;
-  @include single-text-shadow(0, 0, 4px, 2px, #ff8000);
-  //@include text-shadow(#333 0px 0px 3px, rgba(#FF8000, 0.6) 2px 2px 1px, rgba(#FF8000, 0.2) -2px -2px 1px);
-  @include transition-property(all);
-  @include transition-duration(0.3s);
-  @include transition-timing-function(ease-in-out);
-  @include opacity(0.6);
-  &:hover {
-    @include opacity(0.75);
-    @include transform(rotate(360deg) scale(1.1, 1.1));
+@mixin sphp-back-to-top-button() {
+  div.sphp-back-to-top-button {
+    cursor: pointer;
+    position: fixed;
+    bottom: rem-calc(15);
+    right: rem-calc(45);
+    text-decoration: none;
+    padding: 0;
+    display: none;
+    font-size: rem-calc(80); 
+    color: #555;
+    @include transition(all, 0.6s, ease-in-out);
+    @include opacity(0.6);
+    &:hover {
+      @include opacity(0.9);
+      @include transform(rotate(360deg) scale(1.1, 1.1));
+      color: #ff8000; 
+    } 
   }
 }
+
